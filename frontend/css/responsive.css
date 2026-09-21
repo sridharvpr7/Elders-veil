@@ -1,0 +1,50 @@
+@media (max-width: 1024px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links, .nav-search {
+    display: none;
+  }
+  .mobile-toggle {
+    display: block;
+  }
+  .hero-content {
+    padding: 1.75rem;
+  }
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  .comic-detail-content {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .comic-cover-wrap {
+    width: 180px;
+  }
+  .comic-actions {
+    justify-content: center;
+  }
+  .comic-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+  .reader-header {
+    padding: 0 1rem;
+  }
+  .reader-comic-title {
+    font-size: 0.95rem;
+  }
+}

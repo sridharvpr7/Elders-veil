@@ -1,106 +1,76 @@
-# ComicVerse - Full-Stack Web Comic Reading Platform
+# Elder's Veil — Commercial Full-Stack Comic Reading Platform
 
-A modern, high-performance, full-stack **Comic Reading Platform** built with **Vanilla HTML5/CSS3/JavaScript** frontend, **Node.js & Express REST API** backend, and a normalized **PostgreSQL** relational database.
-
----
-
-## 🔒 Security Notice
-
-> [!IMPORTANT]
-> This application includes a client-side LocalStorage demonstration mode for standalone local usage as well as a full Express + PostgreSQL REST API backend with bcrypt password hashing and JWT authentication.
-> 
-> Production authentication requires a secure backend, password hashing, HTTPS, session/token management, and server-side validation. Never store real production passwords or sensitive credentials in unencrypted LocalStorage.
+Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua reading platform built with Node.js, Express.js, PostgreSQL, JWT authentication, and Vanilla HTML5/CSS3/JavaScript.
 
 ---
 
-## 🌟 Architecture & Features
+## Features
 
-* **Full-Stack REST API Architecture**:
-  * **Frontend**: HTML5, Vanilla CSS3, ES6 Vanilla JS, Fetch API (Zero frontend frameworks)
-  * **Backend**: Node.js, Express.js, JWT (`jsonwebtoken`), `bcryptjs` password hashing, `multer` file uploads, `helmet` security headers, `express-rate-limit`
-  * **Database**: PostgreSQL with normalized relational tables (`users`, `comics`, `chapters`, `chapter_pages`, `favorites`, `reading_history`, `reading_progress`, `user_preferences`)
-* **User Authentication & Account Management**:
-  * Registration with real-time password strength meter and duplicate username/email detection
-  * Cinematic dark login screen with password visibility toggle
-  * User profile management (display name, avatar preview/upload, bio)
-  * Account security settings (password change, reading progress reset, permanent account deletion modal)
-  * Guest Mode support (guests can browse, search, and read comics without creating an account)
-  * Dynamic header navigation updating based on authentication state
-* **Admin Management Console**:
-  * Admin dashboard statistics (`admin.html`)
-  * Comic title creation & metadata management (`admin-comics.html`)
-  * Chapter page uploads (`admin-chapters.html`)
-  * User accounts & roles administration (`admin-users.html`)
-* **Immersive Webcomic Reader**:
-  * Continuous vertical strip reading
-  * Page scroll percentage progress tracker
-  * Fullscreen toggle, Zoom Fit Width / Fit Screen controls
-  * Keyboard navigation (`Arrow Left/Right`, `Space`, `F`, `Esc`, `?`)
+- **Premium Dark UI**: Built with modern CSS variables, glassmorphism, smooth animations, responsive grids, toast notifications, and modal popups.
+- **Interactive Vertical Reader**: Full-width comic pages, vertical scroll progress bar, page counter pill, fullscreen mode, chapter selector, and keyboard navigation (`←` / `→`).
+- **PostgreSQL Database Support**: Parameterized SQL queries, automated schema migrations (`backend/migrations/schema.sql`), dynamic local fallback engine for out-of-the-box local testing.
+- **User Authentication**: JWT authentication with bcrypt password hashing (10 rounds), duplicate email/username protection, profile avatar updates, and password changes.
+- **Progress Tracking & Sync**: Save chapter reading history and current page number, bookmark comics, and favorite titles.
+- **Admin Upload & Content Portal**: Upload cover images, banner images, and multi-page chapter images using Multer with strict MIME and size validations.
+- **JSON Content Manager**: Comprehensive JSON import validation (detects missing fields, duplicate IDs/slugs/chapter numbers) and full JSON database export backup generator.
+- **Render Ready**: Optimized for 1-click deployment on Render with automatic environment variable bindings and SSL PostgreSQL pool support.
 
 ---
 
-## 🚀 How to Run the Platform
+## Technology Stack
 
-### Option A: Standalone Client Mode (Zero Backend Setup Needed)
-
-1. Start any local static web server in the root folder:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-
-   # Or using Node http-server
-   npx http-server -p 8000
-   ```
-2. Open your browser at `http://localhost:8000`.
-3. The frontend will automatically detect that no Node.js backend is running and seamlessly fall back to local JSON data and `LocalStorage` user authentication.
+- **Frontend**: HTML5, CSS3 (Vanilla CSS with variables), Vanilla JavaScript (Fetch API, ES6+ modules).
+- **Backend**: Node.js, Express.js, JWT (`jsonwebtoken`), `bcryptjs`, Multer, Helmet, CORS, Express Rate Limit, `dotenv`.
+- **Database**: PostgreSQL (`pg` connection pool with Render SSL support).
 
 ---
 
-### Option B: Full-Stack Mode (Node.js + PostgreSQL REST API)
+## Local Setup Instructions
 
 1. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-2. **Configure Environment Variables**:
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
+2. **Environment Configuration**:
+   Create a `.env` file in the root directory (based on `.env.example`):
+   ```env
+   PORT=5000
+   DATABASE_URL=postgres://postgres:postgres@localhost:5432/elders_veil
+   JWT_SECRET=super_secret_jwt_key_elders_veil_2026_comicverse
+   JWT_EXPIRES_IN=7d
+   NODE_ENV=development
    ```
 
-3. **Set Up PostgreSQL Database**:
-   Create the database and execute `database/schema.sql`:
-   ```bash
-   psql -U postgres -c "CREATE DATABASE comicverse_db;"
-   psql -U postgres -d comicverse_db -f database/schema.sql
-   psql -U postgres -d comicverse_db -f database/seed/seed.sql
-   ```
-
-4. **Start the Express REST API Server**:
+3. **Start Server**:
    ```bash
    npm start
    ```
-   The backend server will run on `http://localhost:5000`.
+   Open `http://localhost:5000` in your web browser.
+
+4. **Default Credentials**:
+   - **Admin Account**: `admin@comicverse.com` / `AdminPass123!`
+   - **Standard User**: `user@comicverse.com` / `UserPass123!`
 
 ---
 
-## 📝 User Account Pages Overview
+## Render Deployment Guide
 
-- `login.html`: Cinematic login page
-- `register.html`: Account creation with password strength meter
-- `profile.html`: Profile page displaying user stats, avatar, and bio
-- `account.html`: Account security, password change, history reset, account deletion
-- `admin.html`: Admin management portal
+1. **Create PostgreSQL Database on Render**:
+   - Log into Render Dashboard -> **New +** -> **PostgreSQL**.
+   - Copy the **Internal Database URL** or **External Database URL**.
 
----
+2. **Create Backend Web Service on Render**:
+   - Connect your GitHub Repository.
+   - Set **Environment**: `Node`.
+   - Set **Build Command**: `npm install`.
+   - Set **Start Command**: `node backend/src/server.js`.
 
-## ⌨️ Reader Keyboard Shortcuts
+3. **Set Environment Variables in Render**:
+   - `PORT` = `10000` (or leave default assigned by Render)
+   - `DATABASE_URL` = `<your_render_postgres_connection_string>`
+   - `JWT_SECRET` = `<your_production_jwt_secret_key>`
+   - `NODE_ENV` = `production`
 
-| Key | Action |
-| :--- | :--- |
-| `→` / `Down` / `Space` | Scroll down / Next Page |
-| `←` / `Up` | Scroll up / Previous Page |
-| `F` | Toggle Fullscreen Mode |
-| `?` | Show Shortcuts Help Modal |
-| `Esc` | Exit Fullscreen / Close Modal |
+4. **Verify Deployment**:
+   - The application automatically runs `schema.sql` migrations and populates seed data on first boot.

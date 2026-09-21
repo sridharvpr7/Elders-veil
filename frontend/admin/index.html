@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      <div class="section-title"><i class="fas fa-user-shield text-gradient"></i> <span>Administrator Command Center</span></div>
+
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <a href="/admin/index.html" class="admin-nav-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="/admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
+          <a href="/admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
+          <a href="/admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
+          <a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
+        </aside>
+
+        <div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div>
+                <div class="stat-val" id="stat-comics">0</div>
+                <div class="stat-label">Total Comics</div>
+              </div>
+              <div class="stat-icon"><i class="fas fa-book"></i></div>
+            </div>
+            <div class="stat-card">
+              <div>
+                <div class="stat-val" id="stat-chapters">0</div>
+                <div class="stat-label">Total Chapters</div>
+              </div>
+              <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+            </div>
+            <div class="stat-card">
+              <div>
+                <div class="stat-val" id="stat-users">0</div>
+                <div class="stat-label">Registered Users</div>
+              </div>
+              <div class="stat-icon"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="stat-card">
+              <div>
+                <div class="stat-val" id="stat-views">0</div>
+                <div class="stat-label">Total Platform Views</div>
+              </div>
+              <div class="stat-icon"><i class="fas fa-eye"></i></div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:1.5rem;">
+            <h3 style="margin-bottom:1rem;"><i class="fas fa-server text-gradient"></i> Database Connection Status</h3>
+            <p style="color:var(--text-secondary); font-size:0.95rem;">Active Engine: <strong id="stat-engine" style="color:var(--accent-cyan-light);">Detecting PostgreSQL Pool...</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

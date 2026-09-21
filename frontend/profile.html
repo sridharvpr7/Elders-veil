@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      
+      <div class="profile-grid-tabs">
+        <a href="/dashboard.html" class="tab-btn"><i class="fas fa-th-large"></i> Dashboard Overview</a>
+        <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
+        <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
+        <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
+        <a href="/profile.html" class="tab-btn active"><i class="fas fa-user-cog"></i> Account Settings</a>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
+        <!-- Edit Profile Form -->
+        <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
+          <h3 style="margin-bottom:1.5rem;"><i class="fas fa-user-edit text-gradient"></i> Edit Profile Info</h3>
+          <form id="edit-profile-form">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" id="prof-username" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Avatar Image URL</label>
+              <input type="url" id="prof-avatar" class="form-input" placeholder="https://..." />
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">
+              <i class="fas fa-save"></i> Save Profile
+            </button>
+          </form>
+        </div>
+
+        <!-- Change Password Form -->
+        <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
+          <h3 style="margin-bottom:1.5rem;"><i class="fas fa-key text-gradient"></i> Change Password</h3>
+          <form id="change-pass-form">
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input type="password" id="pass-current" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" id="pass-new" class="form-input" required />
+            </div>
+            <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">
+              <i class="fas fa-shield-alt"></i> Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNavbar('');
+      renderFooter();
+
+      if (!Auth.isLoggedIn()) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('prof-username').value = user.username || '';
+        document.getElementById('prof-avatar').value = user.avatar || '';
+      }
+
+      // Profile Edit Form Submit
+      document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('prof-username').value;
+        const avatar = document.getElementById('prof-avatar').value;
+
+        try {
+          const res = await API.put('/users/me', { username, avatar });
+          localStorage.setItem('user', JSON.stringify(res.user));
+          showToast('Profile updated successfully!', 'success');
+          setTimeout(() => location.reload(), 600);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Change Password Form Submit
+      document.getElementById('change-pass-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById('pass-current').value;
+        const newPassword = document.getElementById('pass-new').value;
+
+        try {
+          await API.post('/users/me/password', { currentPassword, newPassword });
+          showToast('Password updated successfully!', 'success');
+          document.getElementById('change-pass-form').reset();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

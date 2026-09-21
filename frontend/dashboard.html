@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/cards.css" />
+  <link rel="stylesheet" href="/css/profile.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      
+      <!-- Profile Header Banner -->
+      <div class="profile-header">
+        <img id="dash-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="profile-avatar-xl" alt="Avatar" />
+        <div class="profile-info">
+          <h2 id="dash-username">Username</h2>
+          <p id="dash-email">email@example.com</p>
+          <div class="profile-badge-admin">
+            <span class="badge badge-purple" id="dash-role">MEMBER</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="profile-grid-tabs">
+        <a href="/dashboard.html" class="tab-btn active"><i class="fas fa-th-large"></i> Dashboard Overview</a>
+        <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
+        <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
+        <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
+        <a href="/profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
+      </div>
+
+      <!-- Overview Content -->
+      <section style="margin-bottom:3rem;">
+        <div class="section-title"><i class="fas fa-play-circle text-gradient"></i> <span>Continue Reading</span></div>
+        <div id="dash-continue-container">
+          <p style="color:var(--text-secondary);">No active reading sessions.</p>
+        </div>
+      </section>
+
+      <section style="margin-bottom:3rem;">
+        <div class="section-title"><i class="fas fa-bookmark text-gradient"></i> <span>Bookmarked Comics</span></div>
+        <div id="dash-bookmarks-grid"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderNavbar('');
+      renderFooter();
+
+      if (!Auth.isLoggedIn()) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const user = Auth.getUser();
+      if (user) {
+        document.getElementById('dash-username').textContent = user.username;
+        document.getElementById('dash-email').textContent = user.email;
+        document.getElementById('dash-role').textContent = user.role.toUpperCase();
+        if (user.avatar) document.getElementById('dash-avatar').src = user.avatar;
+      }
+
+      // Load Recent Reading Progress
+      try {
+        const histRes = await API.get('/users/me/history');
+        const history = histRes.history || [];
+        const contContainer = document.getElementById('dash-continue-container');
+
+        if (history.length > 0 && contContainer) {
+          const item = history[0];
+          contContainer.innerHTML = `
+            <div class="history-card">
+              <div class="history-thumb-wrap">
+                <img src="${item.comicCover || '/uploads/covers/default.jpg'}" class="history-thumb" alt="Cover" />
+                <div>
+                  <h4 style="font-size:1.1rem;"><a href="/comic.html?slug=${item.comicSlug}">${item.comicTitle}</a></h4>
+                  <p style="color:var(--accent-cyan-light); font-size:0.9rem; font-weight:600;">Chapter ${item.chapterNumber}: ${item.chapterTitle || ''} — Page ${item.pageNumber || 1}</p>
+                </div>
+              </div>
+              <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber}" class="btn btn-primary btn-sm">
+                Resume Reading <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          `;
+        }
+      } catch (err) {}
+
+      // Load Bookmarks
+      try {
+        const bmRes = await API.get('/users/me/bookmarks');
+        const bookmarks = bmRes.bookmarks || [];
+        const grid = document.getElementById('dash-bookmarks-grid');
+        if (grid) {
+          if (bookmarks.length === 0) {
+            grid.innerHTML = '<p style="color:var(--text-secondary);">No bookmarks saved yet.</p>';
+          } else {
+            grid.innerHTML = `<div class="comic-grid">${bookmarks.slice(0, 6).map(renderComicCard).join('')}</div>`;
+          }
+        }
+      } catch (err) {}
+    });
+  </script>
+</body>
+</html>

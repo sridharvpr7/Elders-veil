@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1 class="auth-title">Create Account</h1>
+          <p class="auth-subtitle">Join Elder's Veil to track reading progress and save favorites</p>
+        </div>
+
+        <form id="register-form">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="reg-username" class="form-input" required placeholder="ShadowNinja" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="reg-email" class="form-input" required placeholder="reader@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="reg-password" class="form-input" required placeholder="At least 6 characters" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" id="reg-confirm" class="form-input" required placeholder="Repeat password" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+            <i class="fas fa-user-plus"></i> Register Account
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account? <a href="/login.html">Sign in</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNavbar('');
+      renderFooter();
+
+      const form = document.getElementById('register-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('reg-username').value;
+        const email = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const confirmPassword = document.getElementById('reg-confirm').value;
+
+        if (password !== confirmPassword) {
+          showToast('Passwords do not match.', 'error');
+          return;
+        }
+
+        try {
+          const res = await API.post('/auth/register', { username, email, password, confirmPassword });
+          Auth.saveSession(res.user, res.token);
+          showToast('Account created successfully!', 'success');
+          setTimeout(() => window.location.href = '/dashboard.html', 800);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

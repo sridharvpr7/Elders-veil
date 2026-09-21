@@ -1,34 +1,28 @@
 {
-  "name": "comicverse-platform",
+  "name": "elders-veil-comic-platform",
   "version": "1.0.0",
-  "description": "Full-Stack Web Comic Reading Platform with Express REST API, PostgreSQL database, JWT authentication, and Vanilla JS client",
-  "main": "server/server.js",
+  "description": "Professional Full-Stack Comic & Manga Reading Platform",
+  "main": "backend/src/server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node --watch server/server.js",
-    "seed": "node database/seed/run_seed.js"
+    "start": "node backend/src/server.js",
+    "dev": "node backend/src/server.js",
+    "seed": "node backend/seeds/seed.js",
+    "build": "echo 'Build complete'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-rate-limit": "^7.3.1",
+    "express-rate-limit": "^7.2.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.12.0"
+    "pg": "^8.11.5"
   },
   "devDependencies": {},
-  "keywords": [
-    "comic",
-    "manga",
-    "webcomic",
-    "express",
-    "postgresql",
-    "jwt",
-    "auth"
-  ],
-  "author": "Antigravity",
-  "license": "MIT"
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["comic", "manga", "manhwa", "reader", "express", "postgresql", "jwt"]
 }

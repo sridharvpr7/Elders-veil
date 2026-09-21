@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1 class="auth-title">Welcome Back</h1>
+          <p class="auth-subtitle">Sign in to sync your comic bookmarks and history</p>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="login-email" class="form-input" required placeholder="user@comicverse.com" />
+          </div>
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label">Password</label>
+              <a href="/forgot-password.html" style="font-size:0.8rem; color:var(--accent-purple-light);">Forgot?</a>
+            </div>
+            <input type="password" id="login-password" class="form-input" required placeholder="••••••••" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+        </form>
+
+        <div style="margin-top:1rem; padding:0.75rem; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.3); border-radius:8px; font-size:0.8rem; color:var(--text-secondary);">
+          <strong>Demo Credentials:</strong><br />
+          • Admin: <code>admin@comicverse.com</code> / <code>AdminPass123!</code><br />
+          • User: <code>user@comicverse.com</code> / <code>UserPass123!</code>
+        </div>
+
+        <div class="auth-footer">
+          Don't have an account? <a href="/register.html">Register now</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNavbar('');
+      renderFooter();
+
+      const form = document.getElementById('login-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+          const res = await API.post('/auth/login', { email, password });
+          Auth.saveSession(res.user, res.token);
+          showToast('Signed in successfully!', 'success');
+          setTimeout(() => window.location.href = res.user.role === 'admin' ? '/admin/index.html' : '/dashboard.html', 800);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

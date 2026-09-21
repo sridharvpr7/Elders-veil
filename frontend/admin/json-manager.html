@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Content Manager — Elder's Veil Admin</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      <div class="section-title"><i class="fas fa-code text-gradient"></i> <span>JSON Bulk Content Manager</span></div>
+
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <a href="/admin/index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="/admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
+          <a href="/admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
+          <a href="/admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
+          <a href="/admin/json-manager.html" class="admin-nav-item active"><i class="fas fa-code"></i> JSON Import & Export</a>
+        </aside>
+
+        <div>
+          <!-- Section 1: JSON Import -->
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem; margin-bottom:2.5rem;">
+            <h3 style="margin-bottom:1rem;"><i class="fas fa-file-import text-gradient"></i> Import Comics & Chapters JSON</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+              Upload or paste standard <code>comics.json</code> structure. The engine will validate all comic IDs, slugs, and chapter numbers before persisting to PostgreSQL.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">Select JSON File from Disk</label>
+              <input type="file" id="json-file-input" class="form-input" accept=".json" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Or Paste JSON Dataset Below</label>
+              <textarea id="json-input" class="form-textarea" rows="10" placeholder='[ { "id": "comic-001", "title": "Shadow Monarch", ... } ]'></textarea>
+            </div>
+
+            <div id="validation-result" style="display:none; margin-top:1rem;"></div>
+
+            <button id="import-json-btn" class="btn btn-primary" style="margin-top:1.5rem;">
+              <i class="fas fa-file-import"></i> Import JSON Dataset
+            </button>
+          </div>
+
+          <!-- Section 2: JSON Export Backup -->
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
+            <h3 style="margin-bottom:1rem;"><i class="fas fa-file-export text-gradient"></i> Export Complete Database Backup</h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+              Generate and download a complete JSON backup containing all registered comics, metadata, and chapter page sequences.
+            </p>
+            <button id="export-json-btn" class="btn btn-secondary">
+              <i class="fas fa-file-export"></i> Export Complete JSON Backup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/json-manager.js"></script>
+</body>
+</html>

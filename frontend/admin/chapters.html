@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapters Management — Elder's Veil Admin</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      <div class="section-title"><i class="fas fa-list-ol text-gradient"></i> <span>Chapter Management</span></div>
+
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <a href="/admin/index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="/admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
+          <a href="/admin/chapters.html" class="admin-nav-item active"><i class="fas fa-list-ol"></i> Chapters Management</a>
+          <a href="/admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
+          <a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
+        </aside>
+
+        <div>
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); padding:1.5rem; border-radius:var(--radius-md); margin-bottom:1.5rem;">
+            <label class="form-label">Select Comic to Manage Chapters</label>
+            <select id="select-comic-chapters" class="form-select">
+              <option value="">Choose Comic...</option>
+            </select>
+          </div>
+
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Chapter #</th>
+                  <th>Title</th>
+                  <th>Pages</th>
+                  <th>Release Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-chapters-tbody">
+                <tr><td colspan="5" style="text-align:center;">Select a comic above to view chapter list.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderNavbar('admin');
+      renderFooter();
+
+      if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const selectComic = document.getElementById('select-comic-chapters');
+      const tbody = document.getElementById('admin-chapters-tbody');
+
+      try {
+        const res = await API.get('/comics?limit=100');
+        if (res.comics && selectComic) {
+          selectComic.innerHTML = '<option value="">Choose Comic...</option>' + 
+            res.comics.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+
+          selectComic.addEventListener('change', async (e) => {
+            const comicId = e.target.value;
+            if (!comicId) {
+              tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Select a comic above.</td></tr>';
+              return;
+            }
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading chapters...</td></tr>';
+            try {
+              const chRes = await API.get(`/chapters/comic/${comicId}`);
+              const chapters = chRes.chapters || [];
+              if (chapters.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No chapters found for this comic.</td></tr>';
+              } else {
+                tbody.innerHTML = chapters.map(ch => `
+                  <tr>
+                    <td><strong>Chapter ${ch.chapterNumber}</strong></td>
+                    <td>${ch.title || 'Untitled'}</td>
+                    <td><span class="badge badge-purple">${ch.pages ? ch.pages.length : (ch.pageCount || 4)} pages</span></td>
+                    <td>${ch.releaseDate || ''}</td>
+                    <td>
+                      <a href="/reader.html?id=${ch.id}" class="btn btn-secondary btn-sm" target="_blank"><i class="fas fa-eye"></i> View</a>
+                      <button class="btn btn-secondary btn-sm delete-ch-btn" data-id="${ch.id}" style="color:var(--accent-pink);"><i class="fas fa-trash"></i> Delete</button>
+                    </td>
+                  </tr>
+                `).join('');
+
+                document.querySelectorAll('.delete-ch-btn').forEach(btn => {
+                  btn.addEventListener('click', async (evt) => {
+                    const chId = evt.currentTarget.getAttribute('data-id');
+                    if (confirm('Delete this chapter?')) {
+                      try {
+                        await API.delete(`/chapters/${chId}`);
+                        showToast('Chapter deleted.', 'success');
+                        selectComic.dispatchEvent(new Event('change'));
+                      } catch (err) {
+                        showToast(err.message, 'error');
+                      }
+                    }
+                  });
+                });
+              }
+            } catch (err) {
+              tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--accent-pink);">${err.message}</td></tr>`;
+            }
+          });
+        }
+      } catch (err) {}
+    });
+  </script>
+</body>
+</html>
