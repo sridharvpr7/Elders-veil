@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading History - ComicVerse</title>
+  <meta name="description" content="Track your reading progress, recent chapters, and continue reading from where you left off.">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Sticky Navbar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="index.html" class="logo-brand">
+        <div class="logo-icon"><i class="ri-book-3-fill"></i></div>
+        <span>ComicVerse</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link"><i class="ri-home-4-line"></i> Home</a>
+        <a href="comics.html" class="nav-link"><i class="ri-compass-3-line"></i> Comics Library</a>
+        <a href="favorites.html" class="nav-link"><i class="ri-heart-line"></i> Favorites</a>
+        <a href="history.html" class="nav-link active"><i class="ri-history-line"></i> History</a>
+      </nav>
+
+      <div class="header-actions">
+        <div class="search-wrapper">
+          <i class="ri-search-line search-icon-btn"></i>
+          <input type="text" class="search-input-box" placeholder="Search comics..." aria-label="Search comics">
+          <div class="search-results-popover"></div>
+        </div>
+
+        <button class="btn-icon-only theme-toggle-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          <i class="ri-sun-line"></i>
+        </button>
+
+        <button class="btn-icon-only mobile-menu-btn" style="display: none;" title="Toggle Navigation Menu" aria-label="Toggle Navigation Menu">
+          <i class="ri-menu-line"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1 style="font-size: 2.2rem;"><i class="ri-history-fill" style="color: var(--accent);"></i> Reading History</h1>
+          <p style="color: var(--text-secondary); margin-top: 0.25rem;">Automatically tracked reading progress across all chapters.</p>
+        </div>
+        <button class="btn btn-secondary" id="clear-history-btn" style="display: none;">
+          <i class="ri-delete-bin-line" style="color: var(--danger);"></i> Clear Reading History
+        </button>
+      </div>
+
+      <!-- History List -->
+      <div id="history-list-container"></div>
+
+      <!-- Empty State -->
+      <div id="history-empty-state" style="display: none; text-align: center; padding: 5rem 1rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+        <i class="ri-time-line" style="font-size: 3.5rem; color: var(--accent); margin-bottom: 1rem; display: block;"></i>
+        <h2>No Reading History Found</h2>
+        <p style="color: var(--text-secondary); margin: 0.75rem 0 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+          Start reading any comic chapter and your reading progress will be saved here automatically!
+        </p>
+        <a href="comics.html" class="btn btn-primary"><i class="ri-compass-3-line"></i> Discover Comics</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 ComicVerse Platform. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>

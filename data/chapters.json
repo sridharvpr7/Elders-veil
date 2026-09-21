@@ -1,0 +1,210 @@
+[
+  {
+    "id": "chapter-001-1",
+    "comicId": "comic-001",
+    "chapterNumber": 1,
+    "title": "The Weakest E-Rank Hunter",
+    "releaseDate": "2026-08-15",
+    "pages": [
+      "assets/images/comics/comic-001/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-001/chapters/chapter-001/002.svg",
+      "assets/images/comics/comic-001/chapters/chapter-001/003.svg",
+      "assets/images/comics/comic-001/chapters/chapter-001/004.svg"
+    ]
+  },
+  {
+    "id": "chapter-001-2",
+    "comicId": "comic-001",
+    "chapterNumber": 2,
+    "title": "The Double Dungeon Incident",
+    "releaseDate": "2026-08-22",
+    "pages": [
+      "assets/images/comics/comic-001/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-001/chapters/chapter-002/002.svg",
+      "assets/images/comics/comic-001/chapters/chapter-002/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-001-3",
+    "comicId": "comic-001",
+    "chapterNumber": 3,
+    "title": "Awakening of the System",
+    "releaseDate": "2026-09-01",
+    "pages": [
+      "assets/images/comics/comic-001/chapters/chapter-003/001.svg",
+      "assets/images/comics/comic-001/chapters/chapter-003/002.svg",
+      "assets/images/comics/comic-001/chapters/chapter-003/003.svg",
+      "assets/images/comics/comic-001/chapters/chapter-003/004.svg"
+    ]
+  },
+  {
+    "id": "chapter-002-1",
+    "comicId": "comic-002",
+    "chapterNumber": 1,
+    "title": "Rain in Neo-Tokyo",
+    "releaseDate": "2026-08-10",
+    "pages": [
+      "assets/images/comics/comic-002/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-002/chapters/chapter-001/002.svg",
+      "assets/images/comics/comic-002/chapters/chapter-001/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-002-2",
+    "comicId": "comic-002",
+    "chapterNumber": 2,
+    "title": "Synthetic Soul Protocol",
+    "releaseDate": "2026-08-25",
+    "pages": [
+      "assets/images/comics/comic-002/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-002/chapters/chapter-002/002.svg",
+      "assets/images/comics/comic-002/chapters/chapter-002/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-002-3",
+    "comicId": "comic-002",
+    "chapterNumber": 3,
+    "title": "High Voltage Blade",
+    "releaseDate": "2026-09-05",
+    "pages": [
+      "assets/images/comics/comic-002/chapters/chapter-003/001.svg",
+      "assets/images/comics/comic-002/chapters/chapter-003/002.svg",
+      "assets/images/comics/comic-002/chapters/chapter-003/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-003-1",
+    "comicId": "comic-003",
+    "chapterNumber": 1,
+    "title": "Forbidden Library Scroll",
+    "releaseDate": "2026-08-18",
+    "pages": [
+      "assets/images/comics/comic-003/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-003/chapters/chapter-001/002.svg",
+      "assets/images/comics/comic-003/chapters/chapter-001/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-003-2",
+    "comicId": "comic-003",
+    "chapterNumber": 2,
+    "title": "The Starlight Awakening",
+    "releaseDate": "2026-09-02",
+    "pages": [
+      "assets/images/comics/comic-003/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-003/chapters/chapter-002/002.svg",
+      "assets/images/comics/comic-003/chapters/chapter-002/003.svg"
+    ]
+  },
+  {
+    "id": "chapter-004-1",
+    "comicId": "comic-004",
+    "chapterNumber": 1,
+    "title": "Fall of the Eldorian Gates",
+    "releaseDate": "2026-07-12",
+    "pages": [
+      "assets/images/comics/comic-004/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-004/chapters/chapter-001/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-004-2",
+    "comicId": "comic-004",
+    "chapterNumber": 2,
+    "title": "The Demon Hunter Compact",
+    "releaseDate": "2026-07-28",
+    "pages": [
+      "assets/images/comics/comic-004/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-004/chapters/chapter-002/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-005-1",
+    "comicId": "comic-005",
+    "chapterNumber": 1,
+    "title": "Serenade at Midnight",
+    "releaseDate": "2026-08-30",
+    "pages": [
+      "assets/images/comics/comic-005/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-005/chapters/chapter-001/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-005-2",
+    "comicId": "comic-005",
+    "chapterNumber": 2,
+    "title": "Stargazing Frequencies",
+    "releaseDate": "2026-09-12",
+    "pages": [
+      "assets/images/comics/comic-005/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-005/chapters/chapter-002/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-006-1",
+    "comicId": "comic-006",
+    "chapterNumber": 1,
+    "title": "Street Court Legend",
+    "releaseDate": "2026-08-14",
+    "pages": [
+      "assets/images/comics/comic-006/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-006/chapters/chapter-001/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-006-2",
+    "comicId": "comic-006",
+    "chapterNumber": 2,
+    "title": "Apex Academy Tryouts",
+    "releaseDate": "2026-08-29",
+    "pages": [
+      "assets/images/comics/comic-006/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-006/chapters/chapter-002/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-007-1",
+    "comicId": "comic-007",
+    "chapterNumber": 1,
+    "title": "Murder in Timeline B",
+    "releaseDate": "2026-08-20",
+    "pages": [
+      "assets/images/comics/comic-007/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-007/chapters/chapter-001/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-007-2",
+    "comicId": "comic-007",
+    "chapterNumber": 2,
+    "title": "Quantum Paradox",
+    "releaseDate": "2026-09-08",
+    "pages": [
+      "assets/images/comics/comic-007/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-007/chapters/chapter-002/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-008-1",
+    "comicId": "comic-008",
+    "chapterNumber": 1,
+    "title": "Crossing Blackwood Threshold",
+    "releaseDate": "2026-08-01",
+    "pages": [
+      "assets/images/comics/comic-008/chapters/chapter-001/001.svg",
+      "assets/images/comics/comic-008/chapters/chapter-001/002.svg"
+    ]
+  },
+  {
+    "id": "chapter-008-2",
+    "comicId": "comic-008",
+    "chapterNumber": 2,
+    "title": "Voices Behind the Wallpaper",
+    "releaseDate": "2026-08-16",
+    "pages": [
+      "assets/images/comics/comic-008/chapters/chapter-002/001.svg",
+      "assets/images/comics/comic-008/chapters/chapter-002/002.svg"
+    ]
+  }
+]

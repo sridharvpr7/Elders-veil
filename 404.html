@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 Page Not Found - ComicVerse</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Sticky Navbar -->
+  <header class="navbar">
+    <div class="container">
+      <a href="index.html" class="logo-brand">
+        <div class="logo-icon"><i class="ri-book-3-fill"></i></div>
+        <span>ComicVerse</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link"><i class="ri-home-4-line"></i> Home</a>
+        <a href="comics.html" class="nav-link"><i class="ri-compass-3-line"></i> Comics Library</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn-icon-only theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+          <i class="ri-sun-line"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container" style="display: flex; align-items: center; justify-content: center; min-height: 60vh;">
+      <div style="text-align: center; max-width: 520px; padding: 3rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+        <div style="font-size: 5rem; font-weight: 900; color: var(--accent); line-height: 1; margin-bottom: 0.5rem;">404</div>
+        <h2 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Comic Page Not Found</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
+          The comic or chapter page you are attempting to view does not exist, has been renamed, or is temporarily offline.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="index.html" class="btn btn-primary"><i class="ri-home-4-line"></i> Back to Homepage</a>
+          <a href="comics.html" class="btn btn-secondary"><i class="ri-compass-3-line"></i> Browse Library</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

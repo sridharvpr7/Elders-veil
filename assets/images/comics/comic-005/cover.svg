@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="440" viewBox="0 0 300 440">
+    <defs>
+      <linearGradient id="g_comic-005" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#31103f;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f472b6;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <rect width="300" height="440" fill="url(#g_comic-005)" />
+    <circle cx="150" cy="180" r="85" fill="#e879f9" opacity="0.25" />
+    <text x="150" y="195" font-size="72" text-anchor="middle">🌙</text>
+    <rect x="0" y="300" width="300" height="140" fill="rgba(11,11,15,0.85)" />
+    <text x="150" y="345" font-family="'Outfit', sans-serif" font-weight="bold" font-size="20" fill="#ffffff" text-anchor="middle">Heartbeats</text>
+    <text x="150" y="375" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" fill="#e879f9" text-anchor="middle">In Moonlight</text>
+    <rect x="20" y="395" width="260" height="2" fill="#e879f9" opacity="0.6" />
+    <text x="150" y="420" font-family="sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">COMICVERSE ORIGINAL</text>
+  </svg>

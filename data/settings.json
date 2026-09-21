@@ -1,0 +1,9 @@
+{
+  "siteName": "ComicVerse",
+  "logo": "assets/images/logo/logo.svg",
+  "defaultTheme": "dark",
+  "showRatings": true,
+  "showViews": true,
+  "enableAnimations": true,
+  "readerMode": "vertical"
+}
