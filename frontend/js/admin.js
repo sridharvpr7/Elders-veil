@@ -1,28 +1,20 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  renderNavbar('admin');
-  renderFooter();
-
-  if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
-    showToast('Access denied. Administrator privileges required.', 'error');
-    setTimeout(() => window.location.href = '/login.html', 1000);
-    return;
-  }
-
-  // Load Dashboard Statistics
-  const statComics = document.getElementById('stat-comics');
-  const statChapters = document.getElementById('stat-chapters');
-  const statUsers = document.getElementById('stat-users');
-  const statViews = document.getElementById('stat-views');
-  const statEngine = document.getElementById('stat-engine');
+  renderNavbar('admin'); renderFooter();
+  if (!Auth.isLoggedIn() || !Auth.isAdmin()) { showToast('Access denied. Administrator privileges required.', 'error'); setTimeout(() => location.href='/login.html', 800); return; }
 
   try {
     const stats = await API.get('/admin/statistics');
-    if (statComics) statComics.textContent = stats.totalComics;
-    if (statChapters) statChapters.textContent = stats.totalChapters;
-    if (statUsers) statUsers.textContent = stats.totalUsers;
-    if (statViews) statViews.textContent = Number(stats.totalViews).toLocaleString();
-    if (statEngine) statEngine.textContent = stats.systemStatus;
-  } catch (err) {}
+    const map = { 'stat-comics':'totalComics','stat-chapters':'totalChapters','stat-users':'totalUsers','stat-views':'totalViews','stat-likes':'totalLikes','stat-pending':'pendingSubmissions','stat-creators':'totalCreators','stat-premium':'totalPremiumUsers','stat-bookmarks':'totalBookmarks','stat-active':'totalActiveUsers','stat-rejected':'rejectedSubmissions','stat-chapter-views':'totalChapterViews','stat-pending-comics':'pendingComics','stat-pending-chapters':'pendingChapters' };
+    Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=Number(stats[key]||0).toLocaleString();});
+    const engine=document.getElementById('stat-engine'); if(engine)engine.textContent=stats.systemStatus;
+  } catch(err) {}
+
+  try {
+    const pending = await API.get('/admin/pending-submissions');
+    const list = document.getElementById('pending-preview-list');
+    const items = [...(pending.comics||[]).map(c=>({kind:'Comic',title:c.title,id:c.id,status:c.publishStatus,note:c.reviewNote})), ...(pending.chapters||[]).map(c=>({kind:`Chapter ${c.chapterNumber}`,title:c.title,id:c.id,status:c.publishStatus,note:c.reviewNote}))].filter(x=>x.status==='pending');
+    if(list) list.innerHTML = items.length ? `<div class="pending-mini-list">${items.slice(0,6).map(x=>`<div class="pending-mini-row"><div><span class="badge badge-purple">${x.kind}</span><strong>${x.title||'Untitled'}</strong></div><a class="btn btn-secondary btn-sm" href="/admin/review.html">Review</a></div>`).join('')}</div>` : '<div class="empty-review"><i class="fas fa-check-circle"></i><span>No pending submissions.</span></div>';
+  } catch(err) {}
 
   // Load Admin Comic Table if present
   const comicsTableBody = document.getElementById('admin-comics-tbody');

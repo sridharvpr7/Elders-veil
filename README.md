@@ -84,3 +84,28 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 - Admins can activate/deactivate Premium, Block, Unblock, Ban, and Unban users from User Management.
 - Premium accounts receive the exclusive golden UI theme.
 - Existing PostgreSQL deployments receive the new columns automatically through the migration script.
+
+
+## Creator Review & Reading Progress Updates
+
+- Creator comic/chapter submissions now enter an **admin review queue** as `pending`.
+- Only administrators can approve/publish or reject submissions.
+- Rejected comics can be resubmitted by their creator.
+- Unpublished comics/chapters are blocked from public catalog/reader access at the API level.
+- Continue Reading restores the exact saved chapter and page.
+- Reading history exposes an overall comic completion percentage and last-read chapter/page.
+- Admin dashboard now includes users, comics, chapters, views, likes/favorites, bookmarks, pending reviews, creators, premium users, active users, and rejected submissions.
+- Added responsive admin Review Queue at `/admin/review.html`.
+
+**Database:** the schema adds `review_note` and `publish_status` fields for comics/chapters. Existing chapters remain published when the migration adds the new chapter status column.
+
+
+## User Upload + Admin Review Workflow
+
+- Any authenticated user can open Creator Studio and submit a comic.
+- User submissions are always created with `publish_status = pending`.
+- Chapter submissions are also `pending`.
+- Only an administrator can approve/publish or reject a submission.
+- Rejected comics can be resubmitted; rejected chapters can also be resubmitted.
+- Pending/rejected content is hidden from public catalog and reader routes.
+- Continue Reading stores the exact comic + chapter + page and displays overall progress.

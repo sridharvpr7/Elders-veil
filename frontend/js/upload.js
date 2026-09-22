@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderNavbar((Auth.getUser() || {}).role === 'admin' ? 'admin' : 'creator');
   renderFooter();
 
-  if (!Auth.isLoggedIn() || !['admin','creator'].includes((Auth.getUser() || {}).role)) {
-    showToast('Admin authorization required.', 'error');
+  if (!Auth.isLoggedIn()) {
+    showToast('Please sign in first.', 'error');
     window.location.href = '/login.html';
     return;
   }
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       const submitBtn = comicForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading & Publishing...';
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading & Submitting...';
 
       try {
         let coverUrl = '/uploads/covers/default.jpg';
@@ -58,14 +58,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const res = await API.post('/comics', payload);
-        showToast('Comic created successfully!', 'success');
-        setTimeout(() => window.location.href = `/comic.html?slug=${res.comic.slug}`, 1000);
+        showToast(res.message || 'Comic submitted for admin review.', 'success');
+        setTimeout(() => window.location.href = '/creator/dashboard.html', 700);
 
       } catch (err) {
         showToast(`Creation failed: ${err.message}`, 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Comic';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Comic for Review';
       }
     });
   }
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const selectComicDropdown = document.getElementById('select-comic-id');
   if (selectComicDropdown) {
     try {
-      const res = await API.get('/comics?limit=100');
+      const res = await API.get((Auth.getUser() || {}).role === 'admin' ? '/comics?limit=100' : '/comics?mine=true&limit=100');
       if (res.comics) {
         selectComicDropdown.innerHTML = res.comics.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
       }
@@ -118,14 +118,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const res = await API.post('/chapters', payload);
-        showToast('Chapter published successfully!', 'success');
-        setTimeout(() => window.location.href = `/reader.html?id=${res.chapter.id}`, 1000);
+        showToast(res.message || 'Chapter submitted for admin review.', 'success');
+        setTimeout(() => window.location.href = '/creator/dashboard.html', 700);
 
       } catch (err) {
         showToast(`Publishing failed: ${err.message}`, 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Publish Chapter';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Chapter for Review';
       }
     });
   }

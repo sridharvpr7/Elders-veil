@@ -8,7 +8,9 @@ router.get('/', optionalAuthMiddleware, ComicController.getComics);
 router.get('/genres', ComicController.getGenres);
 router.get('/slug/:slug', optionalAuthMiddleware, ComicController.getComicBySlug);
 router.post('/:id/view', ComicController.recordView);
-router.post('/:id/publish', authMiddleware, ComicController.publishComic);
+router.post('/:id/publish', authMiddleware, adminMiddleware, ComicController.publishComic);
+router.post('/:id/resubmit', authMiddleware, ComicController.resubmitComic);
+router.post('/:id/reject', authMiddleware, adminMiddleware, ComicController.rejectComic);
 router.get('/:id', optionalAuthMiddleware, ComicController.getComicById);
 
 // Admin-only endpoints

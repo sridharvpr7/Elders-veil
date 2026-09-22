@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <p style="color:var(--accent-cyan-light); font-size:0.9rem; font-weight:600;">
                     Chapter ${item.chapterNumber || 1}: ${item.chapterTitle || ''} — Page ${item.pageNumber || 1}
                   </p>
-                  <p style="font-size:0.8rem; color:var(--text-muted);"><i class="far fa-clock"></i> Last read ${new Date(item.updatedAt).toLocaleString()}</p>
+                  <p style="font-size:0.8rem;color:var(--text-muted)"><i class="far fa-clock"></i> Last read ${new Date(item.updatedAt).toLocaleString()}</p><div class="reading-progress-wrap"><div class="reading-progress-head"><span>Reading Progress</span><strong>${item.progressPercent || 0}%</strong></div><div class="reading-progress"><span style="width:${item.progressPercent || 0}%"></span></div></div>
                 </div>
               </div>
               <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber}" class="btn btn-primary btn-sm">

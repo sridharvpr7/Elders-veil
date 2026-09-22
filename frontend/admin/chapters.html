@@ -46,12 +46,12 @@
                   <th>Chapter #</th>
                   <th>Title</th>
                   <th>Pages</th>
-                  <th>Release Date</th>
+                  <th>Review Status</th><th>Release Date</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="admin-chapters-tbody">
-                <tr><td colspan="5" style="text-align:center;">Select a comic above to view chapter list.</td></tr>
+                <tr><td colspan="6" style="text-align:center;">Select a comic above to view chapter list.</td></tr>
               </tbody>
             </table>
           </div>
@@ -87,28 +87,30 @@
           selectComic.addEventListener('change', async (e) => {
             const comicId = e.target.value;
             if (!comicId) {
-              tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Select a comic above.</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Select a comic above.</td></tr>';
               return;
             }
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading chapters...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading chapters...</td></tr>';
             try {
-              const chRes = await API.get(`/chapters/comic/${comicId}`);
+              const chRes = await API.get(`/chapters/comic/${comicId}?all=true`);
               const chapters = chRes.chapters || [];
               if (chapters.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No chapters found for this comic.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No chapters found for this comic.</td></tr>';
               } else {
                 tbody.innerHTML = chapters.map(ch => `
                   <tr>
                     <td><strong>Chapter ${ch.chapterNumber}</strong></td>
                     <td>${ch.title || 'Untitled'}</td>
                     <td><span class="badge badge-purple">${ch.pages ? ch.pages.length : (ch.pageCount || 4)} pages</span></td>
-                    <td>${ch.releaseDate || ''}</td>
+                    <td><span class="status-chip status-${ch.publishStatus||'published'}">${ch.publishStatus||'published'}</span></td><td>${ch.releaseDate || ''}</td>
                     <td>
-                      <a href="/reader.html?id=${ch.id}" class="btn btn-secondary btn-sm" target="_blank"><i class="fas fa-eye"></i> View</a>
+                      <a href="/reader.html?id=${ch.id}" class="btn btn-secondary btn-sm" target="_blank"><i class="fas fa-eye"></i> View</a> ${ch.publishStatus==='pending'?`<button class="btn btn-primary btn-sm approve-ch-btn" data-id="${ch.id}">Approve</button>`:''}
                       <button class="btn btn-secondary btn-sm delete-ch-btn" data-id="${ch.id}" style="color:var(--accent-pink);"><i class="fas fa-trash"></i> Delete</button>
                     </td>
                   </tr>
                 `).join('');
+
+                document.querySelectorAll('.approve-ch-btn').forEach(btn => btn.addEventListener('click', async () => { try { await API.post(`/chapters/${btn.dataset.id}/publish`, {}); showToast('Chapter approved.', 'success'); selectComic.dispatchEvent(new Event('change')); } catch(e) { showToast(e.message, 'error'); } }));
 
                 document.querySelectorAll('.delete-ch-btn').forEach(btn => {
                   btn.addEventListener('click', async (evt) => {
@@ -126,7 +128,7 @@
                 });
               }
             } catch (err) {
-              tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--accent-pink);">${err.message}</td></tr>`;
+              tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--accent-pink);">${err.message}</td></tr>`;
             }
           });
         }

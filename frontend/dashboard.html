@@ -96,11 +96,12 @@
                 <img src="${item.comicCover || '/uploads/covers/default.jpg'}" class="history-thumb" alt="Cover" />
                 <div>
                   <h4 style="font-size:1.1rem;"><a href="/comic.html?slug=${item.comicSlug}">${item.comicTitle}</a></h4>
-                  <p style="color:var(--accent-cyan-light); font-size:0.9rem; font-weight:600;">Chapter ${item.chapterNumber}: ${item.chapterTitle || ''} — Page ${item.pageNumber || 1}</p>
+                  <p style="color:var(--accent-cyan-light);font-size:.9rem;font-weight:600">Chapter ${item.chapterNumber}: ${item.chapterTitle || ''} — Page ${item.pageNumber || 1}</p>
+                  <div class="reading-progress-wrap"><div class="reading-progress-head"><span>Reading Progress</span><strong>${item.progressPercent || 0}% completed</strong></div><div class="reading-progress"><span style="width:${item.progressPercent || 0}%"></span></div></div>
                 </div>
               </div>
               <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber}" class="btn btn-primary btn-sm">
-                Resume Reading <i class="fas fa-arrow-right"></i>
+                Continue Reading <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           `;
@@ -122,5 +123,5 @@
       } catch (err) {}
     });
   </script>
-<script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const el=document.getElementById('creator-cta');if(u&&u.role!=='admin'){el.innerHTML=u.role==='creator'?'<div class="auth-card" style="margin-bottom:1rem"><h3>Creator Studio</h3><p>Manage your comics and chapters.</p><a class="btn btn-primary" href="/creator/dashboard.html">Open Creator Dashboard</a></div>':'<div class="auth-card" style="margin-bottom:1rem"><h3>Become a Creator</h3><p>Publish your own comics and chapters on Elder's Veil.</p><a class="btn btn-primary" href="/creator/dashboard.html">Start Creating</a></div>';}});</script></body>
+<script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const el=document.getElementById('creator-cta');if(u){el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-pen-nib"></i> Upload Your Comic</h3><p>Submit your comic and chapters for admin review. Approved content will be released publicly.</p><a class="btn btn-primary" href="/creator/dashboard.html">Open Creator Studio</a></div>';}});</script></body>
 </html>

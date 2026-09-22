@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const chapterId = urlParams.get('id');
+  const requestedPage = Math.max(1, parseInt(urlParams.get('page') || '1', 10));
 
   if (!chapterId) {
     window.location.href = '/comics.html';
@@ -83,6 +84,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `).join('');
     }
+
+    // Resume exact page when Continue Reading supplies a saved page.
+    currentPageIndex = Math.min(requestedPage, Math.max(1, pages.length));
+    if (pagePill) pagePill.textContent = `Page ${currentPageIndex} / ${pages.length}`;
+    if (requestedPage > 1) { setTimeout(() => document.getElementById(`page-${currentPageIndex}`)?.scrollIntoView({ behavior: 'auto', block: 'start' }), 150); }
+    // Save only when a page was explicitly requested (Continue Reading) or after scrolling.
+    if (Auth.isLoggedIn() && requestedPage > 1) { API.post('/users/me/history', { comicId: currentChapter.comicId, chapterId: currentChapter.id, pageNumber: currentPageIndex }).catch(() => {}); }
 
     // Prev / Next Chapter Buttons
     const currIdx = allChapters.findIndex(ch => ch.id === currentChapter.id);

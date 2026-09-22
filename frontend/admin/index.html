@@ -28,45 +28,28 @@
           <a href="/admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
           <a href="/admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
           <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
-          <a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
+          <a href="/admin/review.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Review Queue</a><a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
         </aside>
 
         <div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div>
-                <div class="stat-val" id="stat-comics">0</div>
-                <div class="stat-label">Total Comics</div>
-              </div>
-              <div class="stat-icon"><i class="fas fa-book"></i></div>
-            </div>
-            <div class="stat-card">
-              <div>
-                <div class="stat-val" id="stat-chapters">0</div>
-                <div class="stat-label">Total Chapters</div>
-              </div>
-              <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
-            </div>
-            <div class="stat-card">
-              <div>
-                <div class="stat-val" id="stat-users">0</div>
-                <div class="stat-label">Registered Users</div>
-              </div>
-              <div class="stat-icon"><i class="fas fa-users"></i></div>
-            </div>
-            <div class="stat-card">
-              <div>
-                <div class="stat-val" id="stat-views">0</div>
-                <div class="stat-label">Total Platform Views</div>
-              </div>
-              <div class="stat-icon"><i class="fas fa-eye"></i></div>
-            </div>
+          <div class="stats-grid admin-stats-expanded">
+            <div class="stat-card"><div><div class="stat-val" id="stat-users">0</div><div class="stat-label">Total Users</div></div><div class="stat-icon"><i class="fas fa-users"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-comics">0</div><div class="stat-label">Total Comics</div></div><div class="stat-icon"><i class="fas fa-book"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-chapters">0</div><div class="stat-label">Total Chapters</div></div><div class="stat-icon"><i class="fas fa-layer-group"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-views">0</div><div class="stat-label">Total Views</div></div><div class="stat-icon"><i class="fas fa-eye"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-likes">0</div><div class="stat-label">Total Likes</div></div><div class="stat-icon"><i class="fas fa-heart"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-pending">0</div><div class="stat-label">Pending Reviews</div></div><div class="stat-icon"><i class="fas fa-inbox"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-creators">0</div><div class="stat-label">Creators</div></div><div class="stat-icon"><i class="fas fa-pen-nib"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-premium">0</div><div class="stat-label">Premium Users</div></div><div class="stat-icon"><i class="fas fa-crown"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-bookmarks">0</div><div class="stat-label">Total Bookmarks</div></div><div class="stat-icon"><i class="fas fa-bookmark"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-active">0</div><div class="stat-label">Active Users</div></div><div class="stat-icon"><i class="fas fa-user-check"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-rejected">0</div><div class="stat-label">Rejected Submissions</div></div><div class="stat-icon"><i class="fas fa-ban"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-chapter-views">0</div><div class="stat-label">Chapter Views</div></div><div class="stat-icon"><i class="fas fa-book-open"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-pending-comics">0</div><div class="stat-label">Pending Comics</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
+            <div class="stat-card"><div><div class="stat-val" id="stat-pending-chapters">0</div><div class="stat-label">Pending Chapters</div></div><div class="stat-icon"><i class="fas fa-file-image"></i></div></div>
           </div>
-
-          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:1.5rem;">
-            <h3 style="margin-bottom:1rem;"><i class="fas fa-server text-gradient"></i> Database Connection Status</h3>
-            <p style="color:var(--text-secondary); font-size:0.95rem;">Active Engine: <strong id="stat-engine" style="color:var(--accent-cyan-light);">Detecting PostgreSQL Pool...</strong></p>
-          </div>
+          <div class="review-preview" id="review-preview"><div class="review-preview-head"><div><h3><i class="fas fa-inbox text-gradient"></i> Pending Submissions</h3><p>Creator uploads waiting for your approval.</p></div><a class="btn btn-primary btn-sm" href="/admin/review.html">Open Review Queue</a></div><div id="pending-preview-list">Loading...</div></div>
+          <div style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1.5rem;margin-top:1.5rem"><h3 style="margin-bottom:1rem"><i class="fas fa-server text-gradient"></i> Database Connection Status</h3><p style="color:var(--text-secondary);font-size:.95rem">Active Engine: <strong id="stat-engine" style="color:var(--accent-cyan-light)">Detecting...</strong></p></div>
         </div>
       </div>
     </div>

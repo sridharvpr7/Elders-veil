@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS comics (
   language VARCHAR(50) DEFAULT 'English',
   creator_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
   publish_status VARCHAR(20) DEFAULT 'published',
+  review_note TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -53,6 +54,8 @@ CREATE TABLE IF NOT EXISTS chapters (
   title VARCHAR(255),
   release_date DATE DEFAULT CURRENT_DATE,
   views BIGINT DEFAULT 0,
+  publish_status VARCHAR(20) DEFAULT 'published',
+  review_note TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(comic_id, chapter_number)
 );
@@ -106,6 +109,9 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR(20) DEFAULT 'active';
 ALTER TABLE comics ADD COLUMN IF NOT EXISTS creator_id VARCHAR(64);
 ALTER TABLE comics ADD COLUMN IF NOT EXISTS publish_status VARCHAR(20) DEFAULT 'published';
+ALTER TABLE comics ADD COLUMN IF NOT EXISTS review_note TEXT;
+ALTER TABLE chapters ADD COLUMN IF NOT EXISTS publish_status VARCHAR(20) DEFAULT 'published';
+ALTER TABLE chapters ADD COLUMN IF NOT EXISTS review_note TEXT;
 
 -- Indexes for ultra-fast query performance
 CREATE INDEX IF NOT EXISTS idx_comics_slug ON comics(slug);
@@ -119,3 +125,8 @@ CREATE INDEX IF NOT EXISTS idx_chapter_pages_chapter ON chapter_pages(chapter_id
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_reading_history_user ON reading_history(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_comics_publish_status ON comics(publish_status);
+CREATE INDEX IF NOT EXISTS idx_chapters_publish_status ON chapters(publish_status);
+CREATE INDEX IF NOT EXISTS idx_chapters_views ON chapters(views DESC);
+CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(updated_at DESC);
