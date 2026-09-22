@@ -88,11 +88,25 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
             </td>
             <td>${u.email}</td>
-            <td><span class="badge ${u.role === 'admin' ? 'badge-purple' : 'badge-cyan'}">${u.role}</span></td>
+            <td>${u.phone || '—'}</td>
+            <td><span class="badge ${u.role === 'admin' ? 'badge-purple' : u.role === 'creator' ? 'badge-cyan' : 'badge-cyan'}">${u.role}</span></td>
+            <td><span class="badge ${u.account_status === 'active' ? 'badge-cyan' : 'badge-purple'}">${u.account_status || 'active'}</span></td>
+            <td>${u.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : 'Free'}</td>
+            <td>
+              ${u.role !== 'admin' ? `<button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'blocked' ? 'active' : 'blocked'}">${u.account_status === 'blocked' ? 'Unblock' : 'Block'}</button>
+              <button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'banned' ? 'active' : 'banned'}">${u.account_status === 'banned' ? 'Unban' : 'Ban'}</button>
+              <button class="btn btn-secondary btn-sm premium-btn" data-id="${u.id}" data-premium="${u.is_premium ? 'false' : 'true'}">${u.is_premium ? 'Remove Premium' : 'Make Premium'}</button>` : '<span>Admin</span>'}
+            </td>
             <td>${new Date(u.created_at || Date.now()).toLocaleDateString()}</td>
           </tr>
         `).join('');
       }
+      document.querySelectorAll('.user-status-btn').forEach(btn => btn.addEventListener('click', async () => {
+        try { await API.request(`/admin/users/${btn.dataset.id}/status`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({status:btn.dataset.status}) }); showToast('Account status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
+      }));
+      document.querySelectorAll('.premium-btn').forEach(btn => btn.addEventListener('click', async () => {
+        try { await API.request(`/admin/users/${btn.dataset.id}/premium`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({isPremium:btn.dataset.premium === 'true'}) }); showToast('Premium status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
+      }));
     } catch (err) {}
   }
 });

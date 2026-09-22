@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  renderNavbar('admin');
+  renderNavbar((Auth.getUser() || {}).role === 'admin' ? 'admin' : 'creator');
   renderFooter();
 
-  if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+  if (!Auth.isLoggedIn() || !['admin','creator'].includes((Auth.getUser() || {}).role)) {
     showToast('Admin authorization required.', 'error');
     window.location.href = '/login.html';
     return;

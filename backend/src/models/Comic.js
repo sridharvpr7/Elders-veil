@@ -2,7 +2,7 @@ const db = require('../config/database');
 const { createSlug } = require('../utils/slug');
 
 class Comic {
-  static async getAll({ search, genre, status, type, sortBy = 'latest', limit = 20, offset = 0 } = {}) {
+  static async getAll({ search, genre, status, type, sortBy = 'latest', limit = 20, offset = 0, creatorId = null, includeDrafts = false } = {}) {
     if (db.isPgConnected()) {
       let sql = `
         SELECT c.*, 
@@ -15,6 +15,9 @@ class Comic {
         WHERE 1=1
       `;
       const params = [];
+
+      if (!includeDrafts) sql += ` AND c.publish_status = 'published'`;
+      if (creatorId) { params.push(creatorId); sql += ` AND c.creator_id = $${params.length}`; }
 
       if (search) {
         params.push(`%${search}%`);
@@ -49,6 +52,8 @@ class Comic {
 
     // Fallback store filter
     let list = [...db.fallbackStore.comics];
+    if (!includeDrafts) list = list.filter(c => (c.publish_status || 'published') === 'published');
+    if (creatorId) list = list.filter(c => (c.creator_id || c.creatorId) === creatorId);
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c =>
@@ -130,6 +135,8 @@ class Comic {
       views: data.views !== undefined ? Number(data.views) : 0,
       release_year: data.releaseYear || data.release_year || 2026,
       language: data.language || 'English',
+      creator_id: data.creatorId || data.creator_id || null,
+      publish_status: data.publishStatus || data.publish_status || 'published',
       created_at: now,
       updated_at: now,
       genres: data.genres || []
@@ -137,13 +144,13 @@ class Comic {
 
     if (db.isPgConnected()) {
       await db.query(
-        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
+        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, creator_id, publish_status, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
         [
           comicData.id, comicData.title, comicData.slug, comicData.description,
           comicData.author, comicData.artist, comicData.status, comicData.type,
           comicData.cover_image, comicData.banner_image, comicData.rating, comicData.views,
-          comicData.release_year, comicData.language, comicData.created_at, comicData.updated_at
+          comicData.release_year, comicData.language, comicData.creator_id, comicData.publish_status, comicData.created_at, comicData.updated_at
         ]
       );
 
@@ -184,6 +191,7 @@ class Comic {
         rating: data.rating,
         release_year: data.releaseYear || data.release_year,
         language: data.language,
+        publish_status: data.publishStatus || data.publish_status,
         updated_at: new Date()
       };
 
@@ -224,6 +232,7 @@ class Comic {
     if (data.coverImage || data.cover_image) target.cover_image = data.coverImage || data.cover_image;
     if (data.bannerImage || data.banner_image) target.banner_image = data.bannerImage || data.banner_image;
     if (data.rating !== undefined) target.rating = Number(data.rating);
+    if (data.publishStatus || data.publish_status) target.publish_status = data.publishStatus || data.publish_status;
     if (data.genres) target.genres = data.genres;
     target.updated_at = new Date();
 
@@ -276,6 +285,8 @@ class Comic {
       views: parseInt(row.views || 0, 10),
       releaseYear: parseInt(row.release_year || row.releaseYear || 2026, 10),
       language: row.language || 'English',
+      creatorId: row.creator_id || row.creatorId || null,
+      publishStatus: row.publish_status || row.publishStatus || 'published',
       chapterCount: parseInt(row.chapter_count || 0, 10),
       createdAt: row.created_at,
       updatedAt: row.updated_at

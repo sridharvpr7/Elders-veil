@@ -1,7 +1,9 @@
 function renderNavbar(activePage = 'home') {
   const user = Auth.getUser();
+  const premiumBadge = user && user.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : '';
   const isLoggedIn = Auth.isLoggedIn();
   const isAdmin = Auth.isAdmin();
+  const isCreator = user && (user.role === 'creator' || user.role === 'admin');
 
   const userAvatar = (user && user.avatar) 
     ? user.avatar 
@@ -25,6 +27,7 @@ function renderNavbar(activePage = 'home') {
         </div>
 
         <div class="nav-right">
+          ${premiumBadge}
           <div class="nav-search">
             <i class="fas fa-search"></i>
             <input type="text" id="global-search-input" placeholder="Search title, author, genre..." />
@@ -43,6 +46,7 @@ function renderNavbar(activePage = 'home') {
                 <a href="/favorites.html" class="dropdown-item"><i class="fas fa-heart"></i> Favorites</a>
                 <a href="/history.html" class="dropdown-item"><i class="fas fa-history"></i> Reading History</a>
                 <a href="/profile.html" class="dropdown-item"><i class="fas fa-user-cog"></i> Profile Settings</a>
+                ${isCreator ? `<a href="/creator/dashboard.html" class="dropdown-item"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
                 ${isAdmin ? `
                   <a href="/admin/index.html" class="dropdown-item" style="color:var(--accent-purple-light);"><i class="fas fa-user-shield"></i> Admin Portal</a>
                 ` : ''}

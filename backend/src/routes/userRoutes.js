@@ -7,6 +7,7 @@ router.use(authMiddleware);
 
 router.get('/me', UserController.getProfile);
 router.put('/me', UserController.updateProfile);
+router.post('/me/become-creator', UserController.becomeCreator);
 router.post('/me/password', UserController.changePassword);
 
 router.get('/me/bookmarks', UserController.getBookmarks);

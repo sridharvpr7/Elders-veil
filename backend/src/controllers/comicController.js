@@ -15,7 +15,9 @@ class ComicController {
         type,
         sortBy,
         limit: limit ? parseInt(limit, 10) : 24,
-        offset: offset ? parseInt(offset, 10) : 0
+        offset: offset ? parseInt(offset, 10) : 0,
+        creatorId: req.query.mine && req.user ? req.user.id : null,
+        includeDrafts: !!(req.user && (req.user.role === 'admin' || (req.query.mine && ['creator','admin'].includes(req.user.role))))
       });
       res.status(200).json({ comics, count: comics.length });
     } catch (err) {
@@ -108,11 +110,24 @@ class ComicController {
 
   static async createComic(req, res, next) {
     try {
-      const comic = await Comic.create(req.body);
+      if (!['admin','creator'].includes(req.user.role)) return res.status(403).json({ error: 'Creator privileges required.' });
+      const payload = { ...req.body, creatorId: req.user.role === 'admin' ? (req.body.creatorId || null) : req.user.id, publishStatus: req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'draft' };
+      const comic = await Comic.create(payload);
       res.status(201).json({ comic, message: 'Comic created successfully.' });
     } catch (err) {
       next(err);
     }
+  }
+
+
+  static async publishComic(req, res, next) {
+    try {
+      const comic = await Comic.findById(req.params.id);
+      if (!comic) return res.status(404).json({ error: 'Comic not found.' });
+      if (req.user.role !== 'admin' && comic.creator_id !== req.user.id) return res.status(403).json({ error: 'You can only publish your own comics.' });
+      const updated = await Comic.update(req.params.id, { publishStatus: 'published' });
+      res.json({ comic: updated, message: 'Comic published successfully.' });
+    } catch (err) { next(err); }
   }
 
   static async updateComic(req, res, next) {

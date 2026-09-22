@@ -18,6 +18,15 @@ class UserController {
     }
   }
 
+
+  static async becomeCreator(req, res, next) {
+    try {
+      const user = await User.becomeCreator(req.user.id);
+      if (!user) return res.status(403).json({ error: 'Unable to activate creator mode for this account.' });
+      res.json({ user, message: 'Creator mode activated.' });
+    } catch (err) { next(err); }
+  }
+
   static async changePassword(req, res, next) {
     try {
       const { currentPassword, newPassword } = req.body;

@@ -1,5 +1,6 @@
 const Chapter = require('../models/Chapter');
 const ReadingHistory = require('../models/ReadingHistory');
+const Comic = require('../models/Comic');
 
 class ChapterController {
   static async getComicChapters(req, res, next) {
@@ -41,6 +42,9 @@ class ChapterController {
   static async createChapter(req, res, next) {
     try {
       const comicId = req.params.comicId || req.body.comicId;
+      const comic = await Comic.findById(comicId);
+      if (!comic) return res.status(404).json({ error: 'Comic not found.' });
+      if (req.user.role !== 'admin' && comic.creatorId !== req.user.id) return res.status(403).json({ error: 'You can only add chapters to your own comics.' });
       const chapter = await Chapter.create({
         ...req.body,
         comicId
@@ -53,6 +57,10 @@ class ChapterController {
 
   static async updateChapter(req, res, next) {
     try {
+      const existing = await Chapter.findById(req.params.id);
+      if (!existing) return res.status(404).json({ error: 'Chapter not found.' });
+      const comic = await Comic.findById(existing.comicId);
+      if (req.user.role !== 'admin' && (!comic || comic.creatorId !== req.user.id)) return res.status(403).json({ error: 'You can only edit your own chapters.' });
       const chapter = await Chapter.update(req.params.id, req.body);
       if (!chapter) {
         return res.status(404).json({ error: 'Chapter not found.' });
@@ -65,6 +73,10 @@ class ChapterController {
 
   static async deleteChapter(req, res, next) {
     try {
+      const existing = await Chapter.findById(req.params.id);
+      if (!existing) return res.status(404).json({ error: 'Chapter not found.' });
+      const comic = await Comic.findById(existing.comicId);
+      if (req.user.role !== 'admin' && (!comic || comic.creatorId !== req.user.id)) return res.status(403).json({ error: 'You can only delete your own chapters.' });
       const success = await Chapter.delete(req.params.id);
       if (!success) {
         return res.status(404).json({ error: 'Chapter not found.' });

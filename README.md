@@ -74,3 +74,13 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 
 4. **Verify Deployment**:
    - The application automatically runs `schema.sql` migrations and populates seed data on first boot.
+
+
+## Creator & Premium System
+- Users can activate Creator Mode from Creator Studio.
+- Creators can create draft comics, upload chapters, and publish their own comics.
+- Comic ownership is stored with `creator_id`.
+- Registration stores a mobile number.
+- Admins can activate/deactivate Premium, Block, Unblock, Ban, and Unban users from User Management.
+- Premium accounts receive the exclusive golden UI theme.
+- Existing PostgreSQL deployments receive the new columns automatically through the migration script.

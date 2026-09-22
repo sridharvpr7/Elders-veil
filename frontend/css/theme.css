@@ -95,3 +95,23 @@ html {
     height: 40px;
   }
 }
+
+
+/* Premium members get an exclusive golden UI treatment. */
+html.premium-theme {
+  --accent-purple: #d4a017;
+  --accent-cyan: #f5c542;
+  --accent-pink: #e7b93c;
+  --accent-blue: #f2c14e;
+}
+html.premium-theme body {
+  background-image: radial-gradient(circle at 15% 10%, rgba(212,160,23,.10), transparent 32%), radial-gradient(circle at 85% 90%, rgba(245,197,66,.08), transparent 28%);
+}
+html.premium-theme .text-gradient {
+  background: linear-gradient(90deg, #b8860b, #f5c542, #fff1a8);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+html.premium-theme .premium-badge {
+  display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .55rem; border-radius: 999px;
+  border: 1px solid rgba(212,160,23,.45); background: rgba(212,160,23,.12); color: #b8860b; font-weight: 700;
+}

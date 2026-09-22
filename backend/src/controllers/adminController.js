@@ -42,6 +42,26 @@ class AdminController {
     }
   }
 
+
+  static async setUserStatus(req, res, next) {
+    try {
+      const status = req.body.status;
+      if (!['active', 'blocked', 'banned'].includes(status)) return res.status(400).json({ error: 'Invalid account status.' });
+      if (req.params.id === req.user.id) return res.status(400).json({ error: 'You cannot change your own account status.' });
+      const user = await User.setStatus(req.params.id, status);
+      if (!user) return res.status(404).json({ error: 'User not found.' });
+      res.json({ user, message: `User ${status}.` });
+    } catch (err) { next(err); }
+  }
+
+  static async setPremium(req, res, next) {
+    try {
+      const user = await User.setPremium(req.params.id, !!req.body.isPremium);
+      if (!user) return res.status(404).json({ error: 'User not found.' });
+      res.json({ user, message: user.is_premium ? 'Premium enabled.' : 'Premium removed.' });
+    } catch (err) { next(err); }
+  }
+
   static async importComicsJson(req, res, next) {
     try {
       const result = await JsonManagerService.importJson(req.body);

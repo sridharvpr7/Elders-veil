@@ -3,9 +3,12 @@ const { generateToken } = require('../utils/jwt');
 const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
 
 class AuthService {
-  static async register({ username, email, password, confirmPassword }) {
-    if (!username || !email || !password) {
-      throw { statusCode: 400, message: 'Username, email, and password are required.' };
+  static async register({ username, email, phone, password, confirmPassword }) {
+    if (!username || !email || !phone || !password) {
+      throw { statusCode: 400, message: 'Username, email, mobile number, and password are required.' };
+    }
+    if (!/^\+?[0-9]{10,15}$/.test(String(phone).replace(/[\s-]/g, ''))) {
+      throw { statusCode: 400, message: 'Enter a valid mobile number.' };
     }
     if (confirmPassword && password !== confirmPassword) {
       throw { statusCode: 400, message: 'Passwords do not match.' };
@@ -35,6 +38,7 @@ class AuthService {
       id: userId,
       username: username.trim(),
       email: email.trim().toLowerCase(),
+      phone: String(phone).replace(/[\s-]/g, ''),
       password,
       role: 'user'
     });

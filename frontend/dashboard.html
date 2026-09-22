@@ -19,6 +19,7 @@
   <header id="app-header"></header>
 
   <main>
+    <div class="container" style="margin-top:1rem"><div id="creator-cta"></div></div>
     <div class="container">
       
       <!-- Profile Header Banner -->
@@ -121,5 +122,5 @@
       } catch (err) {}
     });
   </script>
-</body>
+<script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const el=document.getElementById('creator-cta');if(u&&u.role!=='admin'){el.innerHTML=u.role==='creator'?'<div class="auth-card" style="margin-bottom:1rem"><h3>Creator Studio</h3><p>Manage your comics and chapters.</p><a class="btn btn-primary" href="/creator/dashboard.html">Open Creator Dashboard</a></div>':'<div class="auth-card" style="margin-bottom:1rem"><h3>Become a Creator</h3><p>Publish your own comics and chapters on Elder's Veil.</p><a class="btn btn-primary" href="/creator/dashboard.html">Start Creating</a></div>';}});</script></body>
 </html>

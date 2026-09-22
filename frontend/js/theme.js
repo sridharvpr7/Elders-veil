@@ -11,6 +11,8 @@
 
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    const user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
+    document.documentElement.classList.toggle('premium-theme', !!(user && user.is_premium));
     localStorage.setItem(STORAGE_KEY, theme);
   }
 

@@ -19,6 +19,8 @@ async function authMiddleware(req, res, next) {
     if (!user) {
       return res.status(401).json({ error: 'User account no longer exists.' });
     }
+    if (user.account_status === 'banned') return res.status(403).json({ error: 'This account has been banned.' });
+    if (user.account_status === 'blocked') return res.status(403).json({ error: 'This account is currently blocked.' });
 
     req.user = user;
     next();

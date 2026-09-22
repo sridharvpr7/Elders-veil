@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Studio Upload — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      <div class="section-title"><i class="fas fa-cloud-upload-alt text-gradient"></i> <span>Comic & Chapter Upload Suite</span></div>
+
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <a href="/creator/dashboard.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Creator Dashboard</a>
+          
+          
+          <a href="/creator/upload.html" class="admin-nav-item active"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          
+          
+        </aside>
+
+        <div>
+          <!-- Tab 1: Create New Comic -->
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem; margin-bottom:2.5rem;">
+            <h3 style="margin-bottom:1.5rem;"><i class="fas fa-plus-circle text-gradient"></i> 1. Create New Comic Entry</h3>
+            <form id="create-comic-form">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+                <div class="form-group">
+                  <label class="form-label">Comic Title</label>
+                  <input type="text" id="comic-title" class="form-input" required placeholder="Shadow Monarch" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Type</label>
+                  <select id="comic-type" class="form-select">
+                    <option value="manhwa">Manhwa</option>
+                    <option value="manga">Manga</option>
+                    <option value="manhua">Manhua</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Author Name</label>
+                  <input type="text" id="comic-author" class="form-input" placeholder="Author..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Artist Name</label>
+                  <input type="text" id="comic-artist" class="form-input" placeholder="Artist..." />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="comic-status" class="form-select">
+                    <option value="ongoing">Ongoing</option>
+                    <option value="completed">Completed</option>
+                    <option value="hiatus">Hiatus</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Rating (0 - 5.0)</label>
+                  <input type="number" step="0.1" id="comic-rating" class="form-input" value="4.8" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Genres (Comma-separated)</label>
+                <input type="text" id="comic-genres" class="form-input" placeholder="Action, Fantasy, Supernatural" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Description / Synopsis</label>
+                <textarea id="comic-desc" class="form-textarea" rows="3" placeholder="Enter story synopsis..."></textarea>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-top:1rem;">
+                <div class="form-group">
+                  <label class="form-label">Cover Image File</label>
+                  <input type="file" id="cover-file" class="form-input" accept="image/*" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Banner Image File</label>
+                  <input type="file" id="banner-file" class="form-input" accept="image/*" />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;">
+                <i class="fas fa-plus-circle"></i> Create Comic
+              </button>
+            </form>
+          </div>
+
+          <!-- Tab 2: Upload Chapter Pages -->
+          <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
+            <h3 style="margin-bottom:1.5rem;"><i class="fas fa-file-upload text-gradient"></i> 2. Publish New Chapter Pages</h3>
+            <form id="upload-chapter-form">
+              <div class="form-group">
+                <label class="form-label">Target Comic</label>
+                <select id="select-comic-id" class="form-select" required>
+                  <option value="">Select a comic...</option>
+                </select>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr 2fr; gap:1.25rem;">
+                <div class="form-group">
+                  <label class="form-label">Chapter Number</label>
+                  <input type="number" step="0.1" id="chapter-number" class="form-input" required value="1" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Chapter Title (Optional)</label>
+                  <input type="text" id="chapter-title" class="form-input" placeholder="e.g. Awakening" />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:1rem;">
+                <label class="form-label">Upload Multi-Page Chapter Images (JPG, PNG, WEBP)</label>
+                <div class="dropzone" onclick="document.getElementById('pages-file').click();">
+                  <i class="fas fa-images"></i>
+                  <h4>Click or Drag & Drop Chapter Pages Here</h4>
+                  <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">Select multiple images at once to build the reading order.</p>
+                </div>
+                <input type="file" id="pages-file" multiple accept="image/*" style="display:none;" />
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;">
+                <i class="fas fa-upload"></i> Publish Chapter
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/upload.js"></script>
+</body>
+</html>
