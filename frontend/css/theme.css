@@ -1,0 +1,97 @@
+/* Elder's Veil — Light/Dark Theme */
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+:root[data-theme="light"] {
+  --bg-primary: #f6f7fb;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef1f6;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #ffffff;
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(15, 23, 42, 0.10);
+  --glass-border-hover: rgba(124, 58, 237, 0.35);
+
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.18);
+}
+
+:root[data-theme="light"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .app-navbar {
+  background: rgba(255, 255, 255, 0.90);
+}
+
+:root[data-theme="light"] .reader-header {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+:root[data-theme="light"] .reader-page-body {
+  background-color: var(--bg-primary) !important;
+}
+
+:root[data-theme="light"] .page-counter-pill {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+:root[data-theme="light"] .reader-navigation-footer {
+  background: var(--bg-secondary);
+}
+
+:root[data-theme="light"] .theme-toggle {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.theme-toggle {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 10050;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-color: var(--accent-purple);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid rgba(124, 58, 237, 0.25);
+  outline-offset: 3px;
+}
+
+.reader-view-count {
+  margin-left: 0.65rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .theme-toggle {
+    right: 0.9rem;
+    bottom: 0.9rem;
+    width: 40px;
+    height: 40px;
+  }
+}

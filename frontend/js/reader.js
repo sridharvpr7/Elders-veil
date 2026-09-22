@@ -22,6 +22,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentChapter = res.chapter;
     allChapters = res.allChapters || [];
 
+    // Count one comic view per browser session when the reader is actually opened.
+    // This avoids inflating views from comic detail/catalog page visits or chapter navigation.
+    const viewKey = `elder-veil-viewed-${currentChapter.comicId}`;
+    const updateReaderViewCount = (viewRes) => {
+      const viewEl = document.getElementById('reader-view-count');
+      if (viewEl && viewRes && viewRes.views !== undefined) {
+        viewEl.textContent = Number(viewRes.views).toLocaleString();
+      }
+    };
+
+    if (!sessionStorage.getItem(viewKey)) {
+      API.post(`/comics/${encodeURIComponent(currentChapter.comicId)}/view`, {})
+        .then(viewRes => {
+          sessionStorage.setItem(viewKey, '1');
+          updateReaderViewCount(viewRes);
+        })
+        .catch(() => {});
+    } else {
+      // Keep the displayed count accurate without creating another view.
+      API.get(`/comics/${encodeURIComponent(currentChapter.comicId)}`)
+        .then(viewRes => updateReaderViewCount(viewRes.comic || viewRes))
+        .catch(() => {});
+    }
+
     document.title = `Chapter ${currentChapter.chapterNumber} — Elder's Veil Reader`;
 
     // Render header title & controls

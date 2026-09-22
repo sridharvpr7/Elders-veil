@@ -148,104 +148,12 @@ async function seedInitialData() {
       await Genre.create({ id: `genre-${name.toLowerCase()}`, name });
     }
 
-    // Seed Comics if empty
-    const existingComics = await Comic.getAll({ limit: 10 });
-    if (existingComics.length === 0) {
-      const seedComics = [
-        {
-          id: 'comic-001',
-          title: 'Shadow Monarch: Rebirth',
-          slug: 'shadow-monarch-rebirth',
-          description: 'In a world shattered by dimensional rifts, Jin-Woo awakens as the singular Lord of Shadows. Wielding ancient necromantic powers, he must ascend beyond mortality to defeat the Monarchs of Chaos.',
-          author: 'Chugong',
-          artist: 'DUBU (REDICE)',
-          status: 'ongoing',
-          type: 'manhwa',
-          genres: ['Action', 'Fantasy', 'Supernatural'],
-          coverImage: generateSvgCover('Shadow Monarch', 'manhwa', '#7c3aed'),
-          bannerImage: generateSvgBanner('Shadow Monarch: Rebirth', '#4c1d95'),
-          rating: 4.9,
-          views: 142800,
-          releaseYear: 2026,
-          language: 'English'
-        },
-        {
-          id: 'comic-002',
-          title: "Elder's Veil: Dark Covenant",
-          slug: 'elders-veil-dark-covenant',
-          description: 'Beyond the mortal mist lies the Elder Veil. Kael, an exiled spellblade, unlocks forbidden runes that grant him mastery over dark space-time illusions.',
-          author: 'Aeliana Vance',
-          artist: 'Kurogane Studio',
-          status: 'ongoing',
-          type: 'manga',
-          genres: ['Fantasy', 'Mystery', 'Action'],
-          coverImage: generateSvgCover("Elder's Veil", 'manga', '#06b6d4'),
-          bannerImage: generateSvgBanner("Elder's Veil: Dark Covenant", '#0e7490'),
-          rating: 4.85,
-          views: 98500,
-          releaseYear: 2026,
-          language: 'English'
-        },
-        {
-          id: 'comic-003',
-          title: 'Cyberpunk Ninja 2099',
-          slug: 'cyberpunk-ninja-2099',
-          description: 'Neo-Tokyo, 2099. Enhanced with neural cybernetics and dual plasma katanas, Ren hunts down rogue megacorporations controlling humanity’s digital soul.',
-          author: 'Kenji Takahashi',
-          artist: 'Yukihiro Sato',
-          status: 'ongoing',
-          type: 'manhua',
-          genres: ['Sci-Fi', 'Cyberpunk', 'Action'],
-          coverImage: generateSvgCover('Cyberpunk Ninja', 'manhua', '#f43f5e'),
-          bannerImage: generateSvgBanner('Cyberpunk Ninja 2099', '#be123c'),
-          rating: 4.75,
-          views: 84300,
-          releaseYear: 2025,
-          language: 'English'
-        },
-        {
-          id: 'comic-004',
-          title: 'Celestial Mage Ascension',
-          slug: 'celestial-mage-ascension',
-          description: 'Betrayed by his supreme council, Archmage Zephyr is reborn 1000 years in the future with full memory of forbidden astral spells.',
-          author: 'Li Wei',
-          artist: 'Dragon Studio',
-          status: 'completed',
-          type: 'manhwa',
-          genres: ['Fantasy', 'Adventure'],
-          coverImage: generateSvgCover('Celestial Mage', 'manhwa', '#eab308'),
-          bannerImage: generateSvgBanner('Celestial Mage Ascension', '#ca8a04'),
-          rating: 4.65,
-          views: 67100,
-          releaseYear: 2024,
-          language: 'English'
-        }
-      ];
-
-      for (const comicData of seedComics) {
-        const createdComic = await Comic.create(comicData);
-
-        // Add 3 Chapters for each comic with 4 pages each
-        for (let chNum = 1; chNum <= 3; chNum++) {
-          const chId = `chapter-${createdComic.id}-${chNum}`;
-          const pages = [
-            generateSvgComicPage(createdComic.title, chNum, 1, ['#0f172a', '#1e1b4b']),
-            generateSvgComicPage(createdComic.title, chNum, 2, ['#18181b', '#27272a']),
-            generateSvgComicPage(createdComic.title, chNum, 3, ['#020617', '#0f172a']),
-            generateSvgComicPage(createdComic.title, chNum, 4, ['#1e1b4b', '#4c1d95'])
-          ];
-
-          await Chapter.create({
-            id: chId,
-            comicId: createdComic.id,
-            chapterNumber: chNum,
-            title: chNum === 1 ? 'Awakening' : (chNum === 2 ? 'The Unbroken Seal' : 'Realm of Shadows'),
-            releaseDate: new Date().toISOString().split('T')[0],
-            pages
-          });
-        }
-      }
-      console.log('[Seed] Comics and multi-page Chapters seeded successfully.');
+    // Remove bundled sample comics from previous deployments.
+    // User/admin uploaded comics are never touched.
+    const sampleComicIds = ['comic-001', 'comic-002', 'comic-003', 'comic-004'];
+    for (const sampleId of sampleComicIds) {
+      const removed = await Comic.delete(sampleId);
+      if (removed) console.log(`[Seed] Removed bundled sample comic: ${sampleId}`);
     }
 
     // Save standard JSON backup file in frontend/data/comics.json as required by prompt

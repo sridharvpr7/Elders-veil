@@ -30,9 +30,6 @@ class ComicController {
         return res.status(404).json({ error: 'Comic not found.' });
       }
 
-      // Increment view count asynchronously
-      Comic.incrementViews(comic.id).catch(() => {});
-
       let isBookmarked = false;
       let isFavorite = false;
 
@@ -61,8 +58,6 @@ class ComicController {
         return res.status(404).json({ error: 'Comic not found.' });
       }
 
-      Comic.incrementViews(comic.id).catch(() => {});
-
       let isBookmarked = false;
       let isFavorite = false;
 
@@ -78,6 +73,24 @@ class ComicController {
         chapters,
         isBookmarked,
         isFavorite
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async recordView(req, res, next) {
+    try {
+      const comic = await Comic.findById(req.params.id);
+      if (!comic) {
+        return res.status(404).json({ error: 'Comic not found.' });
+      }
+
+      await Comic.incrementViews(comic.id);
+      const updatedComic = await Comic.findById(comic.id);
+
+      res.status(200).json({
+        views: updatedComic ? Number(updatedComic.views || 0) : Number(comic.views || 0) + 1
       });
     } catch (err) {
       next(err);

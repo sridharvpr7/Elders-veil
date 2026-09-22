@@ -7,6 +7,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 router.get('/', ComicController.getComics);
 router.get('/genres', ComicController.getGenres);
 router.get('/slug/:slug', optionalAuthMiddleware, ComicController.getComicBySlug);
+router.post('/:id/view', ComicController.recordView);
 router.get('/:id', optionalAuthMiddleware, ComicController.getComicById);
 
 // Admin-only endpoints
