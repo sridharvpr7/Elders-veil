@@ -133,3 +133,57 @@ CREATE INDEX IF NOT EXISTS idx_comics_publish_status ON comics(publish_status);
 CREATE INDEX IF NOT EXISTS idx_chapters_publish_status ON chapters(publish_status);
 CREATE INDEX IF NOT EXISTS idx_chapters_views ON chapters(views DESC);
 CREATE INDEX IF NOT EXISTS idx_reading_history_updated ON reading_history(updated_at DESC);
+
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(50) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  data JSONB DEFAULT '{}'::jsonb,
+  read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  user_id VARCHAR(64) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  new_comic_whatsapp BOOLEAN DEFAULT TRUE,
+  new_chapter_whatsapp BOOLEAN DEFAULT TRUE,
+  email_enabled BOOLEAN DEFAULT TRUE,
+  in_app_enabled BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE IF NOT EXISTS comic_likes (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  comic_id VARCHAR(64) REFERENCES comics(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id,comic_id)
+);
+CREATE TABLE IF NOT EXISTS comic_follows (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  comic_id VARCHAR(64) REFERENCES comics(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id,comic_id)
+);
+CREATE TABLE IF NOT EXISTS ratings (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  comic_id VARCHAR(64) REFERENCES comics(id) ON DELETE CASCADE,
+  rating NUMERIC(2,1) NOT NULL CHECK(rating>=1 AND rating<=5),
+  review TEXT DEFAULT '',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id,comic_id)
+);
+CREATE TABLE IF NOT EXISTS comments (
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  comic_id VARCHAR(64) REFERENCES comics(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_comments_comic ON comments(comic_id,created_at DESC);

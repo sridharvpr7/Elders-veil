@@ -3,6 +3,8 @@ const Chapter = require('../models/Chapter');
 const Bookmark = require('../models/Bookmark');
 const Favorite = require('../models/Favorite');
 const Genre = require('../models/Genre');
+const NotificationService = require('../services/notificationService');
+const User = require('../models/User');
 
 class ComicController {
   static async getComics(req, res, next) {
@@ -132,8 +134,21 @@ class ComicController {
       const comic = await Comic.findById(req.params.id);
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
       const updated = await Comic.update(req.params.id, { publishStatus: 'published', reviewNote: null });
+      NotificationService.broadcastNewComic(updated, User).catch(()=>{});
+      if (updated.creatorId) NotificationService.create(updated.creatorId,'comic_approved','Comic approved',`${updated.title} was approved and published.`,{comicId:updated.id}).catch(()=>{});
       res.json({ comic: updated, message: 'Comic approved and published.' });
     } catch (err) { next(err); }
+  }
+
+  static async requestChanges(req,res,next){
+    try{
+      const comic=await Comic.findById(req.params.id);
+      if(!comic)return res.status(404).json({error:'Comic not found.'});
+      const note=String(req.body.reason||'Please update this submission and resubmit.').trim();
+      const updated=await Comic.update(req.params.id,{publishStatus:'changes_requested',reviewNote:note});
+      if(updated.creatorId) NotificationService.create(updated.creatorId,'changes_requested','Changes requested',note,{comicId:updated.id}).catch(()=>{});
+      res.json({comic:updated,message:'Changes requested from creator.'});
+    }catch(e){next(e)}
   }
 
   static async rejectComic(req, res, next) {

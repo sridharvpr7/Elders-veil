@@ -57,6 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               <button class="btn ${isFavorite ? 'btn-primary' : 'btn-secondary'}" id="favorite-toggle-btn">
                 <i class="fas fa-heart" style="${isFavorite ? 'color:#ffffff' : 'color:var(--accent-pink)'}"></i> ${isFavorite ? 'Favorited' : 'Favorite'}
               </button>
+              <button class="btn btn-secondary" id="like-btn"><i class="fas fa-thumbs-up"></i> Like</button>
+              <button class="btn btn-secondary" id="follow-btn"><i class="fas fa-bell"></i> Follow</button>
             </div>
           </div>
         </div>
@@ -65,6 +67,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="comic-description-box">
         <h3 style="color:var(--text-primary); margin-bottom:0.75rem;"><i class="fas fa-align-left text-gradient"></i> Synopsis</h3>
         <p>${comic.description || 'No description provided.'}</p>
+      </div>
+
+      <div class="comic-description-box" style="margin-top:1rem">
+        <h3>Community</h3>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+          <select id="rating-value" class="form-select" style="width:auto"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select>
+          <button class="btn btn-secondary" id="rate-btn">Rate Comic</button>
+        </div>
+        <div id="comments-box" style="margin-top:1rem"><h4>Comments</h4><div id="comments-list">Loading...</div><textarea id="comment-text" class="form-textarea" maxlength="2000" placeholder="Write a comment..."></textarea><button class="btn btn-primary" id="comment-btn">Post Comment</button></div>
       </div>
 
       <div class="chapters-section">
@@ -107,7 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             bookmarkBtn.innerHTML = '<i class="fas fa-bookmark"></i> Bookmarked';
             showToast('Added to bookmarks!', 'success');
           }
-        } catch (err) {
+          const likeBtn=document.getElementById('like-btn'),followBtn=document.getElementById('follow-btn'),rateBtn=document.getElementById('rate-btn'),commentBtn=document.getElementById('comment-btn');
+    const requireLogin=()=>{if(!Auth.isLoggedIn()){showToast('Please sign in first.','error');return false;}return true;};
+    if(likeBtn)likeBtn.onclick=async()=>{if(!requireLogin())return;try{const r=await API.post('/engagement/comics/'+comic.id+'/like',{});likeBtn.classList.toggle('btn-primary',r.liked);likeBtn.classList.toggle('btn-secondary',!r.liked);likeBtn.innerHTML='<i class="fas fa-thumbs-up"></i> '+(r.liked?'Liked':'Like');}catch(e){showToast(e.message,'error')}};
+    if(followBtn)followBtn.onclick=async()=>{if(!requireLogin())return;try{const r=await API.post('/engagement/comics/'+comic.id+'/follow',{});followBtn.classList.toggle('btn-primary',r.following);followBtn.classList.toggle('btn-secondary',!r.following);followBtn.innerHTML='<i class="fas fa-bell"></i> '+(r.following?'Following':'Follow');}catch(e){showToast(e.message,'error')}};
+    if(rateBtn)rateBtn.onclick=async()=>{if(!requireLogin())return;try{await API.post('/engagement/comics/'+comic.id+'/rating',{rating:Number(document.getElementById('rating-value').value)});showToast('Rating saved.','success')}catch(e){showToast(e.message,'error')}};
+    async function loadComments(){try{const r=await API.get('/engagement/comics/'+comic.id+'/comments');const box=document.getElementById('comments-list');box.innerHTML=(r.comments||[]).length?(r.comments||[]).map(c=>`<div style="padding:.75rem 0;border-bottom:1px solid var(--glass-border)"><strong>${c.username||'Reader'}</strong><p>${String(c.body||'').replace(/[<>]/g,'')}</p></div>`).join(''):'<p style="color:var(--text-muted)">No comments yet.</p>'}catch(e){}}
+    loadComments();
+    if(commentBtn)commentBtn.onclick=async()=>{if(!requireLogin())return;const t=document.getElementById('comment-text').value.trim();if(!t)return;try{await API.post('/engagement/comics/'+comic.id+'/comments',{text:t});document.getElementById('comment-text').value='';loadComments();}catch(e){showToast(e.message,'error')}};
+  } catch (err) {
           showToast(err.message, 'error');
         }
       });

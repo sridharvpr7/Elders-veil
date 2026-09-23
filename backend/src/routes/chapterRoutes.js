@@ -16,6 +16,7 @@ router.put('/:id', authMiddleware, creatorMiddleware, ChapterController.updateCh
 router.delete('/:id', authMiddleware, creatorMiddleware, ChapterController.deleteChapter);
 router.post('/:id/publish', authMiddleware, adminMiddleware, ChapterController.publishChapter);
 router.post('/:id/reject', authMiddleware, adminMiddleware, ChapterController.rejectChapter);
+router.post('/:id/request-changes', authMiddleware, adminMiddleware, ChapterController.requestChanges);
 router.post('/:id/resubmit', authMiddleware, ChapterController.resubmitChapter);
 
 module.exports = router;

@@ -135,6 +135,15 @@ class User {
     const { password_hash, ...safe } = user; return safe;
   }
 
+  static async setRole(id, role) {
+    if (!['user','creator','admin'].includes(role)) return null;
+    if (db.isPgConnected()) {
+      const r=await db.query(`UPDATE users SET role=$1, updated_at=CURRENT_TIMESTAMP WHERE id=$2 RETURNING id,username,email,role,phone,is_premium,premium_expires_at,account_status,avatar,created_at`,[role,id]);
+      return r.rows[0]||null;
+    }
+    const u=db.fallbackStore.users.find(x=>x.id===id); if(!u)return null;u.role=role;u.updated_at=new Date();db.saveFallbackStore();const {password_hash,...safe}=u;return safe;
+  }
+
   static async becomeCreator(id) {
     if (db.isPgConnected()) {
       const res = await db.query(`UPDATE users SET role = CASE WHEN role = 'admin' THEN role ELSE 'creator' END, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND account_status = 'active' RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at`, [id]);

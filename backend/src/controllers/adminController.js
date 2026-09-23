@@ -32,8 +32,8 @@ class AdminController {
     try{
       if(db.isPgConnected()){
         const [c,ch]=await Promise.all([
-          db.query(`SELECT c.*, u.username AS creator_username FROM comics c LEFT JOIN users u ON u.id=c.creator_id WHERE c.publish_status IN ('pending','rejected') ORDER BY c.updated_at DESC`),
-          db.query(`SELECT ch.*, c.title AS comic_title, c.slug AS comic_slug, u.username AS creator_username FROM chapters ch JOIN comics c ON c.id=ch.comic_id LEFT JOIN users u ON u.id=c.creator_id WHERE ch.publish_status IN ('pending','rejected') ORDER BY ch.created_at DESC`)
+          db.query(`SELECT c.*, u.username AS creator_username FROM comics c LEFT JOIN users u ON u.id=c.creator_id WHERE c.publish_status IN ('pending','rejected','changes_requested') ORDER BY c.updated_at DESC`),
+          db.query(`SELECT ch.*, c.title AS comic_title, c.slug AS comic_slug, u.username AS creator_username FROM chapters ch JOIN comics c ON c.id=ch.comic_id LEFT JOIN users u ON u.id=c.creator_id WHERE ch.publish_status IN ('pending','rejected','changes_requested') ORDER BY ch.created_at DESC`)
         ]);
         res.json({comics:c.rows.map(row=>({...Comic.formatComic(row),creatorUsername:row.creator_username||null})),chapters:ch.rows.map(row=>({...Chapter.formatChapter(row),creatorUsername:row.creator_username||null}))}); return;
       }
@@ -44,6 +44,10 @@ class AdminController {
   }
 
   static async setUserStatus(req,res,next){try{const status=req.body.status;if(!['active','blocked','banned'].includes(status))return res.status(400).json({error:'Invalid account status.'});if(req.params.id===req.user.id)return res.status(400).json({error:'You cannot change your own account status.'});const user=await User.setStatus(req.params.id,status);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:`User ${status}.`});}catch(err){next(err);}}
+  static async setRole(req,res,next){try{
+    if(req.params.id===req.user.id && req.body.role!=='admin') return res.status(400).json({error:'You cannot remove your own administrator role.'});
+    const user=await User.setRole(req.params.id,req.body.role);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:'User role updated.'});
+  }catch(e){next(e);}}
   static async setPremium(req,res,next){try{const user=await User.setPremium(req.params.id,!!req.body.isPremium, req.body.durationMonths || 1);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:user.is_premium?`Premium enabled for 1 month (expires ${new Date(user.premium_expires_at).toLocaleDateString()}).`:'Premium removed.'});}catch(err){next(err);}}
   static async importComicsJson(req,res,next){try{res.status(200).json(await JsonManagerService.importJson(req.body));}catch(err){next(err);}}
   static async exportComicsJson(req,res,next){try{const data=await JsonManagerService.exportJson();res.setHeader('Content-Type','application/json');res.setHeader('Content-Disposition','attachment; filename="comicverse_backup.json"');res.status(200).send(JSON.stringify(data,null,2));}catch(err){next(err);}}

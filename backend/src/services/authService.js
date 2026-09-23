@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
+const NotificationService = require('./notificationService');
 
 class AuthService {
   static async register({ username, email, phone, password, confirmPassword }) {
@@ -43,6 +44,8 @@ class AuthService {
       role: 'user'
     });
 
+    NotificationService.create(user.id,'welcome','Welcome to Elder’s Veil',`Welcome ${user.username}! Your account has been created successfully.`,{}).catch(()=>{});
+    NotificationService.whatsapp(user,'elder_veil_welcome',{name:user.username}).catch(()=>{});
     const token = generateToken({ userId: user.id, role: user.role });
     return { user, token };
   }

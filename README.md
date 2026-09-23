@@ -109,3 +109,39 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 - Rejected comics can be resubmitted; rejected chapters can also be resubmitted.
 - Pending/rejected content is hidden from public catalog and reader routes.
 - Continue Reading stores the exact comic + chapter + page and displays overall progress.
+
+
+## New production features added
+
+- Mandatory mobile number during registration.
+- One-month premium expiry handling with automatic expired state.
+- User Light/Dark theme plus premium-expired red state.
+- Profile picture validation at 50 KB maximum.
+- Comic page validation at 150 KB maximum and up to 50 pages.
+- Drag/drop page ordering and previews.
+- Normal users use Dashboard → Become a Comic Writer; direct upload APIs require creator/admin role.
+- Creator drafts/submissions and admin review with Approve, Reject and Request Changes.
+- Admin users pinned at the top of User Management.
+- Notifications center and notification preferences.
+- Likes, follows, ratings, reviews/comments.
+- WhatsApp Business Cloud API integration hooks for welcome, new comic and new chapter notifications.
+- Creator dashboard summary analytics.
+- Role management for users from the admin panel.
+- PostgreSQL schema for notifications and engagement data.
+
+### WhatsApp setup
+
+Create approved WhatsApp Business/Meta Cloud API templates named according to your provider configuration (default names used by this project are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`). Configure:
+
+```env
+WHATSAPP_ACCESS_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_TEMPLATE_LANGUAGE=en_US
+FRONTEND_URL=https://your-domain.example
+```
+
+The WhatsApp integration never exposes the access token to the browser. If WhatsApp is not configured, account creation and publishing continue normally and the delivery failure is not treated as a fatal application error.
+
+### Deployment
+
+For Render/PostgreSQL, configure `DATABASE_URL`, `JWT_SECRET`, and the other values in `.env.example`. The application runs the PostgreSQL schema migration automatically at startup when `DATABASE_URL` is available.
