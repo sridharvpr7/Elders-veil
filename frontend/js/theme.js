@@ -12,12 +12,17 @@
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     const user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; } })();
-    document.documentElement.classList.toggle('premium-theme', !!(user && user.is_premium));
+    const premiumActive=!!(user&&user.is_premium&&(!user.premium_expires_at||new Date(user.premium_expires_at).getTime()>Date.now()));
+    const premiumExpired=!!(user&&user.premium_expires_at&&new Date(user.premium_expires_at).getTime()<=Date.now());
+    document.documentElement.classList.toggle('premium-theme',premiumActive);
+    document.documentElement.classList.toggle('premium-expired',premiumExpired);
     localStorage.setItem(STORAGE_KEY, theme);
   }
 
   // Apply before the page paints to avoid a theme flash.
   applyTheme(getPreferredTheme());
+  // Re-check expiry while a tab remains open so the red expired state appears automatically.
+  setInterval(() => applyTheme(document.documentElement.getAttribute('data-theme') || getPreferredTheme()), 60 * 1000);
 
   function addToggle() {
     if (document.getElementById('theme-toggle')) return;

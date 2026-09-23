@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   role VARCHAR(20) DEFAULT 'user',
   phone VARCHAR(25),
   is_premium BOOLEAN DEFAULT FALSE,
+  premium_expires_at TIMESTAMP WITH TIME ZONE,
   account_status VARCHAR(20) DEFAULT 'active',
   avatar TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -106,6 +107,7 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 -- Backward-compatible upgrades for existing Render databases
 ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(25);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR(20) DEFAULT 'active';
 ALTER TABLE comics ADD COLUMN IF NOT EXISTS creator_id VARCHAR(64);
 ALTER TABLE comics ADD COLUMN IF NOT EXISTS publish_status VARCHAR(20) DEFAULT 'published';
@@ -120,6 +122,7 @@ CREATE INDEX IF NOT EXISTS idx_comics_views ON comics(views DESC);
 CREATE INDEX IF NOT EXISTS idx_comics_creator ON comics(creator_id);
 CREATE INDEX IF NOT EXISTS idx_users_status ON users(account_status);
 CREATE INDEX IF NOT EXISTS idx_users_premium ON users(is_premium);
+CREATE INDEX IF NOT EXISTS idx_users_premium_expires ON users(premium_expires_at);
 CREATE INDEX IF NOT EXISTS idx_chapters_comic_id ON chapters(comic_id);
 CREATE INDEX IF NOT EXISTS idx_chapter_pages_chapter ON chapter_pages(chapter_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id);

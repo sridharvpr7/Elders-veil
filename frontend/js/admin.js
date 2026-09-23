@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const res = await API.get('/admin/users');
       if (res.users && res.users.length > 0) {
         usersTableBody.innerHTML = res.users.map(u => `
-          <tr>
+          <tr class="${u.role==='admin'?'admin-pinned-row':''}">
             <td>
               <div style="display:flex; align-items:center; gap:0.75rem;">
                 <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" alt="Avatar" />
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td>${u.phone || '—'}</td>
             <td><span class="badge ${u.role === 'admin' ? 'badge-purple' : u.role === 'creator' ? 'badge-cyan' : 'badge-cyan'}">${u.role}</span></td>
             <td><span class="badge ${u.account_status === 'active' ? 'badge-cyan' : 'badge-purple'}">${u.account_status || 'active'}</span></td>
-            <td>${u.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : 'Free'}</td>
+            <td>${u.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : (u.premium_expired ? '<span class="badge badge-purple">Expired</span>' : 'Free')}</td><td>${u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString() : '—'}</td>
             <td>
               ${u.role !== 'admin' ? `<button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'blocked' ? 'active' : 'blocked'}">${u.account_status === 'blocked' ? 'Unblock' : 'Block'}</button>
               <button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'banned' ? 'active' : 'banned'}">${u.account_status === 'banned' ? 'Unban' : 'Ban'}</button>
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { await API.request(`/admin/users/${btn.dataset.id}/status`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({status:btn.dataset.status}) }); showToast('Account status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
       }));
       document.querySelectorAll('.premium-btn').forEach(btn => btn.addEventListener('click', async () => {
-        try { await API.request(`/admin/users/${btn.dataset.id}/premium`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({isPremium:btn.dataset.premium === 'true'}) }); showToast('Premium status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
+        try { await API.request(`/admin/users/${btn.dataset.id}/premium`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({isPremium:btn.dataset.premium === 'true',durationMonths:1}) }); showToast('Premium status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
       }));
     } catch (err) {}
   }

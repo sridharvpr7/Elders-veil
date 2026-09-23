@@ -37,10 +37,7 @@
               <label class="form-label">Username</label>
               <input type="text" id="prof-username" class="form-input" required />
             </div>
-            <div class="form-group">
-              <label class="form-label">Avatar Image URL</label>
-              <input type="url" id="prof-avatar" class="form-input" placeholder="https://..." />
-            </div>
+            <div class="form-group"><label class="form-label">Profile Picture <span style="color:var(--text-muted)">(max 50 KB)</span></label><input type="file" id="prof-avatar-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" /><img id="prof-avatar-preview" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:none;margin-top:.5rem" alt="Profile preview"></div><div class="form-group"><label class="form-label">Theme</label><select id="theme-select" class="form-select"><option value="dark">Dark</option><option value="light">Light</option></select></div>
             <button type="submit" class="btn btn-primary" style="margin-top:1rem;">
               <i class="fas fa-save"></i> Save Profile
             </button>
@@ -87,24 +84,26 @@
       const user = Auth.getUser();
       if (user) {
         document.getElementById('prof-username').value = user.username || '';
-        document.getElementById('prof-avatar').value = user.avatar || '';
+        document.getElementById('prof-avatar-preview').src=user.avatar||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
       }
 
       // Profile Edit Form Submit
       document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('prof-username').value;
-        const avatar = document.getElementById('prof-avatar').value;
+        const avatarFile=document.getElementById('prof-avatar-file').files[0];
 
         try {
-          const res = await API.put('/users/me', { username, avatar });
+          let avatar=user.avatar||'';if(avatarFile){if(avatarFile.size>50*1024)throw new Error('Profile picture must be 50 KB or smaller.');const fd=new FormData();fd.append('avatar',avatarFile);const ar=await API.upload('/uploads/avatar',fd);avatar=ar.url;}const res=await API.put('/users/me',{username,avatar});
           localStorage.setItem('user', JSON.stringify(res.user));
           showToast('Profile updated successfully!', 'success');
-          setTimeout(() => location.reload(), 600);
+          localStorage.setItem('elder-veil-theme',document.getElementById('theme-select').value);document.documentElement.setAttribute('data-theme',document.getElementById('theme-select').value);setTimeout(()=>location.reload(),600);
         } catch (err) {
           showToast(err.message, 'error');
         }
       });
+
+      document.getElementById('prof-avatar-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>50*1024){showToast('Profile picture must be 50 KB or smaller.','error');e.target.value='';return;}const p=document.getElementById('prof-avatar-preview');p.src=URL.createObjectURL(f);p.style.display='block';});document.getElementById('theme-select').addEventListener('change',e=>{localStorage.setItem('elder-veil-theme',e.target.value);document.documentElement.setAttribute('data-theme',e.target.value);});
 
       // Change Password Form Submit
       document.getElementById('change-pass-form').addEventListener('submit', async (e) => {

@@ -115,6 +115,7 @@ class ComicController {
   static async createComic(req, res, next) {
     try {
       if (!req.user) return res.status(401).json({ error: 'Login required.' });
+      if (req.user.role !== 'admin' && req.user.role !== 'creator') return res.status(403).json({ error: 'Become a Comic Writer from your dashboard before uploading.' });
       if (!req.body.title || String(req.body.title).trim().length < 2) return res.status(400).json({ error: 'Comic title is required.' });
       const payload = { ...req.body, creatorId: req.user.role === 'admin' ? (req.body.creatorId || null) : req.user.id, publishStatus: req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'pending' };
       const comic = await Comic.create(payload);

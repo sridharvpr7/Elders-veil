@@ -18,6 +18,13 @@ class UploadController {
     res.status(200).json({ url, message: 'Banner image uploaded successfully.' });
   }
 
+  static async uploadAvatar(req, res) {
+    if (!req.file) return res.status(400).json({ error: 'No avatar image uploaded.' });
+    const url = UploadService.processSingleFile(req.file);
+    await require('../models/User').updateProfile(req.user.id, { avatar: url });
+    res.status(200).json({ url, message: 'Profile picture updated successfully.' });
+  }
+
   static async uploadChapterPages(req, res) {
     const comicId = req.body.comicId;
     if (!comicId) return res.status(400).json({ error: 'comicId is required.' });

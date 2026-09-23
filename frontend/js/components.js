@@ -1,9 +1,11 @@
 function renderNavbar(activePage = 'home') {
   const user = Auth.getUser();
-  const premiumBadge = user && user.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : '';
+  const premiumActive = !!(user && user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()));
+  const premiumBadge = premiumActive ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : '';
   const isLoggedIn = Auth.isLoggedIn();
   const isAdmin = Auth.isAdmin();
-  const canUpload = !!user;
+  const canCreate=!!user&&user.role==='creator';
+  const canAdminUpload=!!user&&user.role==='admin';
 
   const userAvatar = (user && user.avatar) 
     ? user.avatar 
@@ -46,7 +48,8 @@ function renderNavbar(activePage = 'home') {
                 <a href="/favorites.html" class="dropdown-item"><i class="fas fa-heart"></i> Favorites</a>
                 <a href="/history.html" class="dropdown-item"><i class="fas fa-history"></i> Reading History</a>
                 <a href="/profile.html" class="dropdown-item"><i class="fas fa-user-cog"></i> Profile Settings</a>
-                ${canUpload ? `<a href="/creator/dashboard.html" class="dropdown-item"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
+                ${canCreate ? `<a href="/creator/dashboard.html" class="dropdown-item"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
+                ${canAdminUpload ? `<a href="/admin/upload.html" class="dropdown-item"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
                 ${isAdmin ? `
                   <a href="/admin/index.html" class="dropdown-item" style="color:var(--accent-purple-light);"><i class="fas fa-user-shield"></i> Admin Portal</a>
                 ` : ''}

@@ -4,10 +4,10 @@ const bcrypt = require('bcryptjs');
 class User {
   static async findByEmail(email) {
     if (db.isPgConnected()) {
-      const res = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+      const res = await db.query("SELECT *, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN FALSE ELSE is_premium END AS is_premium, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END AS premium_expired FROM users WHERE email = $1", [email]);
       return res.rows[0] || null;
     }
-    return db.fallbackStore.users.find(u => u.email.toLowerCase() === String(email).toLowerCase()) || null;
+    const user=db.fallbackStore.users.find(u=>u.email.toLowerCase()===String(email).toLowerCase()) || null; if(user&&user.is_premium&&user.premium_expires_at&&new Date(user.premium_expires_at)<=new Date()){user.is_premium=false;user.premium_expired=true;db.saveFallbackStore();} return user;
   }
 
   static async findByUsername(username) {
@@ -20,11 +20,16 @@ class User {
 
   static async findById(id) {
     if (db.isPgConnected()) {
-      const res = await db.query('SELECT id, username, email, role, phone, is_premium, account_status, avatar, created_at, updated_at FROM users WHERE id = $1', [id]);
+      const res = await db.query("SELECT id, username, email, role, phone, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN FALSE ELSE is_premium END AS is_premium, premium_expires_at, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END AS premium_expired, account_status, avatar, created_at, updated_at FROM users WHERE id = $1", [id]);
       return res.rows[0] || null;
     }
     const user = db.fallbackStore.users.find(u => u.id === id);
     if (!user) return null;
+    if (user.is_premium && user.premium_expires_at && new Date(user.premium_expires_at) <= new Date()) {
+      user.is_premium = false;
+      user.premium_expired = true;
+      db.saveFallbackStore();
+    }
     const { password_hash, ...safeUser } = user;
     return safeUser;
   }
@@ -37,13 +42,13 @@ class User {
       const res = await db.query(
         `INSERT INTO users (id, username, email, password_hash, role, phone, avatar, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING id, username, email, role, phone, is_premium, account_status, avatar, created_at, updated_at`,
+         RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at, updated_at`,
         [id, username, email, password_hash, role, phone, avatar, now, now]
       );
       return res.rows[0];
     }
 
-    const newUser = { id, username, email, password_hash, role, phone, is_premium: false, account_status: 'active', avatar, created_at: now, updated_at: now };
+    const newUser = { id, username, email, password_hash, role, phone, is_premium: false, premium_expires_at: null, account_status: 'active', avatar, created_at: now, updated_at: now };
     db.fallbackStore.users.push(newUser);
     db.saveFallbackStore();
     const { password_hash: _, ...safeUser } = newUser;
@@ -58,7 +63,7 @@ class User {
     if (db.isPgConnected()) {
       const res = await db.query(
         `UPDATE users SET username = COALESCE($1, username), avatar = COALESCE($2, avatar), updated_at = CURRENT_TIMESTAMP
-         WHERE id = $3 RETURNING id, username, email, role, avatar, updated_at`,
+         WHERE id = $3 RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at, updated_at`,
         [username, avatar, id]
       );
       return res.rows[0];
@@ -92,14 +97,17 @@ class User {
 
   static async getAll() {
     if (db.isPgConnected()) {
-      const res = await db.query('SELECT id, username, email, role, phone, is_premium, account_status, avatar, created_at FROM users ORDER BY created_at DESC');
+      const res = await db.query("SELECT id, username, email, role, phone, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN FALSE ELSE is_premium END AS is_premium, premium_expires_at, CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END AS premium_expired, account_status, avatar, created_at FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC");
       return res.rows;
     }
-    return db.fallbackStore.users.map(({ password_hash, ...rest }) => rest);
+    return db.fallbackStore.users
+      .map(({ password_hash, ...rest }) => rest)
+      .map(u => { if (u.is_premium && u.premium_expires_at && new Date(u.premium_expires_at) <= new Date()) { u.is_premium = false; u.premium_expired = true; db.saveFallbackStore(); } return u; })
+      .sort((a,b) => (a.role === 'admin' ? -1 : 1) - (b.role === 'admin' ? -1 : 1) || new Date(b.created_at || 0) - new Date(a.created_at || 0));
   }
   static async setStatus(id, accountStatus) {
     if (db.isPgConnected()) {
-      const res = await db.query(`UPDATE users SET account_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, email, role, phone, is_premium, account_status, avatar, created_at`, [accountStatus, id]);
+      const res = await db.query(`UPDATE users SET account_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at`, [accountStatus, id]);
       return res.rows[0] || null;
     }
     const user = db.fallbackStore.users.find(u => u.id === id);
@@ -110,20 +118,26 @@ class User {
     const { password_hash, ...safe } = user; return safe;
   }
 
-  static async setPremium(id, isPremium) {
+  static async setPremium(id, isPremium, durationMonths = 1) {
+    const enabled = !!isPremium;
+    let expiresAt = null; if (enabled) { expiresAt = new Date(); expiresAt.setMonth(expiresAt.getMonth() + Math.max(1, Number(durationMonths) || 1)); }
     if (db.isPgConnected()) {
-      const res = await db.query(`UPDATE users SET is_premium = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, username, email, role, phone, is_premium, account_status, avatar, created_at`, [!!isPremium, id]);
+      const res = await db.query(`UPDATE users SET is_premium = $1, premium_expires_at = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at`, [enabled, expiresAt, id]);
       return res.rows[0] || null;
     }
     const user = db.fallbackStore.users.find(u => u.id === id);
     if (!user) return null;
-    user.is_premium = !!isPremium; user.updated_at = new Date(); db.saveFallbackStore();
+    user.is_premium = enabled;
+    user.premium_expires_at = expiresAt;
+    user.premium_expired = false;
+    user.updated_at = new Date();
+    db.saveFallbackStore();
     const { password_hash, ...safe } = user; return safe;
   }
 
   static async becomeCreator(id) {
     if (db.isPgConnected()) {
-      const res = await db.query(`UPDATE users SET role = CASE WHEN role = 'admin' THEN role ELSE 'creator' END, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND account_status = 'active' RETURNING id, username, email, role, phone, is_premium, account_status, avatar, created_at`, [id]);
+      const res = await db.query(`UPDATE users SET role = CASE WHEN role = 'admin' THEN role ELSE 'creator' END, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND account_status = 'active' RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at`, [id]);
       return res.rows[0] || null;
     }
     const user = db.fallbackStore.users.find(u => u.id === id);

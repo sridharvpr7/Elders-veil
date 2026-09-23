@@ -115,3 +115,5 @@ html.premium-theme .premium-badge {
   display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .55rem; border-radius: 999px;
   border: 1px solid rgba(212,160,23,.45); background: rgba(212,160,23,.12); color: #b8860b; font-weight: 700;
 }
+
+html.premium-expired{--accent-purple:#dc2626;--accent-purple-light:#ef4444;--accent-cyan:#f43f5e;--accent-cyan-light:#fb7185;--accent-pink:#b91c1c;--accent-gold:#ef4444}html.premium-expired body{background-image:radial-gradient(circle at 15% 10%,rgba(220,38,38,.10),transparent 32%),radial-gradient(circle at 85% 90%,rgba(244,63,94,.08),transparent 28%)}html.premium-expired .premium-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .55rem;border-radius:999px;border:1px solid rgba(220,38,38,.45);background:rgba(220,38,38,.12);color:#ef4444;font-weight:700}

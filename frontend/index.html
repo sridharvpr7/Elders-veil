@@ -38,11 +38,11 @@
           </div>
           <h1 class="hero-title" id="hero-title">Your Comic Library</h1>
           <p class="hero-desc" id="hero-desc">
-            Your catalog is ready. Publish your first comic from the admin panel to start building your library.
+            Discover published comics, or sign in to manage your reading and creator account.
           </p>
           <div class="hero-actions">
-            <a href="/admin/upload.html" class="btn btn-primary" id="hero-read-btn">
-              <i class="fas fa-cloud-upload-alt"></i> Upload First Comic
+            <a href="/comics.html" class="btn btn-primary" id="hero-read-btn">
+              <i class="fas fa-compass"></i> Explore Comics
             </a>
             <a href="/comics.html" class="btn btn-secondary">
               <i class="fas fa-compass"></i> Explore Catalog
@@ -168,5 +168,6 @@
       }
     });
   </script>
+  <script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const b=document.getElementById('hero-read-btn');if(u&&u.role==='admin'){b.href='/admin/upload.html';b.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Upload Comic';}});</script>
 </body>
 </html>

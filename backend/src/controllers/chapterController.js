@@ -46,6 +46,7 @@ class ChapterController {
 
   static async createChapter(req, res, next) {
     try {
+      if (req.user.role !== 'admin' && req.user.role !== 'creator') return res.status(403).json({ error: 'Become a Comic Writer before uploading chapters.' });
       const comicId = req.params.comicId || req.body.comicId;
       const comic = await Comic.findById(comicId);
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });

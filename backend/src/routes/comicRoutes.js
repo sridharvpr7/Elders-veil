@@ -15,7 +15,7 @@ router.get('/:id', optionalAuthMiddleware, ComicController.getComicById);
 
 // Admin-only endpoints
 router.post('/', authMiddleware, ComicController.createComic);
-router.put('/:id', authMiddleware, adminMiddleware, ComicController.updateComic);
+router.put('/:id', authMiddleware, ComicController.updateComic);
 router.delete('/:id', authMiddleware, adminMiddleware, ComicController.deleteComic);
 
 module.exports = router;
