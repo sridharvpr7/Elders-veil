@@ -3,6 +3,8 @@ const Comic = require('../models/Comic');
 const Chapter = require('../models/Chapter');
 const JsonManagerService = require('../services/jsonManagerService');
 const db = require('../config/database');
+const NotificationService = require('../services/notificationService');
+const env = require('../config/env');
 
 class AdminController {
   static async getUsers(req,res,next){try{res.status(200).json({users:await User.getAll()});}catch(err){next(err);}}
@@ -44,10 +46,49 @@ class AdminController {
   }
 
   static async setUserStatus(req,res,next){try{const status=req.body.status;if(!['active','blocked','banned'].includes(status))return res.status(400).json({error:'Invalid account status.'});if(req.params.id===req.user.id)return res.status(400).json({error:'You cannot change your own account status.'});const user=await User.setStatus(req.params.id,status);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:`User ${status}.`});}catch(err){next(err);}}
-  static async setRole(req,res,next){try{
-    if(req.params.id===req.user.id && req.body.role!=='admin') return res.status(400).json({error:'You cannot remove your own administrator role.'});
-    const user=await User.setRole(req.params.id,req.body.role);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:'User role updated.'});
-  }catch(e){next(e);}}
+  static async setRole(req,res,next){
+    try{
+      const targetId=req.params.id;
+      const newRole=req.body.role;
+      if(!['user','creator','admin'].includes(newRole)) return res.status(400).json({error:'Invalid user role.'});
+      if(targetId===req.user.id && newRole!=='admin') return res.status(400).json({error:'You cannot remove your own administrator role.'});
+      const before=await User.findById(targetId);
+      if(!before) return res.status(404).json({error:'User not found.'});
+      const user=await User.setRole(targetId,newRole);
+      if(!user)return res.status(404).json({error:'User not found.'});
+
+      if (newRole === 'admin' && before.role !== 'admin') {
+        NotificationService.create(targetId,'admin_promoted','Administrator access granted','You have been promoted to administrator on Elder’s Veil.',{}).catch(()=>{});
+        NotificationService.whatsapp(user, env.WHATSAPP_ADMIN_PROMOTED_TEMPLATE, {name:user.username})
+          .then(r=>{if(!r.sent) console.warn('[WhatsApp] Admin promotion message not sent:',r.reason||r.status||'provider error');})
+          .catch(e=>console.warn('[WhatsApp] Admin promotion error:',e.message));
+      } else if (before.role === 'admin' && newRole !== 'admin') {
+        NotificationService.create(targetId,'admin_removed','Administrator access removed','Your administrator access on Elder’s Veil has been removed.',{}).catch(()=>{});
+        NotificationService.whatsapp(user, env.WHATSAPP_ADMIN_REMOVED_TEMPLATE, {name:user.username})
+          .then(r=>{if(!r.sent) console.warn('[WhatsApp] Admin removal message not sent:',r.reason||r.status||'provider error');})
+          .catch(e=>console.warn('[WhatsApp] Admin removal error:',e.message));
+      }
+      res.json({user,message:'User role updated.'});
+    }catch(e){next(e);}
+  }
+
+  static async deleteUser(req,res,next){
+    try{
+      const targetId=req.params.id;
+      if(targetId===req.user.id) return res.status(400).json({error:'You cannot delete your own administrator account.'});
+      const user=await User.findById(targetId);
+      if(!user) return res.status(404).json({error:'User not found.'});
+
+      // Send the WhatsApp notification before deletion because the user record is removed immediately after.
+      NotificationService.whatsapp(user, env.WHATSAPP_ACCOUNT_DELETED_TEMPLATE, {name:user.username})
+        .then(r=>{if(!r.sent) console.warn('[WhatsApp] Account deletion message not sent:',r.reason||r.status||'provider error');})
+        .catch(e=>console.warn('[WhatsApp] Account deletion error:',e.message));
+
+      const deleted=await User.deleteById(targetId);
+      if(!deleted) return res.status(404).json({error:'User not found.'});
+      res.json({message:'User account deleted successfully.', user: deleted});
+    }catch(e){next(e);}
+  }
   static async setPremium(req,res,next){try{const user=await User.setPremium(req.params.id,!!req.body.isPremium, req.body.durationMonths || 1);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:user.is_premium?`Premium enabled for 1 month (expires ${new Date(user.premium_expires_at).toLocaleDateString()}).`:'Premium removed.'});}catch(err){next(err);}}
   static async importComicsJson(req,res,next){try{res.status(200).json(await JsonManagerService.importJson(req.body));}catch(err){next(err);}}
   static async exportComicsJson(req,res,next){try{const data=await JsonManagerService.exportJson();res.setHeader('Content-Type','application/json');res.setHeader('Content-Disposition','attachment; filename="comicverse_backup.json"');res.status(200).send(JSON.stringify(data,null,2));}catch(err){next(err);}}

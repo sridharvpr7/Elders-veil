@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
 const NotificationService = require('./notificationService');
+const env = require('../config/env');
 
 class AuthService {
   static async register({ username, email, phone, password, confirmPassword }) {
@@ -45,7 +46,11 @@ class AuthService {
     });
 
     NotificationService.create(user.id,'welcome','Welcome to Elder’s Veil',`Welcome ${user.username}! Your account has been created successfully.`,{}).catch(()=>{});
-    NotificationService.whatsapp(user,'elder_veil_welcome',{name:user.username}).catch(()=>{});
+    NotificationService.whatsapp(user, env.WHATSAPP_WELCOME_TEMPLATE, {name:user.username})
+      .then(result => {
+        if (!result.sent) console.warn('[WhatsApp] Welcome message not sent:', result.reason || result.status || 'provider error');
+      })
+      .catch(err => console.warn('[WhatsApp] Welcome message error:', err.message));
     const token = generateToken({ userId: user.id, role: user.role });
     return { user, token };
   }

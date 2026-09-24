@@ -11,6 +11,7 @@ router.get('/users', AdminController.getUsers);
 router.patch('/users/:id/status', AdminController.setUserStatus);
 router.patch('/users/:id/premium', AdminController.setPremium);
 router.patch('/users/:id/role', AdminController.setRole);
+router.delete('/users/:id', AdminController.deleteUser);
 router.get('/statistics', AdminController.getStatistics);
 router.get('/pending-submissions', AdminController.getPendingSubmissions);
 router.post('/comics/import', AdminController.importComicsJson);

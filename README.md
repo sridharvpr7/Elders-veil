@@ -131,17 +131,81 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 
 ### WhatsApp setup
 
-Create approved WhatsApp Business/Meta Cloud API templates named according to your provider configuration (default names used by this project are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`). Configure:
+Create approved WhatsApp Business/Meta Cloud API templates. The default template names are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`.
+
+### Render Environment Variables
+
+In **Render → your Web Service → Environment**, add:
 
 ```env
-WHATSAPP_ACCESS_TOKEN=
-WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_ACCESS_TOKEN=your_meta_cloud_api_access_token
+WHATSAPP_PHONE_NUMBER_ID=your_meta_whatsapp_phone_number_id
+WHATSAPP_API_VERSION=v20.0
 WHATSAPP_TEMPLATE_LANGUAGE=en_US
-FRONTEND_URL=https://your-domain.example
+WHATSAPP_WELCOME_TEMPLATE=elder_veil_welcome
+WHATSAPP_NEW_COMIC_TEMPLATE=elder_veil_new_comic
+WHATSAPP_NEW_CHAPTER_TEMPLATE=elder_veil_new_chapter
 ```
 
-The WhatsApp integration never exposes the access token to the browser. If WhatsApp is not configured, account creation and publishing continue normally and the delivery failure is not treated as a fatal application error.
+Also keep your normal `DATABASE_URL`, `JWT_SECRET`, `NODE_ENV=production`, and `FRONTEND_URL` variables.
+
+**Important:** Do NOT paste the WhatsApp access token into `frontend/*.js`, HTML, GitHub, or any browser-visible settings page. It must stay in the backend/Render environment.
+
+### Automatic registration WhatsApp message
+
+The registration flow already sends the welcome template immediately after a new account is created:
+
+`Register → POST /api/auth/register → save user + mobile → trigger Meta WhatsApp Cloud API → user receives approved welcome template`
+
+For an Indian 10-digit number such as `9876543210`, the backend automatically sends it to Meta as `919876543210`. International numbers should be entered with their country code.
+
+The welcome template must be approved in Meta WhatsApp Manager and must match the configured template name/language. The default welcome template uses one body variable:
+
+`{{1}}` = username
+
+If WhatsApp is not configured or Meta rejects the message, registration still succeeds; the backend logs the delivery failure instead of breaking account creation.
+
+### WhatsApp setup checklist
+
+1. Create/configure a Meta WhatsApp Business account and WhatsApp Cloud API app.
+2. Get the **Phone Number ID**.
+3. Generate a valid **Access Token** with the required WhatsApp permissions.
+4. Create and get approval for the `elder_veil_welcome` template.
+5. Add the Render environment variables above.
+6. Redeploy the Render Web Service.
+7. Register a test account using a WhatsApp-enabled mobile number.
+8. Check the Render logs for `[WhatsApp]` and verify the message on the phone.
+
+The token is never returned to the frontend or included in API responses.
 
 ### Deployment
 
 For Render/PostgreSQL, configure `DATABASE_URL`, `JWT_SECRET`, and the other values in `.env.example`. The application runs the PostgreSQL schema migration automatically at startup when `DATABASE_URL` is available.
+
+
+## Admin user lifecycle + WhatsApp notifications
+
+The admin Users Management page now supports:
+- Delete User
+- Make Admin
+- Remove Admin
+- Existing Block/Unblock, Ban/Unban, Premium and Writer controls
+
+WhatsApp notifications are attempted for:
+- Admin promoted: `WHATSAPP_ADMIN_PROMOTED_TEMPLATE`
+- Admin removed: `WHATSAPP_ADMIN_REMOVED_TEMPLATE`
+- Account deleted: `WHATSAPP_ACCOUNT_DELETED_TEMPLATE`
+
+All three templates must be approved in Meta WhatsApp Manager. The backend keeps the WhatsApp access token server-side in Render environment variables. An administrator cannot delete their own account or remove their own administrator role.
+
+Required Render variables:
+- `WHATSAPP_ACCESS_TOKEN`
+- `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_API_VERSION`
+- `WHATSAPP_TEMPLATE_LANGUAGE`
+- `WHATSAPP_WELCOME_TEMPLATE`
+- `WHATSAPP_NEW_COMIC_TEMPLATE`
+- `WHATSAPP_NEW_CHAPTER_TEMPLATE`
+- `WHATSAPP_ADMIN_PROMOTED_TEMPLATE`
+- `WHATSAPP_ADMIN_REMOVED_TEMPLATE`
+- `WHATSAPP_ACCOUNT_DELETED_TEMPLATE`
