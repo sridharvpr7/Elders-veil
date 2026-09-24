@@ -1,7 +1,6 @@
-const API_BASE_URL = (()=>{const meta=document.querySelector('meta[name="api-base-url"]')?.content;if(meta)return meta.replace(/\/+$/,'');if(location.hostname.endsWith('github.io'))return 'https://elders-veil.onrender.com/api';return '/api';})();
+const API_BASE_URL = '/api';
 
 class API {
-  static baseUrl() { return API_BASE_URL; }
   static getToken() {
     return localStorage.getItem('token') || '';
   }
@@ -70,10 +69,6 @@ class API {
       method: 'DELETE',
       headers: this.getHeaders(true)
     });
-  }
-
-  static async patch(endpoint, body) {
-    return this.request(endpoint,{method:'PATCH',headers:this.getHeaders(true),body:JSON.stringify(body)});
   }
 
   static async upload(endpoint, formData) {

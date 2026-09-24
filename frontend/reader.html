@@ -1,2 +1,52 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#7c3aed"><title>Chapter Reader — Elder's Veil</title><link rel="stylesheet" href="css/reset.css"><link rel="stylesheet" href="css/variables.css"><link rel="stylesheet" href="css/global.css"><link rel="stylesheet" href="css/reader.css"><link rel="stylesheet" href="css/theme.css"><script src="js/theme.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head><body class="reader-page-body"><div class="reader-progress-bar" id="reader-progress"></div><header class="reader-header" id="reader-header"><div class="reader-title-group"><a href="comics.html" style="font-size:1.2rem;color:var(--text-secondary)"><i class="fas fa-arrow-left"></i></a><div><div class="reader-comic-title" id="reader-comic-title">Loading Comic...</div><div class="reader-chapter-title" id="reader-chapter-title">Chapter <span class="reader-view-count"><i class="fas fa-eye"></i> <span id="reader-view-count">0</span></span></div></div></div><div class="reader-controls"><select id="chapter-selector" class="form-select" style="padding:.4rem .75rem;font-size:.85rem;max-width:200px"><option>Selecting...</option></select><button class="btn btn-secondary btn-icon" id="reader-mode-btn" title="Change reading mode"><i class="fas fa-columns"></i></button><button class="btn btn-secondary btn-icon" id="zoom-out" title="Zoom out">−</button><button class="btn btn-secondary btn-icon" id="zoom-in" title="Zoom in">+</button><button class="btn btn-secondary btn-icon" id="fullscreen-btn" title="Fullscreen"><i class="fas fa-expand"></i></button></div></header><div class="reader-container" id="reader-pages"><div style="text-align:center;padding:5rem 1rem;color:var(--text-secondary)"><i class="fas fa-circle-notch fa-spin" style="font-size:3rem"></i><p>Loading comic pages...</p></div></div><div class="reader-navigation-footer" id="reader-nav-footer"></div><div class="page-counter-pill" id="page-pill">Page 1</div><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/reader.js"></script><script src="js/pwa.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter Reader — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/reader.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="reader-page-body">
+
+  <div class="reader-progress-bar" id="reader-progress"></div>
+
+  <!-- Reader Header Nav -->
+  <header class="reader-header" id="reader-header">
+    <div class="reader-title-group">
+      <a href="/comics.html" style="font-size:1.2rem; color:var(--text-secondary);"><i class="fas fa-arrow-left"></i></a>
+      <div>
+        <div class="reader-comic-title" id="reader-comic-title">Loading Comic...</div>
+        <div class="reader-chapter-title" id="reader-chapter-title">Chapter <span class="reader-view-count"><i class="fas fa-eye"></i> <span id="reader-view-count">0</span></span></div>
+      </div>
+    </div>
+
+    <div class="reader-controls">
+      <select id="chapter-selector" class="form-select" style="padding:0.4rem 0.75rem; font-size:0.85rem; max-width:200px;">
+        <option value="">Selecting...</option>
+      </select>
+      <button class="btn btn-secondary btn-icon" id="fullscreen-btn" title="Fullscreen Mode"><i class="fas fa-expand"></i></button>
+    </div>
+  </header>
+
+  <div class="reader-container" id="reader-pages">
+    <div style="text-align:center; padding:5rem 1rem; color:var(--text-secondary);">
+      <i class="fas fa-circle-notch fa-spin" style="font-size:3rem; color:var(--accent-purple-light); margin-bottom:1rem;"></i>
+      <p>Loading comic pages...</p>
+    </div>
+  </div>
+
+  <div class="reader-navigation-footer" id="reader-nav-footer"></div>
+
+  <div class="page-counter-pill" id="page-pill">Page 1</div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/reader.js"></script>
+</body>
+</html>

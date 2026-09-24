@@ -1,6 +1,10 @@
 const NotificationService=require('../services/notificationService');
+const env=require('../config/env');
 class NotificationController{
- static async stream(req,res){res.setHeader('Content-Type','text/event-stream');res.setHeader('Cache-Control','no-cache');res.setHeader('Connection','keep-alive');res.flushHeaders?.();let closed=false;const send=async()=>{try{const n=await NotificationService.list(req.user.id,5);if(!closed)res.write(`event: notifications\ndata: ${JSON.stringify(n)}\n\n`)}catch(_e){}};req.on('close',()=>{closed=true;clearInterval(timer)});const timer=setInterval(()=>send(),20000);send();}
+ static whatsappStatus(req,res){res.json({configured:!!(env.WHATSAPP_ACCESS_TOKEN&&env.WHATSAPP_PHONE_NUMBER_ID),phoneNumberId:env.WHATSAPP_PHONE_NUMBER_ID?`${String(env.WHATSAPP_PHONE_NUMBER_ID).slice(0,4)}…${String(env.WHATSAPP_PHONE_NUMBER_ID).slice(-4)}`:null,apiVersion:env.WHATSAPP_API_VERSION,language:env.WHATSAPP_TEMPLATE_LANGUAGE,welcomeTemplate:env.WHATSAPP_WELCOME_TEMPLATE,
+adminPromotedTemplate:env.WHATSAPP_ADMIN_PROMOTED_TEMPLATE,
+adminRemovedTemplate:env.WHATSAPP_ADMIN_REMOVED_TEMPLATE,
+accountDeletedTemplate:env.WHATSAPP_ACCOUNT_DELETED_TEMPLATE});}
  static async list(req,res,next){try{res.json({notifications:await NotificationService.list(req.user.id)});}catch(e){next(e)}}
  static async read(req,res,next){try{await NotificationService.markRead(req.user.id,req.params.id);res.json({message:'Notification marked as read.'});}catch(e){next(e)}}
  static async prefs(req,res,next){try{res.json({preferences:await NotificationService.preferences(req.user.id)});}catch(e){next(e)}}

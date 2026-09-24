@@ -7,8 +7,7 @@
     "start": "node backend/src/server.js",
     "dev": "node backend/src/server.js",
     "seed": "node backend/seeds/seed.js",
-    "build": "echo 'Build complete'",
-    "test": "node scripts/syntax-check.js"
+    "build": "echo 'Build complete'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -25,13 +24,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": [
-    "comic",
-    "manga",
-    "manhwa",
-    "reader",
-    "express",
-    "postgresql",
-    "jwt"
-  ]
+  "keywords": ["comic", "manga", "manhwa", "reader", "express", "postgresql", "jwt"]
 }

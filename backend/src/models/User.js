@@ -135,6 +135,30 @@ class User {
     const { password_hash, ...safe } = user; return safe;
   }
 
+  static async deleteById(id) {
+    if (db.isPgConnected()) {
+      // Related user-owned records use ON DELETE CASCADE; comics keep their creator via SET NULL.
+      const res = await db.query('DELETE FROM users WHERE id = $1 RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at', [id]);
+      return res.rows[0] || null;
+    }
+    const index = db.fallbackStore.users.findIndex(u => u.id === id);
+    if (index < 0) return null;
+    const [deleted] = db.fallbackStore.users.splice(index, 1);
+    const owned = ['bookmarks','favorites','reading_history','refresh_tokens','notifications','notification_preferences','comic_likes','comic_follows','ratings','comments'];
+    owned.forEach(key => {
+      if (Array.isArray(db.fallbackStore[key])) {
+        db.fallbackStore[key] = db.fallbackStore[key].filter(x => x.user_id !== id);
+      }
+    });
+    db.fallbackStore.comics.forEach(c => {
+      if (c.creator_id === id) c.creator_id = null;
+      if (c.creatorId === id) c.creatorId = null;
+    });
+    db.saveFallbackStore();
+    const { password_hash, ...safe } = deleted;
+    return safe;
+  }
+
   static async setRole(id, role) {
     if (!['user','creator','admin'].includes(role)) return null;
     if (db.isPgConnected()) {

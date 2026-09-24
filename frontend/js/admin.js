@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   renderNavbar('admin'); renderFooter();
-  if (!Auth.isLoggedIn() || !Auth.isAdmin()) { showToast('Access denied. Administrator privileges required.', 'error'); setTimeout(() => location.href=sitePath('login.html'), 800); return; }
+  if (!Auth.isLoggedIn() || !Auth.isAdmin()) { showToast('Access denied. Administrator privileges required.', 'error'); setTimeout(() => location.href='/login.html', 800); return; }
 
   try {
     const stats = await API.get('/admin/statistics');
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pending = await API.get('/admin/pending-submissions');
     const list = document.getElementById('pending-preview-list');
     const items = [...(pending.comics||[]).map(c=>({kind:'Comic',title:c.title,id:c.id,status:c.publishStatus,note:c.reviewNote})), ...(pending.chapters||[]).map(c=>({kind:`Chapter ${c.chapterNumber}`,title:c.title,id:c.id,status:c.publishStatus,note:c.reviewNote}))].filter(x=>x.status==='pending');
-    if(list) list.innerHTML = items.length ? `<div class="pending-mini-list">${items.slice(0,6).map(x=>`<div class="pending-mini-row"><div><span class="badge badge-purple">${x.kind}</span><strong>${x.title||'Untitled'}</strong></div><a class="btn btn-secondary btn-sm" href="${sitePath('admin/review.html')}">Review</a></div>`).join('')}</div>` : '<div class="empty-review"><i class="fas fa-check-circle"></i><span>No pending submissions.</span></div>';
+    if(list) list.innerHTML = items.length ? `<div class="pending-mini-list">${items.slice(0,6).map(x=>`<div class="pending-mini-row"><div><span class="badge badge-purple">${x.kind}</span><strong>${x.title||'Untitled'}</strong></div><a class="btn btn-secondary btn-sm" href="/admin/review.html">Review</a></div>`).join('')}</div>` : '<div class="empty-review"><i class="fas fa-check-circle"></i><span>No pending submissions.</span></div>';
   } catch(err) {}
 
   // Load Admin Comic Table if present
@@ -85,11 +85,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td><span class="badge ${u.account_status === 'active' ? 'badge-cyan' : 'badge-purple'}">${u.account_status || 'active'}</span></td>
             <td>${u.is_premium ? '<span class="premium-badge"><i class="fas fa-crown"></i> Premium</span>' : (u.premium_expired ? '<span class="badge badge-purple">Expired</span>' : 'Free')}</td><td>${u.premium_expires_at ? new Date(u.premium_expires_at).toLocaleDateString() : '—'}</td>
             <td>
-              ${!['admin','super_admin'].includes(u.role) ? `<button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'blocked' ? 'active' : 'blocked'}">${u.account_status === 'blocked' ? 'Unblock' : 'Block'}</button>
+              ${u.id === (Auth.getUser()?.id || '') ? '<span class="badge badge-purple">Current Admin</span>' : `
+              ${u.role !== 'admin' ? `<button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'blocked' ? 'active' : 'blocked'}">${u.account_status === 'blocked' ? 'Unblock' : 'Block'}</button>
               <button class="btn btn-secondary btn-sm user-status-btn" data-id="${u.id}" data-status="${u.account_status === 'banned' ? 'active' : 'banned'}">${u.account_status === 'banned' ? 'Unban' : 'Ban'}</button>
               <button class="btn btn-secondary btn-sm premium-btn" data-id="${u.id}" data-premium="${u.is_premium ? 'false' : 'true'}">${u.is_premium ? 'Remove Premium' : 'Make Premium'}</button>
               <button class="btn btn-secondary btn-sm role-btn" data-id="${u.id}" data-role="${u.role==='creator'?'user':'creator'}">${u.role==='creator'?'Remove Writer':'Make Writer'}</button>
-              <button class="btn btn-secondary btn-sm role-btn" data-id="${u.id}" data-role="admin">Make Admin</button>` : '<span>Admin</span>'}
+              <button class="btn btn-secondary btn-sm role-btn promote-admin-btn" data-id="${u.id}" data-role="admin">Make Admin</button>` : `
+              <button class="btn btn-secondary btn-sm role-btn remove-admin-btn" data-id="${u.id}" data-role="user">Remove Admin</button>`}
+              <button class="btn btn-secondary btn-sm delete-user-btn" data-id="${u.id}" style="color:var(--accent-pink);"><i class="fas fa-trash"></i> Delete User</button>
+              `}
             </td>
             <td>${new Date(u.created_at || Date.now()).toLocaleDateString()}</td>
           </tr>
@@ -101,6 +105,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.role-btn').forEach(btn => btn.addEventListener('click', async () => {
         try { await API.request(`/admin/users/${btn.dataset.id}/role`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({role:btn.dataset.role}) }); showToast('Role updated.','success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
       }));
+      document.querySelectorAll('.delete-user-btn').forEach(btn => btn.addEventListener('click', async () => {
+        const row = btn.closest('tr');
+        const username = row?.querySelector('strong')?.textContent || 'this user';
+        if (!confirm(`Delete ${username} permanently? A WhatsApp account-deletion message will be attempted before the account is removed.`)) return;
+        try {
+          await API.request(`/admin/users/${btn.dataset.id}`, { method:'DELETE', headers:API.getHeaders(true) });
+          showToast('User deleted successfully.','success');
+          location.reload();
+        } catch(e) { showToast(e.message,'error'); }
+      }));
+
       document.querySelectorAll('.premium-btn').forEach(btn => btn.addEventListener('click', async () => {
         try { await API.request(`/admin/users/${btn.dataset.id}/premium`, { method:'PATCH', headers:API.getHeaders(true), body:JSON.stringify({isPremium:btn.dataset.premium === 'true',durationMonths:1}) }); showToast('Premium status updated.', 'success'); location.reload(); } catch(e){ showToast(e.message,'error'); }
       }));

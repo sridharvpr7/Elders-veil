@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
     showToast('Admin authorization required.', 'error');
-    window.location.href=sitePath('login.html');
+    window.location.href = '/login.html';
     return;
   }
 

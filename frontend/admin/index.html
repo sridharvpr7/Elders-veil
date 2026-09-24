@@ -2,20 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="../manifest.json" />
-  <meta name="theme-color" content="#7c3aed" />
   <title>Admin Portal — Elder's Veil</title>
-  <link rel="stylesheet" href="../css/reset.css" />
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/global.css" />
-  <link rel="stylesheet" href="../css/navbar.css" />
-  <link rel="stylesheet" href="../css/admin.css" />
-  <link rel="stylesheet" href="../css/responsive.css" />
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="../js/theme.js"></script>
+  <script src="/js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -26,12 +23,12 @@
 
       <div class="admin-layout">
         <aside class="admin-sidebar">
-          <a href="../admin/index.html" class="admin-nav-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
-          <a href="../admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
-          <a href="../admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
-          <a href="../admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
-          <a href="../admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
-          <a href="../admin/review.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Review Queue</a><a href="../admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a><a href="../admin/operations.html" class="admin-nav-item"><i class="fas fa-chart-pie"></i> Operations</a>
+          <a href="/admin/index.html" class="admin-nav-item active"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="/admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
+          <a href="/admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
+          <a href="/admin/upload.html" class="admin-nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
+          <a href="/admin/review.html" class="admin-nav-item"><i class="fas fa-inbox"></i> Review Queue</a><a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
         </aside>
 
         <div>
@@ -51,7 +48,7 @@
             <div class="stat-card"><div><div class="stat-val" id="stat-pending-comics">0</div><div class="stat-label">Pending Comics</div></div><div class="stat-icon"><i class="fas fa-file-alt"></i></div></div>
             <div class="stat-card"><div><div class="stat-val" id="stat-pending-chapters">0</div><div class="stat-label">Pending Chapters</div></div><div class="stat-icon"><i class="fas fa-file-image"></i></div></div>
           </div>
-          <div class="review-preview" id="review-preview"><div class="review-preview-head"><div><h3><i class="fas fa-inbox text-gradient"></i> Pending Submissions</h3><p>Creator uploads waiting for your approval.</p></div><a class="btn btn-primary btn-sm" href="../admin/review.html">Open Review Queue</a></div><div id="pending-preview-list">Loading...</div></div>
+          <div class="review-preview" id="review-preview"><div class="review-preview-head"><div><h3><i class="fas fa-inbox text-gradient"></i> Pending Submissions</h3><p>Creator uploads waiting for your approval.</p></div><a class="btn btn-primary btn-sm" href="/admin/review.html">Open Review Queue</a></div><div id="pending-preview-list">Loading...</div></div>
           <div style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1.5rem;margin-top:1.5rem"><h3 style="margin-bottom:1rem"><i class="fas fa-server text-gradient"></i> Database Connection Status</h3><p style="color:var(--text-secondary);font-size:.95rem">Active Engine: <strong id="stat-engine" style="color:var(--accent-cyan-light)">Detecting...</strong></p></div>
         </div>
       </div>
@@ -60,11 +57,9 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="../js/api.js"></script>
-  <script src="../js/auth.js"></script>
-  <script src="../js/i18n.js"></script>
-<script src="../js/components.js"></script>
-  <script src="../js/admin.js"></script>
-  <script src="../js/pwa.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/admin.js"></script>
 </body>
 </html>

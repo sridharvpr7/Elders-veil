@@ -2,7 +2,7 @@ const db = require('../config/database');
 const { createSlug } = require('../utils/slug');
 
 class Comic {
-  static async getAll({ search, genre, status, type, language, sortBy = 'latest', limit = 20, offset = 0, creatorId = null, includeDrafts = false } = {}) {
+  static async getAll({ search, genre, status, type, sortBy = 'latest', limit = 20, offset = 0, creatorId = null, includeDrafts = false } = {}) {
     if (db.isPgConnected()) {
       let sql = `
         SELECT c.*, 
@@ -31,10 +31,6 @@ class Comic {
         params.push(type);
         sql += ` AND c.type = $${params.length}`;
       }
-      if (language) {
-        params.push(language);
-        sql += ` AND LOWER(c.language) = LOWER($${params.length})`;
-      }
       if (genre) {
         params.push(genre);
         sql += ` AND c.id IN (SELECT comic_id FROM comic_genres cg2 JOIN genres g2 ON cg2.genre_id = g2.id WHERE LOWER(g2.name) = LOWER($${params.length}))`;
@@ -45,7 +41,6 @@ class Comic {
       if (sortBy === 'popular') sql += ` ORDER BY c.views DESC`;
       else if (sortBy === 'rating') sql += ` ORDER BY c.rating DESC`;
       else if (sortBy === 'title') sql += ` ORDER BY c.title ASC`;
-      else if (sortBy === 'trending') sql += ` ORDER BY ((c.views * 0.65) + (c.rating * 100) + (COUNT(ch.id) * 10) + (EXTRACT(EPOCH FROM c.updated_at) / 1000000000.0)) DESC`;
       else sql += ` ORDER BY c.updated_at DESC`;
 
       params.push(limit, offset);
@@ -70,7 +65,6 @@ class Comic {
     }
     if (status) list = list.filter(c => c.status === status);
     if (type) list = list.filter(c => c.type === type);
-    if (language) list = list.filter(c => String(c.language || '').toLowerCase() === String(language).toLowerCase());
     if (genre) {
       list = list.filter(c => Array.isArray(c.genres) && c.genres.some(g => g.toLowerCase() === genre.toLowerCase()));
     }
@@ -78,7 +72,6 @@ class Comic {
     if (sortBy === 'popular') list.sort((a, b) => (b.views || 0) - (a.views || 0));
     else if (sortBy === 'rating') list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     else if (sortBy === 'title') list.sort((a, b) => a.title.localeCompare(b.title));
-    else if (sortBy === 'trending') list.sort((a,b)=>((b.views||0)*.65+(b.rating||0)*100+new Date(b.updated_at||0).getTime()/1e9)-((a.views||0)*.65+(a.rating||0)*100+new Date(a.updated_at||0).getTime()/1e9));
     else list.sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
 
     return list.slice(offset, offset + limit).map(this.formatComic);
@@ -145,7 +138,6 @@ class Comic {
       creator_id: data.creatorId || data.creator_id || null,
       publish_status: data.publishStatus || data.publish_status || 'published',
       review_note: data.reviewNote || data.review_note || null,
-      scheduled_publish_at: data.scheduledPublishAt || data.scheduled_publish_at || null,
       created_at: now,
       updated_at: now,
       genres: data.genres || []
@@ -153,13 +145,13 @@ class Comic {
 
     if (db.isPgConnected()) {
       await db.query(
-        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, creator_id, publish_status, review_note, created_at, updated_at, scheduled_publish_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
+        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, creator_id, publish_status, review_note, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
         [
           comicData.id, comicData.title, comicData.slug, comicData.description,
           comicData.author, comicData.artist, comicData.status, comicData.type,
           comicData.cover_image, comicData.banner_image, comicData.rating, comicData.views,
-          comicData.release_year, comicData.language, comicData.creator_id, comicData.publish_status, comicData.review_note, comicData.created_at, comicData.updated_at, comicData.scheduled_publish_at
+          comicData.release_year, comicData.language, comicData.creator_id, comicData.publish_status, comicData.review_note, comicData.created_at, comicData.updated_at
         ]
       );
 
@@ -202,7 +194,6 @@ class Comic {
         language: data.language,
         publish_status: data.publishStatus || data.publish_status,
         review_note: data.reviewNote !== undefined ? data.reviewNote : data.review_note,
-        scheduled_publish_at: data.scheduledPublishAt !== undefined ? data.scheduledPublishAt : data.scheduled_publish_at,
         updated_at: new Date()
       };
 
@@ -302,8 +293,7 @@ class Comic {
       reviewNote: row.review_note || row.reviewNote || null,
       chapterCount: parseInt(row.chapter_count || 0, 10),
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      scheduledPublishAt: row.scheduled_publish_at || row.scheduledPublishAt || null
+      updatedAt: row.updated_at
     };
   }
 }

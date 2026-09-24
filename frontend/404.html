@@ -2,19 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#7c3aed" />
   <title>404 Page Not Found — Elder's Veil</title>
-  <link rel="stylesheet" href="css/reset.css" />
-  <link rel="stylesheet" href="css/variables.css" />
-  <link rel="stylesheet" href="css/theme.css" />
-  <link rel="stylesheet" href="css/global.css" />
-  <link rel="stylesheet" href="css/navbar.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="js/theme.js"></script>
+  <script src="/js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -26,7 +23,7 @@
       <p style="color:var(--text-secondary); max-width:480px; margin:0 auto 2rem; font-size:1.05rem;">
         The page or comic chapter you are looking for has faded into another dimension or does not exist.
       </p>
-      <a href="index.html" class="btn btn-primary">
+      <a href="/index.html" class="btn btn-primary">
         <i class="fas fa-home"></i> Back to Safety (Home)
       </a>
     </div>
@@ -34,16 +31,14 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/i18n.js"></script>
-<script src="js/components.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       renderNavbar('');
       renderFooter();
     });
   </script>
-  <script src="js/pwa.js"></script>
 </body>
 </html>

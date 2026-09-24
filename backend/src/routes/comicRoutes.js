@@ -6,11 +6,9 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 
 router.get('/', optionalAuthMiddleware, ComicController.getComics);
 router.get('/genres', ComicController.getGenres);
-router.get('/suggestions', ComicController.suggestions);
 router.get('/slug/:slug', optionalAuthMiddleware, ComicController.getComicBySlug);
 router.post('/:id/view', ComicController.recordView);
 router.post('/:id/publish', authMiddleware, adminMiddleware, ComicController.publishComic);
-router.post('/:id/schedule', authMiddleware, adminMiddleware, ComicController.scheduleComic);
 router.post('/:id/resubmit', authMiddleware, ComicController.resubmitComic);
 router.post('/:id/reject', authMiddleware, adminMiddleware, ComicController.rejectComic);
 router.post('/:id/request-changes', authMiddleware, adminMiddleware, ComicController.requestChanges);

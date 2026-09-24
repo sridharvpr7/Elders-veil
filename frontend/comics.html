@@ -2,60 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#7c3aed" />
   <title>Comic Catalog — Elder's Veil</title>
-  <link rel="stylesheet" href="css/reset.css" />
-  <link rel="stylesheet" href="css/variables.css" />
-  <link rel="stylesheet" href="css/theme.css" />
-  <link rel="stylesheet" href="css/global.css" />
-  <link rel="stylesheet" href="css/navbar.css" />
-  <link rel="stylesheet" href="css/cards.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/cards.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="js/theme.js"></script>
+  <script src="/js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
 
   <main>
     <div class="container">
-      <div class="section-title"><i class="fas fa-th-large text-gradient"></i> <span data-i18n="exploreAll">Explore All Comics</span></div>
+      <div class="section-title"><i class="fas fa-th-large text-gradient"></i> <span>Explore All Comics</span></div>
 
       <!-- Filters Toolbar -->
       <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); padding:1.25rem; border-radius:var(--radius-md); margin-bottom:2rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
         <div class="form-group" style="margin:0;">
-          <label class="form-label" data-i18n="search">Search</label>
-          <input type="text" id="filter-search" class="form-input" data-i18n-placeholder="searchHelp" placeholder="Keyword..." />
+          <label class="form-label">Search</label>
+          <input type="text" id="filter-search" class="form-input" placeholder="Keyword..." />
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label" data-i18n="genre">Genre</label>
+          <label class="form-label">Genre</label>
           <select id="filter-genre" class="form-select">
-            <option value="" data-i18n="allGenres">All Genres</option>
+            <option value="">All Genres</option>
           </select>
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label" data-i18n="language">Language</label>
-          <select id="filter-language" class="form-select"><option value="">All Languages</option><option value="English">English</option><option value="Tamil">தமிழ்</option><option value="Japanese">日本語</option><option value="Korean">한국어</option><option value="Chinese">中文</option></select>
-        </div>
-        <div class="form-group" style="margin:0;">
-          <label class="form-label" data-i18n="type">Type</label>
+          <label class="form-label">Type</label>
           <select id="filter-type" class="form-select">
-            <option value="" data-i18n="allTypes">All Types</option>
+            <option value="">All Types</option>
             <option value="manga">Manga</option>
             <option value="manhwa">Manhwa</option>
             <option value="manhua">Manhua</option>
           </select>
         </div>
         <div class="form-group" style="margin:0;">
-          <label class="form-label" data-i18n="sortBy">Sort By</label>
+          <label class="form-label">Sort By</label>
           <select id="filter-sort" class="form-select">
-            <option value="latest" data-i18n="latestUpdated">Latest Updated</option><option value="trending">Trending</option>
-            <option value="popular" data-i18n="mostViews">Most Views</option>
-            <option value="rating" data-i18n="topRated">Top Rated</option>
-            <option value="title" data-i18n="titleAZ">Title A-Z</option>
+            <option value="latest">Latest Updated</option>
+            <option value="popular">Most Views</option>
+            <option value="rating">Top Rated</option>
+            <option value="title">Title A-Z</option>
           </select>
         </div>
       </div>
@@ -66,11 +59,9 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/i18n.js"></script>
-<script src="js/components.js"></script>
-  <script src="js/comics.js"></script>
-  <script src="js/pwa.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/comics.js"></script>
 </body>
 </html>

@@ -17,10 +17,7 @@ const fallbackStore = {
   bookmarks: [],
   favorites: [],
   reading_history: [],
-  refresh_tokens: [], notifications: [], notification_preferences: [], comic_likes: [], comic_follows: [], ratings: [], comments: [],
-  comment_likes: [], comment_replies: [], creator_follows: [], reports: [], audit_logs: [], analytics_events: [],
-  premium_payments: [], password_reset_tokens: [], support_tickets: [], push_subscriptions: [], achievements: [],
-  user_achievements: []
+  refresh_tokens: [], notifications: [], notification_preferences: [], comic_likes: [], comic_follows: [], ratings: [], comments: []
 };
 
 // Try loading saved fallback database if exists

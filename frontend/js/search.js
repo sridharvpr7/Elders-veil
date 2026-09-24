@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const searchInput = document.getElementById('search-input');
   const resultsContainer = document.getElementById('search-results');
-  const languageSelect = document.getElementById('search-language');
 
   if (searchInput) searchInput.value = initialQuery;
 
@@ -17,8 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const q = searchInput ? searchInput.value.trim() : '';
-      const language = languageSelect ? languageSelect.value : '';
-      const res = await API.get(`/comics?search=${encodeURIComponent(q)}&language=${encodeURIComponent(language)}`);
+      const res = await API.get(`/comics?search=${encodeURIComponent(q)}`);
 
       if (!res.comics || res.comics.length === 0) {
         resultsContainer.innerHTML = `
@@ -39,8 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       resultsContainer.innerHTML = `<p style="color:var(--accent-pink);">Search error: ${err.message}</p>`;
     }
   }
-
-  if (languageSelect) languageSelect.addEventListener('change', performSearch);
 
   if (searchInput) {
     searchInput.addEventListener('input', () => {

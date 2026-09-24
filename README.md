@@ -131,73 +131,81 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 
 ### WhatsApp setup
 
-Create approved WhatsApp Business/Meta Cloud API templates named according to your provider configuration (default names used by this project are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`). Configure:
+Create approved WhatsApp Business/Meta Cloud API templates. The default template names are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`.
+
+### Render Environment Variables
+
+In **Render → your Web Service → Environment**, add:
 
 ```env
-WHATSAPP_ACCESS_TOKEN=
-WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_ACCESS_TOKEN=your_meta_cloud_api_access_token
+WHATSAPP_PHONE_NUMBER_ID=your_meta_whatsapp_phone_number_id
+WHATSAPP_API_VERSION=v20.0
 WHATSAPP_TEMPLATE_LANGUAGE=en_US
-FRONTEND_URL=https://your-domain.example
+WHATSAPP_WELCOME_TEMPLATE=elder_veil_welcome
+WHATSAPP_NEW_COMIC_TEMPLATE=elder_veil_new_comic
+WHATSAPP_NEW_CHAPTER_TEMPLATE=elder_veil_new_chapter
 ```
 
-The WhatsApp integration never exposes the access token to the browser. If WhatsApp is not configured, account creation and publishing continue normally and the delivery failure is not treated as a fatal application error.
+Also keep your normal `DATABASE_URL`, `JWT_SECRET`, `NODE_ENV=production`, and `FRONTEND_URL` variables.
+
+**Important:** Do NOT paste the WhatsApp access token into `frontend/*.js`, HTML, GitHub, or any browser-visible settings page. It must stay in the backend/Render environment.
+
+### Automatic registration WhatsApp message
+
+The registration flow already sends the welcome template immediately after a new account is created:
+
+`Register → POST /api/auth/register → save user + mobile → trigger Meta WhatsApp Cloud API → user receives approved welcome template`
+
+For an Indian 10-digit number such as `9876543210`, the backend automatically sends it to Meta as `919876543210`. International numbers should be entered with their country code.
+
+The welcome template must be approved in Meta WhatsApp Manager and must match the configured template name/language. The default welcome template uses one body variable:
+
+`{{1}}` = username
+
+If WhatsApp is not configured or Meta rejects the message, registration still succeeds; the backend logs the delivery failure instead of breaking account creation.
+
+### WhatsApp setup checklist
+
+1. Create/configure a Meta WhatsApp Business account and WhatsApp Cloud API app.
+2. Get the **Phone Number ID**.
+3. Generate a valid **Access Token** with the required WhatsApp permissions.
+4. Create and get approval for the `elder_veil_welcome` template.
+5. Add the Render environment variables above.
+6. Redeploy the Render Web Service.
+7. Register a test account using a WhatsApp-enabled mobile number.
+8. Check the Render logs for `[WhatsApp]` and verify the message on the phone.
+
+The token is never returned to the frontend or included in API responses.
 
 ### Deployment
 
 For Render/PostgreSQL, configure `DATABASE_URL`, `JWT_SECRET`, and the other values in `.env.example`. The application runs the PostgreSQL schema migration automatically at startup when `DATABASE_URL` is available.
 
 
-## Elder's Veil v2 upgrades
-The project now includes a production-oriented feature layer for: Continue Reading with exact page progress, reader modes/zoom/swipe/fullscreen, recommendations, trending discovery, creator drafts and scheduling, AI-ready comic drafting, Cloudinary-ready image storage, premium Razorpay checkout, password reset email integration, comment likes/replies/moderation, reports, creator follows, achievements, analytics events, admin operations, audit logs, support tickets, manual backups, PWA installation/offline shell, SEO metadata hooks, stricter CORS/rate limiting, and request-scoped error IDs. Optional integrations are disabled until their environment variables are configured.
+## Admin user lifecycle + WhatsApp notifications
 
-## 25 Feature Upgrade Pack
+The admin Users Management page now supports:
+- Delete User
+- Make Admin
+- Remove Admin
+- Existing Block/Unblock, Ban/Unban, Premium and Writer controls
 
-The current build includes the requested platform upgrade set:
+WhatsApp notifications are attempted for:
+- Admin promoted: `WHATSAPP_ADMIN_PROMOTED_TEMPLATE`
+- Admin removed: `WHATSAPP_ADMIN_REMOVED_TEMPLATE`
+- Account deleted: `WHATSAPP_ACCOUNT_DELETED_TEMPLATE`
 
-1. Continue-reading with chapter/page resume and saved reading progress.
-2. Reader controls: single, double, vertical, zoom, fullscreen, keyboard and touch navigation, lazy loading.
-3. Social engagement: likes, follows, ratings, comments, replies, comment likes and reports.
-4. User profile improvements, achievements and reading statistics.
-5. Creator Studio with drafts, submissions, analytics and chapter management.
-6. Notifications with in-app messages, preferences, publication alerts and scheduled publishing support.
-7. PWA installation support with manifest, service worker and app icons.
-8. Performance improvements through lazy image loading, caching and client-side chapter image compression.
-9. Optional Cloudinary storage for production media.
-10. Security improvements: Helmet, CORS allow-list, API/login rate limiting, protected roles, upload validation and request IDs.
-11. Premium state, expiry tracking and expired-premium visual state.
-12. Optional Razorpay one-month Premium checkout with server-side signature verification.
-13. Search suggestions plus language-aware comic filtering.
-14. SEO metadata, Open Graph tags, clean comic/chapter links and structured data.
-15. Bilingual UI foundation with English/Tamil selector and comic language filters.
-16. Content moderation/report workflow and admin review actions.
-17. Analytics event collection and admin analytics overview.
-18. Trending ranking endpoint and home-page trending section.
-19. Homepage sections for trending, popular, latest and personalized recommendations.
-20. Rich comic cards with rating, views, status/type and creator links.
-21. Optional AI adapter plus local smart drafting fallback.
-22. Near-real-time notification refresh with backend SSE endpoint available for future native EventSource auth.
-23. Admin operations, support tickets and moderation reports.
-24. Manual/daily JSON backups of database/application data (use persistent external storage for production backup retention).
-25. Syntax-test script and structured error IDs for production troubleshooting.
+All three templates must be approved in Meta WhatsApp Manager. The backend keeps the WhatsApp access token server-side in Render environment variables. An administrator cannot delete their own account or remove their own administrator role.
 
-### Production Environment
-
-Required core variables:
-```env
-DATABASE_URL=
-JWT_SECRET=
-FRONTEND_URL=
-ALLOWED_ORIGINS=
-```
-
-WhatsApp Cloud API:
-```env
-WHATSAPP_ACCESS_TOKEN=
-WHATSAPP_PHONE_NUMBER_ID=
-WHATSAPP_TEMPLATE_LANGUAGE=en_US
-WHATSAPP_GRAPH_VERSION=v25.0
-```
-
-Optional storage, email, AI and payments are documented in `.env.example`. Keep all secrets only in the backend environment (for Render, use the service Environment page) and never commit `.env`.
-
-For GitHub Pages, keep `FRONTEND_URL` pointed at the published frontend URL and set `UPLOAD_BASE_URL` to the backend public URL when using local backend uploads. For Cloudinary storage, set `STORAGE_PROVIDER=cloudinary` and provide its three credentials.
+Required Render variables:
+- `WHATSAPP_ACCESS_TOKEN`
+- `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_API_VERSION`
+- `WHATSAPP_TEMPLATE_LANGUAGE`
+- `WHATSAPP_WELCOME_TEMPLATE`
+- `WHATSAPP_NEW_COMIC_TEMPLATE`
+- `WHATSAPP_NEW_CHAPTER_TEMPLATE`
+- `WHATSAPP_ADMIN_PROMOTED_TEMPLATE`
+- `WHATSAPP_ADMIN_REMOVED_TEMPLATE`
+- `WHATSAPP_ACCOUNT_DELETED_TEMPLATE`
