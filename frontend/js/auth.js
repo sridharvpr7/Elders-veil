@@ -31,7 +31,7 @@ class Auth {
     localStorage.removeItem('token');
     showToast('Logged out successfully.', 'info');
     setTimeout(() => {
-      window.location.href = '/login.html';
+      window.location.href=sitePath('login.html');
     }, 500);
   }
 

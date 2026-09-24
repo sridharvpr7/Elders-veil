@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const searchInput = document.getElementById('filter-search');
   const genreSelect = document.getElementById('filter-genre');
   const typeSelect = document.getElementById('filter-type');
+  const languageSelect = document.getElementById('filter-language');
   const sortSelect = document.getElementById('filter-sort');
 
   // Load Genres dropdown
@@ -29,8 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const genre = genreSelect ? genreSelect.value : '';
       const type = typeSelect ? typeSelect.value : '';
       const sortBy = sortSelect ? sortSelect.value : 'latest';
+      const language = languageSelect ? languageSelect.value : '';
 
-      const url = `/comics?search=${encodeURIComponent(search)}&genre=${encodeURIComponent(genre)}&type=${encodeURIComponent(type)}&sortBy=${encodeURIComponent(sortBy)}`;
+      const url = `/comics?search=${encodeURIComponent(search)}&genre=${encodeURIComponent(genre)}&type=${encodeURIComponent(type)}&language=${encodeURIComponent(language)}&sortBy=${encodeURIComponent(sortBy)}`;
       const res = await API.get(url);
 
       if (gridContainer) {
@@ -57,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  [searchInput, genreSelect, typeSelect, sortSelect].forEach(input => {
+  [searchInput, genreSelect, typeSelect, languageSelect, sortSelect].forEach(input => {
     if (input) {
       input.addEventListener('change', loadComics);
       if (input === searchInput) {

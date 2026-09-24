@@ -1,5 +1,7 @@
 const db = require('../config/database');
 const env = require('../config/env');
+const EmailService = require('./emailService');
+const siteUrl=(p='')=>`${String(env.FRONTEND_URL||'').replace(/\/+$/,'')}/${String(p).replace(/^\/+/, '')}`;
 
 class NotificationService {
   static async create(userId, type, title, message, data = {}) {
@@ -59,13 +61,10 @@ class NotificationService {
     if(!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
       return {sent:false,reason:'WhatsApp provider is not configured.'};
     }
-    let phone=String(user.phone||'').replace(/\D/g,'');
-    // Meta Cloud API expects an international number without the '+' sign.
-    // For the common Indian 10-digit format, automatically add country code 91.
-    if (/^[6-9]\d{9}$/.test(phone)) phone = `91${phone}`;
+    const phone=String(user.phone||'').replace(/\D/g,'');
     if(!phone) return {sent:false,reason:'No mobile number available.'};
     // Meta Cloud API. Template must be approved in WhatsApp Business Manager.
-    const url=`https://graph.facebook.com/${env.WHATSAPP_API_VERSION || 'v20.0'}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    const url=`https://graph.facebook.com/${env.WHATSAPP_GRAPH_VERSION||'v25.0'}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
     const components=[{type:'body',parameters:Object.values(params).map(v=>({type:'text',text:String(v)}))}];
     try {
       const r=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,'Content-Type':'application/json'},
@@ -77,21 +76,29 @@ class NotificationService {
 
   static async broadcastNewComic(comic, UserModel) {
     const users=await UserModel.getAll();
-    for(const user of users){
-      const prefs=await this.preferences(user.id);
-      if(prefs.in_app_enabled!==false) await this.create(user.id,'new_comic','New comic released',`${comic.title} is now available.`,{comicId:comic.id,slug:comic.slug});
-      if(prefs.new_comic_whatsapp!==false) await this.whatsapp(user,env.WHATSAPP_NEW_COMIC_TEMPLATE,{name:user.username,title:comic.title,url:`${env.FRONTEND_URL||''}/comic.html?slug=${comic.slug}`});
+    const chunkSize=10;
+    for(let i=0;i<users.length;i+=chunkSize){
+      const chunk=users.slice(i,i+chunkSize);
+      await Promise.allSettled(chunk.map(async user=>{
+        const prefs=await this.preferences(user.id);
+        if(prefs.in_app_enabled!==false) await this.create(user.id,'new_comic','New comic released',`${comic.title} is now available.`,{comicId:comic.id,slug:comic.slug});
+        if(prefs.new_comic_whatsapp!==false) await this.whatsapp(user,'elder_veil_new_comic',{title:comic.title,url:siteUrl(`comic.html?slug=${encodeURIComponent(comic.slug)}`)});
+        if(prefs.email_enabled!==false) await EmailService.send({to:user.email,subject:`New comic: ${comic.title}`,text:`${comic.title} is now available on Elder's Veil.\n${siteUrl(`comic.html?slug=${encodeURIComponent(comic.slug)}`)}`});
+      }));
     }
   }
 
   static async broadcastNewChapter(comic, chapter, UserModel, followerIds=[]) {
     const users=await UserModel.getAll();
-    const ids=[...new Set((users||[]).map(u=>u.id))];
-    for(const uid of ids){
-      const user=await UserModel.findById(uid); if(!user)continue;
-      const prefs=await this.preferences(uid);
-      if(prefs.in_app_enabled!==false) await this.create(uid,'new_chapter','New chapter released',`${comic.title} — Chapter ${chapter.chapterNumber} is available.`,{comicId:comic.id,chapterId:chapter.id});
-      if(prefs.new_chapter_whatsapp!==false) await this.whatsapp(user,env.WHATSAPP_NEW_CHAPTER_TEMPLATE,{name:user.username,title:comic.title,chapter:`Chapter ${chapter.chapterNumber}`,url:`${env.FRONTEND_URL||''}/reader.html?id=${chapter.id}`});
+    const chunkSize=10;
+    for(let i=0;i<users.length;i+=chunkSize){
+      const chunk=users.slice(i,i+chunkSize);
+      await Promise.allSettled(chunk.map(async user=>{
+        const prefs=await this.preferences(user.id);
+        if(prefs.in_app_enabled!==false) await this.create(user.id,'new_chapter','New chapter released',`${comic.title} — Chapter ${chapter.chapterNumber} is available.`,{comicId:comic.id,chapterId:chapter.id});
+        if(prefs.new_chapter_whatsapp!==false) await this.whatsapp(user,'elder_veil_new_chapter',{title:comic.title,chapter:`Chapter ${chapter.chapterNumber}`,url:siteUrl(`reader.html?id=${encodeURIComponent(chapter.id)}`)});
+        if(prefs.email_enabled!==false) await EmailService.send({to:user.email,subject:`${comic.title} — Chapter ${chapter.chapterNumber}`,text:`A new chapter is available on Elder's Veil.\n${siteUrl(`reader.html?id=${encodeURIComponent(chapter.id)}`)}`});
+      }));
     }
   }
 }

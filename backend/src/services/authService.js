@@ -1,79 +1,15 @@
-const User = require('../models/User');
-const { generateToken } = require('../utils/jwt');
-const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
-const NotificationService = require('./notificationService');
-const env = require('../config/env');
-
+const crypto=require('crypto');
+const User=require('../models/User');
+const {generateToken}=require('../utils/jwt');
+const {isValidEmail,isValidUsername,isValidPassword}=require('../utils/validation');
+const NotificationService=require('./notificationService');
+const EmailService=require('./emailService');
+const db=require('../config/database');
 class AuthService {
-  static async register({ username, email, phone, password, confirmPassword }) {
-    if (!username || !email || !phone || !password) {
-      throw { statusCode: 400, message: 'Username, email, mobile number, and password are required.' };
-    }
-    if (!/^\+?[0-9]{10,15}$/.test(String(phone).replace(/[\s-]/g, ''))) {
-      throw { statusCode: 400, message: 'Enter a valid mobile number.' };
-    }
-    if (confirmPassword && password !== confirmPassword) {
-      throw { statusCode: 400, message: 'Passwords do not match.' };
-    }
-    if (!isValidUsername(username)) {
-      throw { statusCode: 400, message: 'Username must be between 3 and 30 characters.' };
-    }
-    if (!isValidEmail(email)) {
-      throw { statusCode: 400, message: 'Invalid email address format.' };
-    }
-    if (!isValidPassword(password)) {
-      throw { statusCode: 400, message: 'Password must be at least 6 characters long.' };
-    }
-
-    const existingEmail = await User.findByEmail(email);
-    if (existingEmail) {
-      throw { statusCode: 400, message: 'Email address is already registered.' };
-    }
-
-    const existingUsername = await User.findByUsername(username);
-    if (existingUsername) {
-      throw { statusCode: 400, message: 'Username is already taken.' };
-    }
-
-    const userId = `user-${Date.now()}`;
-    const user = await User.create({
-      id: userId,
-      username: username.trim(),
-      email: email.trim().toLowerCase(),
-      phone: String(phone).replace(/[\s-]/g, ''),
-      password,
-      role: 'user'
-    });
-
-    NotificationService.create(user.id,'welcome','Welcome to Elder’s Veil',`Welcome ${user.username}! Your account has been created successfully.`,{}).catch(()=>{});
-    NotificationService.whatsapp(user, env.WHATSAPP_WELCOME_TEMPLATE, {name:user.username})
-      .then(result => {
-        if (!result.sent) console.warn('[WhatsApp] Welcome message not sent:', result.reason || result.status || 'provider error');
-      })
-      .catch(err => console.warn('[WhatsApp] Welcome message error:', err.message));
-    const token = generateToken({ userId: user.id, role: user.role });
-    return { user, token };
-  }
-
-  static async login({ email, password }) {
-    if (!email || !password) {
-      throw { statusCode: 400, message: 'Email and password are required.' };
-    }
-
-    const user = await User.findByEmail(email.trim().toLowerCase());
-    if (!user) {
-      throw { statusCode: 401, message: 'Invalid email or password.' };
-    }
-
-    const isMatch = await User.verifyPassword(user, password);
-    if (!isMatch) {
-      throw { statusCode: 401, message: 'Invalid email or password.' };
-    }
-
-    const token = generateToken({ userId: user.id, role: user.role });
-    const { password_hash, ...safeUser } = user;
-    return { user: safeUser, token };
-  }
+ static async register({username,email,phone,password,confirmPassword}){if(!username||!email||!phone||!password)throw {statusCode:400,message:'Username, email, mobile number, and password are required.'};if(!/^\+?[0-9]{10,15}$/.test(String(phone).replace(/[\s-]/g,'')))throw {statusCode:400,message:'Enter a valid mobile number.'};if(confirmPassword&&password!==confirmPassword)throw {statusCode:400,message:'Passwords do not match.'};if(!isValidUsername(username))throw {statusCode:400,message:'Username must be between 3 and 30 characters.'};if(!isValidEmail(email))throw {statusCode:400,message:'Invalid email address format.'};if(!isValidPassword(password))throw {statusCode:400,message:'Password must be at least 6 characters long.'};if(await User.findByEmail(email))throw {statusCode:400,message:'Email address is already registered.'};if(await User.findByUsername(username))throw {statusCode:400,message:'Username is already taken.'};const user=await User.create({id:`user-${Date.now()}`,username:username.trim(),email:email.trim().toLowerCase(),phone:String(phone).replace(/[\s-]/g,''),password,role:'user'});NotificationService.create(user.id,'welcome','Welcome to Elder’s Veil',`Welcome ${user.username}! Your account has been created successfully.`,{}).catch(()=>{});const env=require('../config/env');
+NotificationService.whatsapp(user,'elder_veil_welcome',{name:user.username,url:`${String(env.FRONTEND_URL||'').replace(/\/+$/,'')}/index.html`}).catch(()=>{});const token=generateToken({userId:user.id,role:user.role});return {user,token};}
+ static async login({email,password}){if(!email||!password)throw {statusCode:400,message:'Email and password are required.'};const user=await User.findByEmail(email.trim().toLowerCase());if(!user)throw {statusCode:401,message:'Invalid email or password.'};if(['blocked','banned'].includes(user.account_status))throw {statusCode:403,message:`This account is ${user.account_status}.`};if(!await User.verifyPassword(user,password))throw {statusCode:401,message:'Invalid email or password.'};return {user,token:generateToken({userId:user.id,role:user.role})};}
+ static async createReset(email){const user=await User.findByEmail(email.trim().toLowerCase());const generic={message:'If an account exists with that email, a password reset link has been sent.'};if(!user)return generic;const raw=crypto.randomBytes(32).toString('hex'),hash=crypto.createHash('sha256').update(raw).digest('hex'),expires=new Date(Date.now()+30*60*1000);if(db.isPgConnected()){await db.query('DELETE FROM password_reset_tokens WHERE user_id=$1',[user.id]);await db.query('INSERT INTO password_reset_tokens(token_hash,user_id,expires_at) VALUES($1,$2,$3)',[hash,user.id,expires]);}else{db.fallbackStore.password_reset_tokens=db.fallbackStore.password_reset_tokens.filter(x=>x.user_id!==user.id);db.fallbackStore.password_reset_tokens.push({token_hash:hash,user_id:user.id,expires_at:expires});db.saveFallbackStore();}const link=`${require('../config/env').FRONTEND_URL}/reset-password.html?token=${raw}`;await EmailService.send({to:user.email,subject:"Elder's Veil password reset",text:`Use this link within 30 minutes: ${link}`});return generic;}
+ static async resetPassword(token,newPassword){if(!isValidPassword(newPassword))throw {statusCode:400,message:'Password must be at least 6 characters long.'};const hash=crypto.createHash('sha256').update(token).digest('hex');let row=null;if(db.isPgConnected()){const r=await db.query('SELECT * FROM password_reset_tokens WHERE token_hash=$1 AND used_at IS NULL AND expires_at>CURRENT_TIMESTAMP',[hash]);row=r.rows[0];if(row)await db.query('UPDATE password_reset_tokens SET used_at=CURRENT_TIMESTAMP WHERE token_hash=$1',[hash]);}else{row=db.fallbackStore.password_reset_tokens.find(x=>x.token_hash===hash&&!x.used_at&&new Date(x.expires_at)>new Date());if(row){row.used_at=new Date();db.saveFallbackStore();}}if(!row)throw {statusCode:400,message:'Reset link is invalid or expired.'};await User.updatePassword(row.user_id,newPassword);}
 }
-
-module.exports = AuthService;
+module.exports=AuthService;

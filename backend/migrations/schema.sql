@@ -187,3 +187,139 @@ CREATE TABLE IF NOT EXISTS comments (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_comments_comic ON comments(comic_id,created_at DESC);
+
+
+-- Elder's Veil v2 production features
+ALTER TABLE comics ADD COLUMN IF NOT EXISTS scheduled_publish_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE chapters ADD COLUMN IF NOT EXISTS scheduled_publish_at TIMESTAMP WITH TIME ZONE;
+
+CREATE INDEX IF NOT EXISTS idx_comics_schedule ON comics(scheduled_publish_at);
+CREATE INDEX IF NOT EXISTS idx_chapters_schedule ON chapters(scheduled_publish_at);
+
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'visible';
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS parent_comment_id VARCHAR(100) REFERENCES comments(id) ON DELETE CASCADE;
+ALTER TABLE comments ADD COLUMN IF NOT EXISTS moderated_by VARCHAR(64);
+
+CREATE TABLE IF NOT EXISTS comment_likes (
+  id VARCHAR(120) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  comment_id VARCHAR(100) REFERENCES comments(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, comment_id)
+);
+CREATE INDEX IF NOT EXISTS idx_comment_likes_comment ON comment_likes(comment_id);
+
+CREATE TABLE IF NOT EXISTS creator_follows (
+  id VARCHAR(120) PRIMARY KEY,
+  follower_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  creator_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(follower_id, creator_id)
+);
+CREATE INDEX IF NOT EXISTS idx_creator_follows_creator ON creator_follows(creator_id);
+
+CREATE TABLE IF NOT EXISTS reports (
+  id VARCHAR(120) PRIMARY KEY,
+  reporter_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+  target_type VARCHAR(40) NOT NULL,
+  target_id VARCHAR(100),
+  reason VARCHAR(100) NOT NULL,
+  details TEXT DEFAULT '',
+  status VARCHAR(30) DEFAULT 'open',
+  admin_note TEXT,
+  resolved_by VARCHAR(64),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id VARCHAR(120) PRIMARY KEY,
+  actor_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+  action VARCHAR(100) NOT NULL,
+  target_type VARCHAR(50),
+  target_id VARCHAR(100),
+  metadata JSONB DEFAULT '{}'::jsonb,
+  ip_hash VARCHAR(128),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id VARCHAR(120) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+  event_type VARCHAR(60) NOT NULL,
+  path TEXT,
+  comic_id VARCHAR(64),
+  chapter_id VARCHAR(64),
+  metadata JSONB DEFAULT '{}'::jsonb,
+  ip_hash VARCHAR(128),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_type ON analytics_events(event_type,created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_events_comic ON analytics_events(comic_id,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS premium_payments (
+  id VARCHAR(120) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  provider VARCHAR(30) NOT NULL,
+  order_id VARCHAR(150) UNIQUE,
+  payment_id VARCHAR(150),
+  amount_paise INT NOT NULL,
+  status VARCHAR(30) DEFAULT 'created',
+  raw JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  paid_at TIMESTAMP WITH TIME ZONE
+);
+CREATE INDEX IF NOT EXISTS idx_premium_payments_user ON premium_payments(user_id,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  token_hash VARCHAR(128) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  used_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_password_reset_user ON password_reset_tokens(user_id);
+
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id VARCHAR(120) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+  subject VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status VARCHAR(30) DEFAULT 'open',
+  admin_reply TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status,created_at DESC);
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id VARCHAR(120) PRIMARY KEY,
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  endpoint TEXT UNIQUE NOT NULL,
+  subscription JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS achievements (
+  id VARCHAR(80) PRIMARY KEY,
+  name VARCHAR(120) UNIQUE NOT NULL,
+  description TEXT NOT NULL,
+  icon VARCHAR(80) DEFAULT 'fa-trophy'
+);
+CREATE TABLE IF NOT EXISTS user_achievements (
+  user_id VARCHAR(64) REFERENCES users(id) ON DELETE CASCADE,
+  achievement_id VARCHAR(80) REFERENCES achievements(id) ON DELETE CASCADE,
+  unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(user_id,achievement_id)
+);
+
+INSERT INTO achievements(id,name,description,icon) VALUES
+('first_read','First Read','Read your first comic chapter.','fa-book-open'),
+('ten_comics','10 Comics Read','Read from 10 different comics.','fa-layer-group'),
+('streak_7','7 Day Reading Streak','Open the platform on seven consecutive days.','fa-fire'),
+('first_rating','First Rating','Rate your first comic.','fa-star'),
+('creator_start','Comic Writer','Become a Comic Writer.','fa-pen-nib')
+ON CONFLICT (id) DO NOTHING;

@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Admin Upload Suite — Elder's Veil</title>
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/admin.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="../js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -23,12 +26,12 @@
 
       <div class="admin-layout">
         <aside class="admin-sidebar">
-          <a href="/admin/index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
-          <a href="/admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
-          <a href="/admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
-          <a href="/admin/upload.html" class="admin-nav-item active"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
-          <a href="/admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
-          <a href="/admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
+          <a href="../admin/index.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+          <a href="../admin/comics.html" class="admin-nav-item"><i class="fas fa-book"></i> Comics Management</a>
+          <a href="../admin/chapters.html" class="admin-nav-item"><i class="fas fa-list-ol"></i> Chapters Management</a>
+          <a href="../admin/upload.html" class="admin-nav-item active"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="../admin/users.html" class="admin-nav-item"><i class="fas fa-users"></i> Users Management</a>
+          <a href="../admin/json-manager.html" class="admin-nav-item"><i class="fas fa-code"></i> JSON Import & Export</a>
         </aside>
 
         <div>
@@ -81,6 +84,8 @@
                 <textarea id="comic-desc" class="form-textarea" rows="3" placeholder="Enter story synopsis..."></textarea>
               </div>
 
+              <div class="form-group"><label class="form-label">Schedule publication (optional)</label><input type="datetime-local" id="comic-schedule" class="form-input"><small style="color:var(--text-muted)">Set a future time to publish automatically. Leave empty to publish immediately.</small></div>
+
               <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-top:1rem;">
                 <div class="form-group">
                   <label class="form-label">Cover Image File</label>
@@ -130,6 +135,8 @@
                 <input type="file" id="pages-file" multiple accept="image/*" style="display:none;" />
               </div>
 
+              <div class="form-group" style="margin-top:1rem;"><label class="form-label">Schedule chapter publication (optional)</label><input type="datetime-local" id="chapter-schedule" class="form-input"><small style="color:var(--text-muted)">A future date/time lets the scheduler publish it automatically after the parent comic is public.</small></div>
+
               <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;">
                 <i class="fas fa-upload"></i> Publish Chapter
               </button>
@@ -142,9 +149,11 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
-  <script src="/js/upload.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/i18n.js"></script>
+<script src="../js/components.js"></script>
+  <script src="../js/upload.js"></script>
+  <script src="../js/pwa.js"></script>
 </body>
 </html>

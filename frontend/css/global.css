@@ -269,3 +269,5 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-muted);
   font-size: 0.85rem;
 }
+
+.stat-card{background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1.1rem;display:flex;flex-direction:column;gap:.35rem}.stat-card span{color:var(--text-secondary);font-size:.85rem}.history-card{background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1rem;margin-bottom:.75rem}.premium-expired-banner{border:1px solid rgba(220,38,38,.45);background:rgba(220,38,38,.08);padding:.8rem 1rem;border-radius:var(--radius-md);color:#ef4444;font-weight:700;margin:1rem 0}

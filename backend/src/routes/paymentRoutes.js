@@ -1,0 +1,1 @@
+const express=require('express');const router=express.Router();const C=require('../controllers/paymentController');const {authMiddleware}=require('../middleware/authMiddleware');router.use(authMiddleware);router.post('/create-order',C.createOrder);router.post('/verify',C.verify);module.exports=router;

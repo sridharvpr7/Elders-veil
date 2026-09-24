@@ -4,6 +4,7 @@ const Comic = require('../models/Comic');
 const NotificationService = require('../services/notificationService');
 const User = require('../models/User');
 const Engagement = require('../models/Engagement');
+const FeatureService = require('../services/featureService');
 
 class ChapterController {
   static async getMyChapters(req, res, next) {
@@ -57,7 +58,8 @@ class ChapterController {
       const chapter = await Chapter.create({
         ...req.body,
         comicId,
-        publishStatus: req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'pending'
+        publishStatus: (req.body.scheduledPublishAt && req.user.role==='admin') ? 'scheduled' : (req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'pending'),
+        scheduledPublishAt: req.body.scheduledPublishAt || null
       });
       res.status(201).json({ chapter, message: 'Chapter created successfully.' });
     } catch (err) {
@@ -71,7 +73,8 @@ class ChapterController {
       if (!existing) return res.status(404).json({ error: 'Chapter not found.' });
       const comic = await Comic.findById(existing.comicId);
       if (req.user.role !== 'admin' && (!comic || comic.creatorId !== req.user.id)) return res.status(403).json({ error: 'You can only edit your own chapters.' });
-      const chapter = await Chapter.update(req.params.id, { ...req.body, publishStatus: req.user.role === 'admin' ? req.body.publishStatus : 'pending', reviewNote: req.user.role === 'admin' ? req.body.reviewNote : null });
+      const scheduled = req.body.scheduledPublishAt ? new Date(req.body.scheduledPublishAt) : null; if(scheduled && Number.isNaN(scheduled.getTime())) return res.status(400).json({error:'Invalid schedule date.'});
+      const chapter = await Chapter.update(req.params.id, { ...req.body, publishStatus: (scheduled && req.user.role==='admin') ? 'scheduled' : (req.user.role === 'admin' ? req.body.publishStatus : 'pending'), reviewNote: req.user.role === 'admin' ? req.body.reviewNote : null, scheduledPublishAt: scheduled ? scheduled.toISOString() : null });
       if (!chapter) {
         return res.status(404).json({ error: 'Chapter not found.' });
       }
@@ -96,13 +99,29 @@ class ChapterController {
       next(err);
     }
   }
+
+  static async scheduleChapter(req,res,next){
+    try{
+      if(req.user.role!=='admin') return res.status(403).json({error:'Only an administrator can schedule publication.'});
+      const when=new Date(req.body.scheduledPublishAt);
+      if(Number.isNaN(when.getTime()) || when.getTime()<=Date.now()) return res.status(400).json({error:'Choose a future publication date and time.'});
+      const chapter=await Chapter.findById(req.params.id);
+      if(!chapter)return res.status(404).json({error:'Chapter not found.'});
+      const comic=await Comic.findById(chapter.comicId);
+      if(!comic || comic.publishStatus!=='published') return res.status(400).json({error:'The parent comic must be published before scheduling a chapter.'});
+      const updated=await Chapter.update(req.params.id,{publishStatus:'scheduled',scheduledPublishAt:when.toISOString(),reviewNote:null});
+      await FeatureService.audit({actorId:req.user.id,action:'chapter_scheduled',targetType:'chapter',targetId:req.params.id,metadata:{scheduledPublishAt:when.toISOString()},ip:req.ip}).catch(()=>{});
+      res.json({chapter:updated,message:'Chapter scheduled successfully.'});
+    }catch(e){next(e)}
+  }
+
   static async publishChapter(req, res, next) {
     try {
       const chapter = await Chapter.findById(req.params.id);
       if (!chapter) return res.status(404).json({ error: 'Chapter not found.' });
       const comic = await Comic.findById(chapter.comicId);
       if (!comic || comic.publishStatus !== 'published') return res.status(400).json({ error: 'Approve the parent comic before publishing this chapter.' });
-      const updated = await Chapter.update(req.params.id, { publishStatus: 'published', reviewNote: null });
+      const updated = await Chapter.update(req.params.id, { publishStatus: 'published', reviewNote: null, scheduledPublishAt:null });
       const followerIds=await Engagement.followers(comic.id);
       NotificationService.broadcastNewChapter(comic,updated,User,followerIds).catch(()=>{});
       if(comic.creatorId) NotificationService.create(comic.creatorId,'chapter_approved','Chapter approved',`${comic.title} — Chapter ${updated.chapterNumber} was published.`,{comicId:comic.id,chapterId:updated.id}).catch(()=>{});

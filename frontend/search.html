@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Smart Search — Elder's Veil</title>
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/cards.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -26,6 +29,10 @@
           <input type="text" id="search-input" class="form-input" style="padding:1rem 1.25rem; font-size:1.1rem; border-radius:var(--radius-full);" placeholder="Type title, author, artist, or genre..." />
         </div>
       </div>
+      <div style="max-width:600px;margin:0 auto 2rem;display:flex;gap:.75rem;align-items:center">
+        <label for="search-language" class="form-label" style="margin:0" data-i18n="language">Language</label>
+        <select id="search-language" class="form-select" style="max-width:220px"><option value="">All Languages</option><option value="English">English</option><option value="Tamil">தமிழ்</option><option value="Japanese">日本語</option><option value="Korean">한국어</option><option value="Chinese">中文</option></select>
+      </div>
 
       <div id="search-results"></div>
     </div>
@@ -33,9 +40,11 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
-  <script src="/js/search.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+<script src="js/components.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>

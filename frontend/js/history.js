@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
 
   if (!Auth.isLoggedIn()) {
-    window.location.href = '/login.html';
+    window.location.href=sitePath('login.html');
     return;
   }
 
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <i class="fas fa-history" style="font-size:3rem; color:var(--text-muted); margin-bottom:1rem;"></i>
           <h3>No Reading History Recorded</h3>
           <p style="color:var(--text-secondary); margin-top:0.5rem;">Start reading chapters and your exact progress will be automatically tracked here.</p>
-          <a href="/comics.html" class="btn btn-primary" style="margin-top:1.5rem;">Start Reading</a>
+          <a href="${sitePath('comics.html')}" class="btn btn-primary" style="margin-top:1.5rem;">Start Reading</a>
         </div>
       `;
     } else {

@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Creator Studio Upload — Elder's Veil</title>
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/admin.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="../css/reset.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/global.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="../js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -23,10 +26,10 @@
 
       <div class="admin-layout">
         <aside class="admin-sidebar">
-          <a href="/creator/dashboard.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Creator Dashboard</a>
+          <a href="../creator/dashboard.html" class="admin-nav-item"><i class="fas fa-chart-line"></i> Creator Dashboard</a>
           
           
-          <a href="/creator/upload.html" class="admin-nav-item active"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
+          <a href="../creator/upload.html" class="admin-nav-item active"><i class="fas fa-cloud-upload-alt"></i> Upload Suite</a>
           
           
         </aside>
@@ -92,9 +95,7 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;">
-                <i class="fas fa-plus-circle"></i> Submit Comic for Review
-              </button>
+              <div class="form-group"><label class="form-label">Schedule publication (optional)</label><input type="datetime-local" id="comic-schedule" class="form-input"><small style="color:var(--text-muted)">Leave empty to use normal admin review.</small></div><button type="button" class="btn btn-secondary btn-sm" id="ai-description-btn"><i class="fas fa-wand-magic-sparkles"></i> AI Draft Description</button> <button type="button" class="btn btn-secondary btn-sm" id="save-comic-draft"><i class="fas fa-floppy-disk"></i> Save Draft</button> <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;"><i class="fas fa-plus-circle"></i> Submit Comic for Review</button>
             </form>
           </div>
 
@@ -125,9 +126,7 @@
                 <div class="dropzone" id="pages-dropzone"><i class="fas fa-images"></i><h4>Click or Drag & Drop Chapter Pages Here</h4><p style="color:var(--text-muted);font-size:.85rem;margin-top:.5rem">Each page must be 150 KB or smaller. Drag thumbnails to reorder.</p></div><input type="file" id="pages-file" multiple accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;" /><div id="page-upload-summary" class="page-upload-summary"></div><div id="page-preview-list" class="page-preview-list"></div>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="margin-top:1.5rem;">
-                <i class="fas fa-upload"></i> Submit Chapter for Review
-              </button>
+              <div class="form-group"><label class="form-label">Schedule chapter publication (optional)</label><input type="datetime-local" id="chapter-schedule" class="form-input"></div><button type="submit" class="btn btn-primary" style="margin-top:1.5rem;"><i class="fas fa-upload"></i> Submit Chapter for Review</button>
             </form>
           </div>
         </div>
@@ -137,9 +136,13 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
-  <script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();if(!u||!['creator','admin'].includes(u.role)){showToast('Become a Comic Writer first.','error');setTimeout(()=>location.href='/dashboard.html',700)}});</script><script src="/js/upload.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/i18n.js"></script>
+<script src="../js/components.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();if(!u||!['creator','admin'].includes(u.role)){showToast('Become a Comic Writer first.','error');setTimeout(()=>location.href=sitePath('dashboard.html'),700)}});</script><script src="../js/upload.js"></script><script>
+document.addEventListener('DOMContentLoaded',()=>{const ai=document.getElementById('ai-description-btn');if(ai)ai.onclick=async()=>{try{const r=await API.post('/features/ai',{mode:'description',title:document.getElementById('comic-title').value,input:document.getElementById('comic-desc').value});document.getElementById('comic-desc').value=r.result||'';showToast(r.configured?'AI draft created.':'Local smart draft created.','success')}catch(e){showToast(e.message,'error')}};const cf=document.getElementById('create-comic-form');if(cf)cf.addEventListener('submit',()=>{});});
+</script>
+  <script src="../js/pwa.js"></script>
 </body>
 </html>

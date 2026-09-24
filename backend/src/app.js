@@ -12,9 +12,14 @@ const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const engagementRoutes = require('./routes/engagementRoutes');
+const featureRoutes = require('./routes/featureRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const Scheduler = require('./services/schedulerService');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
+
+app.use((req,res,next)=>{req.requestId=req.headers['x-request-id']||`ev-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;res.setHeader('X-Request-Id',req.requestId);next();});
 
 // Security Headers with relaxed directive for image serving and canvas
 app.use(helmet({
@@ -23,11 +28,8 @@ app.use(helmet({
 }));
 
 // CORS Configuration
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const allowedOrigins = String(require('./config/env').ALLOWED_ORIGINS || '').split(',').map(s=>s.trim()).filter(Boolean);
+app.use(cors({ origin: (origin, cb) => { if(!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null,true); return cb(new Error('CORS origin not allowed.')); }, methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'], allowedHeaders:['Content-Type','Authorization','X-Request-Id'] }));
 
 // Rate Limiter
 const apiLimiter = rateLimit({
@@ -36,6 +38,7 @@ const apiLimiter = rateLimit({
   message: { error: 'Too many requests from this IP, please try again after 15 minutes.' }
 });
 app.use('/api/', apiLimiter);
+const loginLimiter = rateLimit({windowMs:15*60*1000,max:15,standardHeaders:true,legacyHeaders:false,message:{error:'Too many login attempts. Try again later.'}});
 
 // Body Parsers
 app.use(express.json({ limit: '50mb' }));
@@ -51,6 +54,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/comics', comicRoutes);
 app.use('/api/chapters', chapterRoutes);
@@ -59,6 +63,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/engagement', engagementRoutes);
+app.use('/api/features', featureRoutes);
+app.use('/api/payments', paymentRoutes);
+Scheduler.start();
 
 // Fallback route for SPA / Frontend pages
 app.get('*', (req, res, next) => {

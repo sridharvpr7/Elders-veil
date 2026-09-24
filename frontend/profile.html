@@ -2,30 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Account Settings — Elder's Veil</title>
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/profile.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
 
   <main>
-    <div class="container">
+    <div class="container"><div id="premium-expired-banner"></div>
       
       <div class="profile-grid-tabs">
-        <a href="/dashboard.html" class="tab-btn"><i class="fas fa-th-large"></i> Dashboard Overview</a>
-        <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
-        <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
-        <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
-        <a href="/profile.html" class="tab-btn active"><i class="fas fa-user-cog"></i> Account Settings</a>
+        <a href="dashboard.html" class="tab-btn"><i class="fas fa-th-large"></i> Dashboard Overview</a>
+        <a href="bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
+        <a href="favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
+        <a href="history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
+        <a href="profile.html" class="tab-btn active"><i class="fas fa-user-cog"></i> Account Settings</a>
       </div>
 
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
@@ -68,21 +71,23 @@
 
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+<script src="js/components.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       renderNavbar('');
       renderFooter();
 
       if (!Auth.isLoggedIn()) {
-        window.location.href = '/login.html';
+        window.location.href=sitePath('login.html');
         return;
       }
 
       const user = Auth.getUser();
       if (user) {
+        const expired=user.premium_expired||(user.is_premium&&user.premium_expires_at&&new Date(user.premium_expires_at)<=new Date()); if(expired) document.getElementById('premium-expired-banner').innerHTML='<div class="premium-expired-banner">Premium expired — your premium period has ended. <a href="premium.html">Renew Premium</a></div>';
         document.getElementById('prof-username').value = user.username || '';
         document.getElementById('prof-avatar-preview').src=user.avatar||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
       }
@@ -121,5 +126,6 @@
       });
     });
   </script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>

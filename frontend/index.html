@@ -2,21 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Elder's Veil — Commercial Comic & Manga Reading Platform</title>
   <meta name="description" content="Discover, read, and track high-definition manga, manhwa, and manhua comics with a premium dark reading experience." />
   
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/home.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/cards.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -41,10 +44,10 @@
             Discover published comics, or sign in to manage your reading and creator account.
           </p>
           <div class="hero-actions">
-            <a href="/comics.html" class="btn btn-primary" id="hero-read-btn">
+            <a href="comics.html" class="btn btn-primary" id="hero-read-btn">
               <i class="fas fa-compass"></i> Explore Comics
             </a>
-            <a href="/comics.html" class="btn btn-secondary">
+            <a href="comics.html" class="btn btn-secondary">
               <i class="fas fa-compass"></i> Explore Catalog
             </a>
           </div>
@@ -58,13 +61,13 @@
       <section>
         <div class="section-title"><i class="fas fa-tags"></i> <span>Popular Genres</span></div>
         <div class="genre-pills">
-          <a href="/comics.html?genre=Action" class="genre-pill">Action</a>
-          <a href="/comics.html?genre=Adventure" class="genre-pill">Adventure</a>
-          <a href="/comics.html?genre=Fantasy" class="genre-pill">Fantasy</a>
-          <a href="/comics.html?genre=Sci-Fi" class="genre-pill">Sci-Fi</a>
-          <a href="/comics.html?genre=Cyberpunk" class="genre-pill">Cyberpunk</a>
-          <a href="/comics.html?genre=Mystery" class="genre-pill">Mystery</a>
-          <a href="/comics.html?genre=Supernatural" class="genre-pill">Supernatural</a>
+          <a href="comics.html?genre=Action" class="genre-pill">Action</a>
+          <a href="comics.html?genre=Adventure" class="genre-pill">Adventure</a>
+          <a href="comics.html?genre=Fantasy" class="genre-pill">Fantasy</a>
+          <a href="comics.html?genre=Sci-Fi" class="genre-pill">Sci-Fi</a>
+          <a href="comics.html?genre=Cyberpunk" class="genre-pill">Cyberpunk</a>
+          <a href="comics.html?genre=Mystery" class="genre-pill">Mystery</a>
+          <a href="comics.html?genre=Supernatural" class="genre-pill">Supernatural</a>
         </div>
       </section>
 
@@ -101,9 +104,10 @@
   <!-- App Footer -->
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/components.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       renderNavbar('home');
@@ -128,7 +132,7 @@
                       <h4>${latest.comicTitle || 'Comic'}</h4>
                       <p>Chapter ${latest.chapterNumber || 1}: ${latest.chapterTitle || ''} • Page ${latest.pageNumber || 1}</p>
                     </div>
-                    <a href="/reader.html?id=${latest.chapterId}&page=${latest.pageNumber}" class="btn btn-primary btn-sm">
+                    <a href="reader.html?id=${latest.chapterId}&page=${latest.pageNumber}" class="btn btn-primary btn-sm">
                       Resume <i class="fas fa-arrow-right"></i>
                     </a>
                   </div>
@@ -141,33 +145,35 @@
 
       // Load Featured / Hero
       try {
-        const res = await API.get('/comics?limit=12');
-        const comics = res.comics || [];
-
-        if (comics.length > 0) {
-          const top = comics[0];
-          document.getElementById('hero-title').textContent = top.title;
-          document.getElementById('hero-desc').textContent = top.description || '';
-          document.getElementById('hero-type').textContent = (top.type || 'manga').toUpperCase();
-          document.getElementById('hero-status').textContent = (top.status || 'ongoing').toUpperCase();
-          document.getElementById('hero-rating').textContent = Number(top.rating).toFixed(1);
-          document.getElementById('hero-bg-img').src = top.bannerImage || top.coverImage;
-          document.getElementById('hero-read-btn').href = `/comic.html?slug=${top.slug}`;
+        const [trendingRes, popularRes, latestRes] = await Promise.all([
+          API.get('/comics?sortBy=trending&limit=8'),
+          API.get('/comics?sortBy=popular&limit=8'),
+          API.get('/comics?sortBy=latest&limit=8')
+        ]);
+        const trending = trendingRes.comics || [];
+        const popular = popularRes.comics || [];
+        const latest = latestRes.comics || [];
+        const hero = latest[0] || trending[0] || popular[0];
+        if (hero) {
+          document.getElementById('hero-title').textContent = hero.title;
+          document.getElementById('hero-desc').textContent = hero.description || '';
+          document.getElementById('hero-type').textContent = (hero.type || 'manga').toUpperCase();
+          document.getElementById('hero-status').textContent = (hero.status || 'ongoing').toUpperCase();
+          document.getElementById('hero-rating').textContent = Number(hero.rating || 0).toFixed(1);
+          document.getElementById('hero-bg-img').src = hero.bannerImage || hero.coverImage;
+          document.getElementById('hero-read-btn').href = `/comic.html?slug=${hero.slug}`;
         }
-
-        const trendingGrid = document.getElementById('trending-comics-grid');
-        const popularGrid = document.getElementById('popular-comics-grid');
-        const latestGrid = document.getElementById('latest-comics-grid');
-
-        if (trendingGrid) trendingGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-        if (popularGrid) popularGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-        if (latestGrid) latestGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-
+        const renderSection = (id, items) => { const el=document.getElementById(id); if(el) el.innerHTML = items.length ? `<div class="comic-grid">${items.slice(0,6).map(renderComicCard).join('')}</div>` : '<p style="color:var(--text-muted)">No published comics yet.</p>'; };
+        renderSection('trending-comics-grid', trending);
+        renderSection('popular-comics-grid', popular);
+        renderSection('latest-comics-grid', latest);
       } catch (err) {
         console.error('Home load error:', err);
       }
     });
   </script>
   <script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const b=document.getElementById('hero-read-btn');if(u&&u.role==='admin'){b.href='/admin/upload.html';b.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Upload Comic';}});</script>
+  <script src="js/pwa.js"></script>
+<script>document.addEventListener('DOMContentLoaded',async()=>{if(Auth.isLoggedIn()){try{const rr=await API.get('/users/me/recommendations');if(rr.recommendations?.length){const s=document.createElement('section');s.style.margin='3rem 0';s.innerHTML='<div class="section-title"><i class="fas fa-wand-magic-sparkles"></i><span data-i18n="recommended">Recommended For You</span></div><div class="comic-grid">'+rr.recommendations.slice(0,6).map(renderComicCard).join('')+'</div>';document.querySelector('main .container')?.appendChild(s);window.I18N?.apply(s);}}catch(_e){}}});</script>
 </body>
 </html>

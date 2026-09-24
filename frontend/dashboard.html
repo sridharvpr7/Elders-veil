@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>User Dashboard — Elder's Veil</title>
-  <link rel="stylesheet" href="/css/reset.css" />
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/global.css" />
-  <link rel="stylesheet" href="/css/navbar.css" />
-  <link rel="stylesheet" href="/css/cards.css" />
-  <link rel="stylesheet" href="/css/profile.css" />
-  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/cards.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="/js/theme.js"></script>
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header id="app-header"></header>
@@ -36,11 +39,11 @@
 
       <!-- Navigation Tabs -->
       <div class="profile-grid-tabs">
-        <a href="/dashboard.html" class="tab-btn active"><i class="fas fa-th-large"></i> Dashboard Overview</a>
-        <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
-        <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
-        <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
-        <a href="/notifications.html" class="tab-btn"><i class="fas fa-bell"></i> Notifications</a><a href="/profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
+        <a href="dashboard.html" class="tab-btn active"><i class="fas fa-th-large"></i> Dashboard Overview</a>
+        <a href="bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
+        <a href="favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
+        <a href="history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
+        <a href="notifications.html" class="tab-btn"><i class="fas fa-bell"></i> Notifications</a><a href="profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
       </div>
 
       <!-- Overview Content -->
@@ -54,23 +57,23 @@
       <section style="margin-bottom:3rem;">
         <div class="section-title"><i class="fas fa-bookmark text-gradient"></i> <span>Bookmarked Comics</span></div>
         <div id="dash-bookmarks-grid"></div>
-      </section>
-
+      </section><section style="margin-bottom:3rem"><div class="section-title"><i class="fas fa-trophy text-gradient"></i><span>Achievements</span></div><div id="dash-achievements" class="comic-grid"></div></section><section style="margin-bottom:3rem"><div class="section-title"><i class="fas fa-wand-magic-sparkles text-gradient"></i><span>Recommended For You</span></div><div id="dash-recommendations"></div></section>
     </div>
   </main>
 
   <footer id="app-footer"></footer>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/components.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+<script src="js/components.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       renderNavbar('');
       renderFooter();
 
       if (!Auth.isLoggedIn()) {
-        window.location.href = '/login.html';
+        window.location.href=sitePath('login.html');
         return;
       }
 
@@ -95,18 +98,21 @@
               <div class="history-thumb-wrap">
                 <img src="${item.comicCover || '/uploads/covers/default.jpg'}" class="history-thumb" alt="Cover" />
                 <div>
-                  <h4 style="font-size:1.1rem;"><a href="/comic.html?slug=${item.comicSlug}">${item.comicTitle}</a></h4>
+                  <h4 style="font-size:1.1rem;"><a href="comic.html?slug=${item.comicSlug}">${item.comicTitle}</a></h4>
                   <p style="color:var(--accent-cyan-light);font-size:.9rem;font-weight:600">Chapter ${item.chapterNumber}: ${item.chapterTitle || ''} — Page ${item.pageNumber || 1}</p>
                   <div class="reading-progress-wrap"><div class="reading-progress-head"><span>Reading Progress</span><strong>${item.progressPercent || 0}% completed</strong></div><div class="reading-progress"><span style="width:${item.progressPercent || 0}%"></span></div></div>
                 </div>
               </div>
-              <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber}" class="btn btn-primary btn-sm">
+              <a href="reader.html?id=${item.chapterId}&page=${item.pageNumber}" class="btn btn-primary btn-sm">
                 Continue Reading <i class="fas fa-arrow-right"></i>
               </a>
             </div>
           `;
         }
       } catch (err) {}
+
+
+      Promise.all([API.get('/users/me/achievements'),API.get('/users/me/recommendations')]).then(([a,r])=>{const ae=document.getElementById('dash-achievements');if(ae)ae.innerHTML=(a.achievements||[]).map(x=>`<div class="stat-card" style="opacity:${x.unlocked?'1':'.55'}"><strong><i class="fas ${x.icon||'fa-trophy'}"></i> ${x.name}</strong><span>${x.unlocked?'Unlocked':'Locked'}</span></div>`).join('');const rr=document.getElementById('dash-recommendations');if(rr)rr.innerHTML=(r.recommendations||[]).slice(0,6).map(renderComicCard).join('')||'<p style="color:var(--text-muted)">Keep reading to improve recommendations.</p>';}).catch(()=>{});
 
       // Load Bookmarks
       try {
@@ -123,5 +129,6 @@
       } catch (err) {}
     });
   </script>
-<script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser(),el=document.getElementById('creator-cta');if(!u||!el)return;if(u.role==='admin')el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-cloud-upload-alt"></i> Admin Upload</h3><p>Upload official catalog content directly from the admin suite.</p><a class="btn btn-primary" href="/admin/upload.html">Open Upload Suite</a></div>';else if(u.role==='creator')el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-pen-nib"></i> Comic Writer</h3><p>Your submissions go to admin review before public release.</p><a class="btn btn-primary" href="/creator/dashboard.html">Open Creator Studio</a></div>';else{el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-pen-nib"></i> Become a Comic Writer</h3><p>Activate writer mode here, then submit your comic for admin review.</p><button class="btn btn-primary" id="become-writer-btn"><i class="fas fa-feather-alt"></i> Become a Comic Writer</button></div>';document.getElementById('become-writer-btn').onclick=async()=>{try{const r=await API.post('/users/me/become-creator',{});Auth.saveSession(r.user,Auth.getToken());showToast('Writer mode activated.','success');setTimeout(()=>location.href='/creator/dashboard.html',500)}catch(e){showToast(e.message,'error')}}}});</script></body>
+<script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser(),el=document.getElementById('creator-cta');if(!u||!el)return;if(u.role==='admin')el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-cloud-upload-alt"></i> Admin Upload</h3><p>Upload official catalog content directly from the admin suite.</p><a class="btn btn-primary" href="admin/upload.html">Open Upload Suite</a></div>';else if(u.role==='creator')el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-pen-nib"></i> Comic Writer</h3><p>Your submissions go to admin review before public release.</p><a class="btn btn-primary" href="creator/dashboard.html">Open Creator Studio</a></div>';else{el.innerHTML='<div class="auth-card" style="margin-bottom:1rem"><h3><i class="fas fa-pen-nib"></i> Become a Comic Writer</h3><p>Activate writer mode here, then submit your comic for admin review.</p><button class="btn btn-primary" id="become-writer-btn"><i class="fas fa-feather-alt"></i> Become a Comic Writer</button></div>';document.getElementById('become-writer-btn').onclick=async()=>{try{const r=await API.post('/users/me/become-creator',{});Auth.saveSession(r.user,Auth.getToken());showToast('Writer mode activated.','success');setTimeout(()=>location.href=sitePath('creator/dashboard.html'),500)}catch(e){showToast(e.message,'error')}}}});</script>  <script src="js/pwa.js"></script>
+</body>
 </html>
