@@ -1,98 +1,129 @@
-const db = require('../config/database');
-const env = require('../config/env');
-
-class NotificationService {
-  static async create(userId, type, title, message, data = {}) {
-    const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-    const now = new Date();
-    if (db.isPgConnected()) {
-      await db.query(`INSERT INTO notifications (id,user_id,type,title,message,data,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-        [id,userId,type,title,message,JSON.stringify(data),now]);
-    } else {
-      db.fallbackStore.notifications ??= [];
-      db.fallbackStore.notifications.push({id,user_id:userId,type,title,message,data,read:false,created_at:now});
-      db.saveFallbackStore();
-    }
-    return {id,userId,type,title,message,data,read:false,createdAt:now};
+static async whatsapp(user, template, params = {}) {
+  if (!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
+    console.error('[WhatsApp] Missing access token or phone number ID.');
+    return {
+      sent: false,
+      reason: 'WhatsApp provider is not configured.'
+    };
   }
 
-  static async list(userId, limit=50) {
-    if (db.isPgConnected()) {
-      const r=await db.query(`SELECT * FROM notifications WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2`,[userId,limit]);
-      return r.rows.map(n=>({...n,data:typeof n.data==='string'?JSON.parse(n.data||'{}'):n.data,createdAt:n.created_at}));
-    }
-    return (db.fallbackStore.notifications||[]).filter(n=>n.user_id===userId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,limit).map(n=>({...n,createdAt:n.created_at}));
+  let phone = String(user.phone || '').replace(/\D/g, '');
+
+  // Indian 10-digit number → 91XXXXXXXXXX
+  if (/^[6-9]\d{9}$/.test(phone)) {
+    phone = `91${phone}`;
   }
 
-  static async markRead(userId,id) {
-    if(db.isPgConnected()){await db.query(`UPDATE notifications SET read=true WHERE id=$1 AND user_id=$2`,[id,userId]);}
-    else {const n=(db.fallbackStore.notifications||[]).find(x=>x.id===id&&x.user_id===userId);if(n)n.read=true;db.saveFallbackStore();}
+  if (!phone) {
+    console.error('[WhatsApp] No mobile number available.');
+    return {
+      sent: false,
+      reason: 'No mobile number available.'
+    };
   }
 
-  static async preferences(userId) {
-    if(db.isPgConnected()){
-      const r=await db.query(`SELECT * FROM notification_preferences WHERE user_id=$1`,[userId]);
-      return r.rows[0] || {user_id:userId,new_comic_whatsapp:true,new_chapter_whatsapp:true,email_enabled:true,in_app_enabled:true};
-    }
-    const p=(db.fallbackStore.notification_preferences||[]).find(x=>x.user_id===userId);
-    return p || {user_id:userId,new_comic_whatsapp:true,new_chapter_whatsapp:true,email_enabled:true,in_app_enabled:true};
-  }
+  const apiVersion = env.WHATSAPP_API_VERSION || 'v20.0';
 
-  static async updatePreferences(userId, data) {
-    const p=await this.preferences(userId);
-    const merged={...p,...data,user_id:userId};
-    if(db.isPgConnected()){
-      await db.query(`INSERT INTO notification_preferences (user_id,new_comic_whatsapp,new_chapter_whatsapp,email_enabled,in_app_enabled)
-        VALUES ($1,$2,$3,$4,$5)
-        ON CONFLICT(user_id) DO UPDATE SET new_comic_whatsapp=EXCLUDED.new_comic_whatsapp,new_chapter_whatsapp=EXCLUDED.new_chapter_whatsapp,email_enabled=EXCLUDED.email_enabled,in_app_enabled=EXCLUDED.in_app_enabled`,
-        [userId,!!merged.new_comic_whatsapp,!!merged.new_chapter_whatsapp,!!merged.email_enabled,!!merged.in_app_enabled]);
-    } else {
-      db.fallbackStore.notification_preferences ??=[];
-      const i=db.fallbackStore.notification_preferences.findIndex(x=>x.user_id===userId);
-      if(i>=0)db.fallbackStore.notification_preferences[i]=merged;else db.fallbackStore.notification_preferences.push(merged);
-      db.saveFallbackStore();
-    }
-    return merged;
-  }
+  const url =
+    `https://graph.facebook.com/${apiVersion}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
 
-  static async whatsapp(user, template, params={}) {
-    if(!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
-      return {sent:false,reason:'WhatsApp provider is not configured.'};
+  const parameters = Object.values(params).map(value => ({
+    type: 'text',
+    text: String(value)
+  }));
+
+  const payload = {
+    messaging_product: 'whatsapp',
+    to: phone,
+    type: 'template',
+    template: {
+      name: template,
+      language: {
+        code: env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US'
+      },
+      components: [
+        {
+          type: 'body',
+          parameters
+        }
+      ]
     }
-    let phone=String(user.phone||'').replace(/\D/g,'');
-    // Meta Cloud API expects an international number without the '+' sign.
-    // For the common Indian 10-digit format, automatically add country code 91.
-    if (/^[6-9]\d{9}$/.test(phone)) phone = `91${phone}`;
-    if(!phone) return {sent:false,reason:'No mobile number available.'};
-    // Meta Cloud API. Template must be approved in WhatsApp Business Manager.
-    const url=`https://graph.facebook.com/${env.WHATSAPP_API_VERSION || 'v20.0'}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-    const components=[{type:'body',parameters:Object.values(params).map(v=>({type:'text',text:String(v)}))}];
+  };
+
+  console.log('[WhatsApp] Sending message:', {
+    to: phone,
+    template,
+    language: env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US',
+    params
+  });
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const responseText = await response.text();
+
+    let body = {};
+
     try {
-      const r=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,'Content-Type':'application/json'},
-        body:JSON.stringify({messaging_product:'whatsapp',to:phone,type:'template',template:{name:template,language:{code:env.WHATSAPP_TEMPLATE_LANGUAGE||'en_US'},components}})});
-      const body=await r.json().catch(()=>({}));
-      return {sent:r.ok,status:r.status,providerMessageId:body?.messages?.[0]?.id,body};
-    } catch(e){ return {sent:false,reason:e.message}; }
-  }
-
-  static async broadcastNewComic(comic, UserModel) {
-    const users=await UserModel.getAll();
-    for(const user of users){
-      const prefs=await this.preferences(user.id);
-      if(prefs.in_app_enabled!==false) await this.create(user.id,'new_comic','New comic released',`${comic.title} is now available.`,{comicId:comic.id,slug:comic.slug});
-      if(prefs.new_comic_whatsapp!==false) await this.whatsapp(user,env.WHATSAPP_NEW_COMIC_TEMPLATE,{name:user.username,title:comic.title,url:`${env.FRONTEND_URL||''}/comic.html?slug=${comic.slug}`});
+      body = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      body = {
+        raw: responseText
+      };
     }
-  }
 
-  static async broadcastNewChapter(comic, chapter, UserModel, followerIds=[]) {
-    const users=await UserModel.getAll();
-    const ids=[...new Set((users||[]).map(u=>u.id))];
-    for(const uid of ids){
-      const user=await UserModel.findById(uid); if(!user)continue;
-      const prefs=await this.preferences(uid);
-      if(prefs.in_app_enabled!==false) await this.create(uid,'new_chapter','New chapter released',`${comic.title} — Chapter ${chapter.chapterNumber} is available.`,{comicId:comic.id,chapterId:chapter.id});
-      if(prefs.new_chapter_whatsapp!==false) await this.whatsapp(user,env.WHATSAPP_NEW_CHAPTER_TEMPLATE,{name:user.username,title:comic.title,chapter:`Chapter ${chapter.chapterNumber}`,url:`${env.FRONTEND_URL||''}/reader.html?id=${chapter.id}`});
+    // 🔴 META ERROR
+    if (!response.ok) {
+      console.error('[WhatsApp] Meta API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorCode: body?.error?.code,
+        errorType: body?.error?.type,
+        errorMessage: body?.error?.message,
+        errorData: body?.error?.error_data,
+        fbtraceId: body?.error?.fbtrace_id,
+        fullBody: body
+      });
+
+      return {
+        sent: false,
+        status: response.status,
+        body,
+        reason:
+          body?.error?.message ||
+          'WhatsApp API request failed.'
+      };
     }
+
+    // 🟢 SUCCESS
+    console.log('[WhatsApp] Message sent successfully:', {
+      status: response.status,
+      messageId: body?.messages?.[0]?.id
+    });
+
+    return {
+      sent: true,
+      status: response.status,
+      providerMessageId: body?.messages?.[0]?.id,
+      body
+    };
+
+  } catch (error) {
+    console.error('[WhatsApp] Request failed:', {
+      message: error.message,
+      stack: error.stack
+    });
+
+    return {
+      sent: false,
+      reason: error.message
+    };
   }
 }
-module.exports=NotificationService;
