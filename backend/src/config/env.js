@@ -12,6 +12,9 @@ module.exports = {
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5000',
   UPLOAD_BASE_URL: process.env.UPLOAD_BASE_URL || '',
   WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN || '',
+  WHATSAPP_BUSINESS_ACCOUNT_ID: process.env.WHATSAPP_BUSINESS_ACCOUNT_ID || '',
+  WHATSAPP_VERIFY_TOKEN: process.env.WHATSAPP_VERIFY_TOKEN || '',
+  WHATSAPP_AUTO_REPLY_ENABLED: String(process.env.WHATSAPP_AUTO_REPLY_ENABLED || 'false').toLowerCase() === 'true',
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
   WHATSAPP_TEMPLATE_LANGUAGE: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US',
   WHATSAPP_WELCOME_TEMPLATE: process.env.WHATSAPP_WELCOME_TEMPLATE || 'elder_veil_welcome',
@@ -20,5 +23,5 @@ module.exports = {
   WHATSAPP_ADMIN_PROMOTED_TEMPLATE: process.env.WHATSAPP_ADMIN_PROMOTED_TEMPLATE || 'elder_veil_admin_promoted',
   WHATSAPP_ADMIN_REMOVED_TEMPLATE: process.env.WHATSAPP_ADMIN_REMOVED_TEMPLATE || 'elder_veil_admin_removed',
   WHATSAPP_ACCOUNT_DELETED_TEMPLATE: process.env.WHATSAPP_ACCOUNT_DELETED_TEMPLATE || 'elder_veil_account_deleted',
-  WHATSAPP_API_VERSION: process.env.WHATSAPP_API_VERSION || 'v20.0'
+  WHATSAPP_API_VERSION: process.env.WHATSAPP_API_VERSION || 'v26.0'
 };

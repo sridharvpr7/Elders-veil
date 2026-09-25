@@ -140,7 +140,7 @@ In **Render → your Web Service → Environment**, add:
 ```env
 WHATSAPP_ACCESS_TOKEN=your_meta_cloud_api_access_token
 WHATSAPP_PHONE_NUMBER_ID=your_meta_whatsapp_phone_number_id
-WHATSAPP_API_VERSION=v20.0
+WHATSAPP_API_VERSION=v26.0
 WHATSAPP_TEMPLATE_LANGUAGE=en_US
 WHATSAPP_WELCOME_TEMPLATE=elder_veil_welcome
 WHATSAPP_NEW_COMIC_TEMPLATE=elder_veil_new_comic
@@ -150,6 +150,22 @@ WHATSAPP_NEW_CHAPTER_TEMPLATE=elder_veil_new_chapter
 Also keep your normal `DATABASE_URL`, `JWT_SECRET`, `NODE_ENV=production`, and `FRONTEND_URL` variables.
 
 **Important:** Do NOT paste the WhatsApp access token into `frontend/*.js`, HTML, GitHub, or any browser-visible settings page. It must stay in the backend/Render environment.
+
+### WhatsApp Cloud API webhook
+
+The backend now exposes the Meta webhook at:
+
+`GET/POST /webhook/whatsapp`
+
+For Render, set the Meta Callback URL to:
+
+`https://YOUR-RENDER-SERVICE.onrender.com/webhook/whatsapp`
+
+Set a private random value in `WHATSAPP_VERIFY_TOKEN`. Use the same value in Meta's **Verify token** field. This is separate from the WhatsApp access token.
+
+The webhook supports Meta verification, incoming messages, and message-status events. Incoming text messages are recorded as in-app notifications when the sender's WhatsApp number matches a registered user. Automatic text replies are disabled by default; set `WHATSAPP_AUTO_REPLY_ENABLED=true` only if you want the backend to send an acknowledgement during an active WhatsApp conversation.
+
+Meta should subscribe the app to the WhatsApp `messages` webhook field.
 
 ### Automatic registration WhatsApp message
 
@@ -201,6 +217,9 @@ All three templates must be approved in Meta WhatsApp Manager. The backend keeps
 Required Render variables:
 - `WHATSAPP_ACCESS_TOKEN`
 - `WHATSAPP_PHONE_NUMBER_ID`
+- `WHATSAPP_BUSINESS_ACCOUNT_ID`
+- `WHATSAPP_VERIFY_TOKEN`
+- `WHATSAPP_AUTO_REPLY_ENABLED`
 - `WHATSAPP_API_VERSION`
 - `WHATSAPP_TEMPLATE_LANGUAGE`
 - `WHATSAPP_WELCOME_TEMPLATE`

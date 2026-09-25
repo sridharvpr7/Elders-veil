@@ -1,6 +1,10 @@
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+function normalizeUserPhone(phone) {
+  return String(phone || '').replace(/\D/g, '');
+}
+
 class User {
   static async findByEmail(email) {
     if (db.isPgConnected()) {
@@ -16,6 +20,29 @@ class User {
       return res.rows[0] || null;
     }
     return db.fallbackStore.users.find(u => u.username.toLowerCase() === String(username).toLowerCase()) || null;
+  }
+
+  static async findByPhone(phone) {
+    const normalized = normalizeUserPhone(phone);
+    if (!normalized) return null;
+    const indianLocal = normalized.startsWith('91') && normalized.length === 12 ? normalized.slice(2) : null;
+
+    if (db.isPgConnected()) {
+      const values = indianLocal ? [normalized, indianLocal] : [normalized];
+      const res = await db.query(
+        `SELECT id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at, updated_at
+         FROM users
+         WHERE regexp_replace(COALESCE(phone, ''), '\D', '', 'g') = ANY($1::text[])
+         LIMIT 1`,
+        [values]
+      );
+      return res.rows[0] || null;
+    }
+
+    return db.fallbackStore.users.find((user) => {
+      const stored = normalizeUserPhone(user.phone);
+      return stored === normalized || (indianLocal && stored === indianLocal);
+    }) || null;
   }
 
   static async findById(id) {

@@ -55,135 +55,56 @@ class NotificationService {
     return merged;
   }
 
-  static async whatsapp(user, template, params = {}) {
-  if (!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
-    console.error('[WhatsApp] Missing access token or phone number ID.');
-    return {
-      sent: false,
-      reason: 'WhatsApp provider is not configured.'
-    };
-  }
-
-  let phone = String(user.phone || '').replace(/\D/g, '');
-
-  // Indian 10-digit number → 91XXXXXXXXXX
-  if (/^[6-9]\d{9}$/.test(phone)) {
-    phone = `91${phone}`;
-  }
-
-  if (!phone) {
-    console.error('[WhatsApp] No mobile number available.');
-    return {
-      sent: false,
-      reason: 'No mobile number available.'
-    };
-  }
-
-  const apiVersion = env.WHATSAPP_API_VERSION || 'v20.0';
-
-  const url =
-    `https://graph.facebook.com/${apiVersion}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-
-  const parameters = Object.values(params).map(value => ({
-    type: 'text',
-    text: String(value)
-  }));
-
-  const payload = {
-    messaging_product: 'whatsapp',
-    to: phone,
-    type: 'template',
-    template: {
-      name: template,
-      language: {
-        code: env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US'
-      },
-      components: [
-        {
-          type: 'body',
-          parameters
-        }
-      ]
+  static async whatsappText(to, text) {
+    if (!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
+      return { sent: false, reason: 'WhatsApp provider is not configured.' };
     }
-  };
 
-  console.log('[WhatsApp] Sending message:', {
-    to: phone,
-    template,
-    language: env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US',
-    params
-  });
+    let phone = String(to || '').replace(/\D/g, '');
+    if (/^[6-9]\d{9}$/.test(phone)) phone = `91${phone}`;
+    if (!phone || !text) return { sent: false, reason: 'Recipient phone number and text are required.' };
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const responseText = await response.text();
-
-    let body = {};
-
+    const url = `https://graph.facebook.com/${env.WHATSAPP_API_VERSION}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
     try {
-      body = responseText ? JSON.parse(responseText) : {};
-    } catch {
-      body = {
-        raw: responseText
-      };
-    }
-
-    // 🔴 META ERROR
-    if (!response.ok) {
-      console.error('[WhatsApp] Meta API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorCode: body?.error?.code,
-        errorType: body?.error?.type,
-        errorMessage: body?.error?.message,
-        errorData: body?.error?.error_data,
-        fbtraceId: body?.error?.fbtrace_id,
-        fullBody: body
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: phone,
+          type: 'text',
+          text: { preview_url: false, body: String(text).slice(0, 4096) }
+        })
       });
-
-      return {
-        sent: false,
-        status: response.status,
-        body,
-        reason:
-          body?.error?.message ||
-          'WhatsApp API request failed.'
-      };
+      const body = await r.json().catch(() => ({}));
+      return { sent: r.ok, status: r.status, providerMessageId: body?.messages?.[0]?.id, body };
+    } catch (e) {
+      return { sent: false, reason: e.message };
     }
-
-    // 🟢 SUCCESS
-    console.log('[WhatsApp] Message sent successfully:', {
-      status: response.status,
-      messageId: body?.messages?.[0]?.id
-    });
-
-    return {
-      sent: true,
-      status: response.status,
-      providerMessageId: body?.messages?.[0]?.id,
-      body
-    };
-
-  } catch (error) {
-    console.error('[WhatsApp] Request failed:', {
-      message: error.message,
-      stack: error.stack
-    });
-
-    return {
-      sent: false,
-      reason: error.message
-    };
   }
-}
+
+  static async whatsapp(user, template, params={}) {
+    if(!env.WHATSAPP_ACCESS_TOKEN || !env.WHATSAPP_PHONE_NUMBER_ID) {
+      return {sent:false,reason:'WhatsApp provider is not configured.'};
+    }
+    let phone=String(user.phone||'').replace(/\D/g,'');
+    // Meta Cloud API expects an international number without the '+' sign.
+    // For the common Indian 10-digit format, automatically add country code 91.
+    if (/^[6-9]\d{9}$/.test(phone)) phone = `91${phone}`;
+    if(!phone) return {sent:false,reason:'No mobile number available.'};
+    // Meta Cloud API. Template must be approved in WhatsApp Business Manager.
+    const url=`https://graph.facebook.com/${env.WHATSAPP_API_VERSION || 'v26.0'}/${env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+    const components=[{type:'body',parameters:Object.values(params).map(v=>({type:'text',text:String(v)}))}];
+    try {
+      const r=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,'Content-Type':'application/json'},
+        body:JSON.stringify({messaging_product:'whatsapp',to:phone,type:'template',template:{name:template,language:{code:env.WHATSAPP_TEMPLATE_LANGUAGE||'en_US'},components}})});
+      const body=await r.json().catch(()=>({}));
+      return {sent:r.ok,status:r.status,providerMessageId:body?.messages?.[0]?.id,body};
+    } catch(e){ return {sent:false,reason:e.message}; }
+  }
 
   static async broadcastNewComic(comic, UserModel) {
     const users=await UserModel.getAll();
