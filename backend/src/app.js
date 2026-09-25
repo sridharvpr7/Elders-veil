@@ -16,6 +16,7 @@ const whatsappRoutes = require('./routes/whatsappRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Security Headers with relaxed directive for image serving and canvas
 app.use(helmet({

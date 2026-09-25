@@ -17,7 +17,7 @@ module.exports = {
   WHATSAPP_AUTO_REPLY_ENABLED: String(process.env.WHATSAPP_AUTO_REPLY_ENABLED || 'false').toLowerCase() === 'true',
   WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
   WHATSAPP_TEMPLATE_LANGUAGE: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US',
-  WHATSAPP_WELCOME_TEMPLATE: process.env.WHATSAPP_WELCOME_TEMPLATE || 'elder_veil_welcome',
+  WHATSAPP_WELCOME_TEMPLATE: process.env.WHATSAPP_WELCOME_TEMPLATE || 'elders_veil_welcome',
   WHATSAPP_NEW_COMIC_TEMPLATE: process.env.WHATSAPP_NEW_COMIC_TEMPLATE || 'elder_veil_new_comic',
   WHATSAPP_NEW_CHAPTER_TEMPLATE: process.env.WHATSAPP_NEW_CHAPTER_TEMPLATE || 'elder_veil_new_chapter',
   WHATSAPP_ADMIN_PROMOTED_TEMPLATE: process.env.WHATSAPP_ADMIN_PROMOTED_TEMPLATE || 'elder_veil_admin_promoted',

@@ -131,7 +131,7 @@ Elder's Veil is a production-ready, dark-themed comic, manga, manhwa, and manhua
 
 ### WhatsApp setup
 
-Create approved WhatsApp Business/Meta Cloud API templates. The default template names are `elder_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`.
+Create approved WhatsApp Business/Meta Cloud API templates. The default template names are `elders_veil_welcome`, `elder_veil_new_comic`, and `elder_veil_new_chapter`.
 
 ### Render Environment Variables
 
@@ -186,7 +186,7 @@ If WhatsApp is not configured or Meta rejects the message, registration still su
 1. Create/configure a Meta WhatsApp Business account and WhatsApp Cloud API app.
 2. Get the **Phone Number ID**.
 3. Generate a valid **Access Token** with the required WhatsApp permissions.
-4. Create and get approval for the `elder_veil_welcome` template.
+4. Create and get approval for the `elders_veil_welcome` template.
 5. Add the Render environment variables above.
 6. Redeploy the Render Web Service.
 7. Register a test account using a WhatsApp-enabled mobile number.

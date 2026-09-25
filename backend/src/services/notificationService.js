@@ -102,8 +102,14 @@ class NotificationService {
       const r=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${env.WHATSAPP_ACCESS_TOKEN}`,'Content-Type':'application/json'},
         body:JSON.stringify({messaging_product:'whatsapp',to:phone,type:'template',template:{name:template,language:{code:env.WHATSAPP_TEMPLATE_LANGUAGE||'en_US'},components}})});
       const body=await r.json().catch(()=>({}));
+      if (!r.ok) {
+        console.error('[WhatsApp] Meta API template error:', r.status, JSON.stringify(body));
+      }
       return {sent:r.ok,status:r.status,providerMessageId:body?.messages?.[0]?.id,body};
-    } catch(e){ return {sent:false,reason:e.message}; }
+    } catch(e){
+      console.error('[WhatsApp] Template request error:', e.message);
+      return {sent:false,reason:e.message};
+    }
   }
 
   static async broadcastNewComic(comic, UserModel) {
