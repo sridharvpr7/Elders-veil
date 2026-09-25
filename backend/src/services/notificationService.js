@@ -127,4 +127,3 @@ static async whatsapp(user, template, params = {}) {
     };
   }
 }
-module.exports=NotificationService;
