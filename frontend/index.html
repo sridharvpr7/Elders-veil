@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elder's Veil — Commercial Comic & Manga Reading Platform</title>
-  <meta name="description" content="Discover, read, and track high-definition manga, manhwa, and manhua comics with a premium dark reading experience." />
-  
+  <meta name="description"
+    content="Discover, read, and track high-definition manga, manhwa, and manhua comics with a premium dark reading experience." />
+
   <link rel="stylesheet" href="/css/reset.css" />
   <link rel="stylesheet" href="/css/variables.css" />
   <link rel="stylesheet" href="/css/theme.css" />
@@ -14,10 +16,19 @@
   <link rel="stylesheet" href="/css/cards.css" />
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
-  
+
+  <meta name="theme-color" content="#0b0b0f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="/js/theme.js"></script>
 </head>
+
 <body>
 
   <!-- Dynamic Glass Navbar -->
@@ -25,28 +36,39 @@
 
   <main>
     <div class="container">
-      
+
       <!-- Hero Spotlight Banner -->
       <section class="hero-banner" id="hero-banner">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='450'><rect width='1200' height='450' fill='%230f172a'/></svg>" class="hero-bg" id="hero-bg-img" alt="Featured" />
+        <img
+          src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='450'><rect width='1200' height='450' fill='%230f172a'/></svg>"
+          class="hero-bg" id="hero-bg-img" alt="Featured" />
         <div class="hero-overlay"></div>
         <div class="hero-content">
           <div class="hero-meta">
             <span class="badge badge-purple" id="hero-type">CATALOG</span>
             <span class="badge badge-cyan" id="hero-status">READY</span>
-            <span style="color:var(--accent-gold); font-weight:700;"><i class="fas fa-book-open"></i> <span id="hero-rating">NEW</span></span>
+            <span style="color:var(--accent-gold); font-weight:700;"><i class="fas fa-book-open"></i> <span
+                id="hero-rating">NEW</span></span>
           </div>
           <h1 class="hero-title" id="hero-title">Your Comic Library</h1>
           <p class="hero-desc" id="hero-desc">
             Discover published comics, or sign in to manage your reading and creator account.
           </p>
           <div class="hero-actions">
+
             <a href="/comics.html" class="btn btn-primary" id="hero-read-btn">
               <i class="fas fa-compass"></i> Explore Comics
             </a>
+
             <a href="/comics.html" class="btn btn-secondary">
               <i class="fas fa-compass"></i> Explore Catalog
             </a>
+
+            <button id="install-app-btn" class="btn btn-primary" style="display:none;">
+              <i class="fas fa-mobile-screen-button"></i>
+              Install App
+            </button>
+
           </div>
         </div>
       </section>
@@ -71,7 +93,7 @@
       <!-- Trending Section -->
       <section style="margin-bottom: 3.5rem;">
         <div class="section-title">
-          <i class="fas fa-fire" style="color:var(--accent-pink);"></i> 
+          <i class="fas fa-fire" style="color:var(--accent-pink);"></i>
           <span>Trending Releases</span>
         </div>
         <div id="trending-comics-grid"></div>
@@ -80,7 +102,7 @@
       <!-- Popular Comics Section -->
       <section style="margin-bottom: 3.5rem;">
         <div class="section-title">
-          <i class="fas fa-crown" style="color:var(--accent-gold);"></i> 
+          <i class="fas fa-crown" style="color:var(--accent-gold);"></i>
           <span>Most Popular</span>
         </div>
         <div id="popular-comics-grid"></div>
@@ -89,7 +111,7 @@
       <!-- Recently Updated Section -->
       <section>
         <div class="section-title">
-          <i class="fas fa-clock" style="color:var(--accent-cyan-light);"></i> 
+          <i class="fas fa-clock" style="color:var(--accent-cyan-light);"></i>
           <span>Latest Updates</span>
         </div>
         <div id="latest-comics-grid"></div>
@@ -136,7 +158,7 @@
               `;
             }
           }
-        } catch(e) {}
+        } catch (e) { }
       }
 
       // Load Featured / Hero
@@ -168,6 +190,10 @@
       }
     });
   </script>
-  <script>document.addEventListener('DOMContentLoaded',()=>{const u=Auth.getUser();const b=document.getElementById('hero-read-btn');if(u&&u.role==='admin'){b.href='/admin/upload.html';b.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Upload Comic';}});</script>
+  <script>document.addEventListener('DOMContentLoaded', () => {const u = Auth.getUser(); const b = document.getElementById('hero-read-btn'); if (u && u.role === 'admin') {b.href = '/admin/upload.html'; b.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Comic';} });</script>
+
+<script src="./js/pwa.js"></script>
+
 </body>
+
 </html>
