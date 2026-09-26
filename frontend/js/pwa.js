@@ -11,63 +11,63 @@
     return base + String(p).replace(/^\/+/, '');
   });
 
-  // ================================
+  // =========================
   // SERVICE WORKER
-  // ================================
+  // =========================
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-
-      navigator.serviceWorker
-        .register(sp('service-worker.js'))
-        .then((registration) => {
-          console.log(
-            'Elders Veil PWA ready:',
-            registration.scope
+    window.addEventListener('load', async () => {
+      try {
+        const registration =
+          await navigator.serviceWorker.register(
+            sp('service-worker.js')
           );
-        })
-        .catch((error) => {
-          console.error(
-            'PWA registration failed:',
-            error
-          );
-        });
 
+        console.log(
+          '✅ PWA Service Worker:',
+          registration.scope
+        );
+
+      } catch (error) {
+        console.error(
+          '❌ Service Worker Error:',
+          error
+        );
+      }
     });
   }
 
 
-  // ================================
-  // INSTALL APP
-  // ================================
+  // =========================
+  // INSTALL PROMPT
+  // =========================
   let deferredPrompt = null;
 
   window.addEventListener(
     'beforeinstallprompt',
     (event) => {
 
-      // Prevent Chrome from showing its automatic prompt
+      console.log('🔥 beforeinstallprompt fired');
+
       event.preventDefault();
 
-      // Save event for later
       deferredPrompt = event;
 
-      const installButton =
+      const button =
         document.getElementById('install-app-btn');
 
-      if (installButton) {
-        installButton.style.display = 'inline-flex';
+      if (button) {
+        button.style.display = 'inline-flex';
+        button.disabled = false;
 
-        console.log(
-          'Elders Veil install button available'
-        );
+        console.log('✅ Install button ready');
       }
     }
   );
 
 
-  // ================================
-  // INSTALL BUTTON CLICK
-  // ================================
+  // =========================
+  // INSTALL BUTTON
+  // =========================
   document.addEventListener(
     'click',
     async (event) => {
@@ -75,57 +75,80 @@
       const button =
         event.target.closest('#install-app-btn');
 
-      if (!button || !deferredPrompt) {
+      if (!button) return;
+
+      console.log('📱 Install button clicked');
+
+      // If Chrome has not provided the prompt
+      if (!deferredPrompt) {
+
+        console.log(
+          '⚠️ Install prompt is not available'
+        );
+
+        alert(
+          'Install option is not available yet. ' +
+          'Open this website in Chrome and check PWA installation.'
+        );
+
         return;
       }
 
-      // Show browser install popup
-      deferredPrompt.prompt();
+      try {
 
-      // Wait for user choice
-      const { outcome } =
-        await deferredPrompt.userChoice;
+        deferredPrompt.prompt();
 
-      console.log(
-        'PWA install result:',
-        outcome
-      );
+        const result =
+          await deferredPrompt.userChoice;
 
-      // Prompt can only be used once
-      deferredPrompt = null;
+        console.log(
+          'Install result:',
+          result.outcome
+        );
 
-      // Hide button after prompt
-      button.style.display = 'none';
+        deferredPrompt = null;
+
+        button.style.display = 'none';
+
+      } catch (error) {
+
+        console.error(
+          '❌ Install error:',
+          error
+        );
+
+      }
+
     }
   );
 
 
-  // ================================
+  // =========================
   // APP INSTALLED
-  // ================================
+  // =========================
   window.addEventListener(
     'appinstalled',
     () => {
 
       console.log(
-        'Elders Veil installed successfully!'
+        '🎉 Elders Veil installed!'
       );
 
       deferredPrompt = null;
 
-      const installButton =
+      const button =
         document.getElementById('install-app-btn');
 
-      if (installButton) {
-        installButton.style.display = 'none';
+      if (button) {
+        button.style.display = 'none';
       }
     }
   );
 
 
-  // ================================
+  // =========================
   // ANALYTICS
-  // ================================
+  // =========================
   window.EVTrack = async function (
     eventType,
     data = {}
@@ -161,8 +184,8 @@
         }
       );
 
-    } catch (_e) {
-      // Analytics failure should never break the app
+    } catch (error) {
+      console.log('Analytics skipped');
     }
 
   };
