@@ -4,6 +4,7 @@ const Bookmark = require('../models/Bookmark');
 const Favorite = require('../models/Favorite');
 const Genre = require('../models/Genre');
 const NotificationService = require('../services/notificationService');
+const EmailService = require('../services/emailService');
 const User = require('../models/User');
 
 class ComicController {
@@ -135,7 +136,7 @@ class ComicController {
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
       const updated = await Comic.update(req.params.id, { publishStatus: 'published', reviewNote: null });
       NotificationService.broadcastNewComic(updated, User).catch(()=>{});
-      if (updated.creatorId) NotificationService.create(updated.creatorId,'comic_approved','Comic approved',`${updated.title} was approved and published.`,{comicId:updated.id}).catch(()=>{});
+      if (updated.creatorId) { NotificationService.create(updated.creatorId,'comic_approved','Comic approved',`${updated.title} was approved and published.`,{comicId:updated.id}).catch(()=>{}); User.findById(updated.creatorId).then(u=>u&&EmailService.sendComicApprovedEmail(u,updated).catch(e=>console.warn('[Email] Comic approval email failed:',e.message))).catch(()=>{}); }
       res.json({ comic: updated, message: 'Comic approved and published.' });
     } catch (err) { next(err); }
   }
@@ -156,7 +157,9 @@ class ComicController {
       if (req.user.role !== 'admin') return res.status(403).json({ error: 'Only an administrator can reject submissions.' });
       const comic = await Comic.findById(req.params.id);
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
-      const updated = await Comic.update(req.params.id, { publishStatus: 'rejected', reviewNote: req.body.reason || 'Rejected by administrator.' });
+      const reason = req.body.reason || 'Rejected by administrator.';
+      const updated = await Comic.update(req.params.id, { publishStatus: 'rejected', reviewNote: reason });
+      if(updated.creatorId){ User.findById(updated.creatorId).then(u=>u&&EmailService.sendComicRejectedEmail(u,updated,reason).catch(e=>console.warn('[Email] Comic rejection email failed:',e.message))).catch(()=>{}); }
       res.json({ comic: updated, message: 'Comic rejected.' });
     } catch (err) { next(err); }
   }

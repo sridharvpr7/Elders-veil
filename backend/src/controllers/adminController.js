@@ -4,7 +4,7 @@ const Chapter = require('../models/Chapter');
 const JsonManagerService = require('../services/jsonManagerService');
 const db = require('../config/database');
 const NotificationService = require('../services/notificationService');
-const env = require('../config/env');
+const EmailService = require('../services/emailService');
 
 class AdminController {
   static async getUsers(req,res,next){try{res.status(200).json({users:await User.getAll()});}catch(err){next(err);}}
@@ -59,14 +59,10 @@ class AdminController {
 
       if (newRole === 'admin' && before.role !== 'admin') {
         NotificationService.create(targetId,'admin_promoted','Administrator access granted','You have been promoted to administrator on Elder’s Veil.',{}).catch(()=>{});
-        NotificationService.whatsapp(user, env.WHATSAPP_ADMIN_PROMOTED_TEMPLATE, {name:user.username})
-          .then(r=>{if(!r.sent) console.warn('[WhatsApp] Admin promotion message not sent:',r.reason||r.status||'provider error');})
-          .catch(e=>console.warn('[WhatsApp] Admin promotion error:',e.message));
+        EmailService.sendAdminPromotedEmail(user).catch(e=>console.warn('[Email] Admin promotion email failed:',e.message));
       } else if (before.role === 'admin' && newRole !== 'admin') {
         NotificationService.create(targetId,'admin_removed','Administrator access removed','Your administrator access on Elder’s Veil has been removed.',{}).catch(()=>{});
-        NotificationService.whatsapp(user, env.WHATSAPP_ADMIN_REMOVED_TEMPLATE, {name:user.username})
-          .then(r=>{if(!r.sent) console.warn('[WhatsApp] Admin removal message not sent:',r.reason||r.status||'provider error');})
-          .catch(e=>console.warn('[WhatsApp] Admin removal error:',e.message));
+        EmailService.sendAdminRemovedEmail(user).catch(e=>console.warn('[Email] Admin removal email failed:',e.message));
       }
       res.json({user,message:'User role updated.'});
     }catch(e){next(e);}
@@ -79,17 +75,15 @@ class AdminController {
       const user=await User.findById(targetId);
       if(!user) return res.status(404).json({error:'User not found.'});
 
-      // Send the WhatsApp notification before deletion because the user record is removed immediately after.
-      NotificationService.whatsapp(user, env.WHATSAPP_ACCOUNT_DELETED_TEMPLATE, {name:user.username})
-        .then(r=>{if(!r.sent) console.warn('[WhatsApp] Account deletion message not sent:',r.reason||r.status||'provider error');})
-        .catch(e=>console.warn('[WhatsApp] Account deletion error:',e.message));
+      // Send the account-deletion email before removing the user record.
+      EmailService.sendAccountDeletedEmail(user).catch(e=>console.warn('[Email] Account deletion email failed:',e.message));
 
       const deleted=await User.deleteById(targetId);
       if(!deleted) return res.status(404).json({error:'User not found.'});
       res.json({message:'User account deleted successfully.', user: deleted});
     }catch(e){next(e);}
   }
-  static async setPremium(req,res,next){try{const user=await User.setPremium(req.params.id,!!req.body.isPremium, req.body.durationMonths || 1);if(!user)return res.status(404).json({error:'User not found.'});res.json({user,message:user.is_premium?`Premium enabled for 1 month (expires ${new Date(user.premium_expires_at).toLocaleDateString()}).`:'Premium removed.'});}catch(err){next(err);}}
+  static async setPremium(req,res,next){try{const user=await User.setPremium(req.params.id,!!req.body.isPremium, req.body.durationMonths || 1);if(!user)return res.status(404).json({error:'User not found.'}); if(user.is_premium) EmailService.sendPremiumActivatedEmail(user,user.premium_expires_at).catch(e=>console.warn('[Email] Premium email failed:',e.message)); res.json({user,message:user.is_premium?`Premium enabled for ${req.body.durationMonths || 1} month(s) (expires ${new Date(user.premium_expires_at).toLocaleDateString()}).`:'Premium removed.'});}catch(err){next(err);}}
   static async importComicsJson(req,res,next){try{res.status(200).json(await JsonManagerService.importJson(req.body));}catch(err){next(err);}}
   static async exportComicsJson(req,res,next){try{const data=await JsonManagerService.exportJson();res.setHeader('Content-Type','application/json');res.setHeader('Content-Disposition','attachment; filename="comicverse_backup.json"');res.status(200).send(JSON.stringify(data,null,2));}catch(err){next(err);}}
 }

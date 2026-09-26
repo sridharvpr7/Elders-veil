@@ -16,7 +16,7 @@
       popularGenres:'Popular Genres',exploreCatalog:'Explore Catalog',noComics:'No comics match your criteria',
       adjustFilters:'Try adjusting your filters or search keywords.',comicSearch:'Comic Search Engine',
       searchHelp:'Type title, author, artist, or genre...',noNotifications:'No notifications yet.',
-      savePreferences:'Save Preferences',newComicWhatsApp:'New comic WhatsApp',newChapterWhatsApp:'New chapter WhatsApp',
+      savePreferences:'Save Preferences',newComicEmail:'New comic email',newChapterEmail:'New chapter email',
       inApp:'In-app notifications',premiumActive:'Premium active',notActive:'Not active',buyPremium:'Buy 1 Month Premium',
       publish:'Publish',requestChanges:'Request Changes',reject:'Reject',approve:'Approve'
     },
@@ -35,7 +35,7 @@
       popularGenres:'பிரபலமான வகைகள்',exploreCatalog:'கேட்டலாக் பார்க்க',noComics:'உங்கள் தேடலுக்கு ஏற்ற காமிக்ஸ் இல்லை',
       adjustFilters:'வடிகட்டிகளை அல்லது தேடல் சொற்களை மாற்றிப் பாருங்கள்.',comicSearch:'காமிக்ஸ் தேடுபொறி',
       searchHelp:'தலைப்பு, ஆசிரியர், ஆர்டிஸ்ட் அல்லது வகையை உள்ளிடவும்...',noNotifications:'இன்னும் அறிவிப்புகள் இல்லை.',
-      savePreferences:'விருப்பங்களை சேமி',newComicWhatsApp:'புதிய காமிக்ஸ் WhatsApp',newChapterWhatsApp:'புதிய அத்தியாயம் WhatsApp',
+      savePreferences:'விருப்பங்களை சேமி',newComicEmail:'புதிய காமிக்ஸ் மின்னஞ்சல்',newChapterEmail:'புதிய அத்தியாயம் மின்னஞ்சல்',
       inApp:'உள்ளமை அறிவிப்புகள்',premiumActive:'பிரீமியம் செயலில் உள்ளது',notActive:'செயலில் இல்லை',buyPremium:'1 மாத பிரீமியம் வாங்க',
       publish:'வெளியிடு',requestChanges:'மாற்றங்கள் கோர்',reject:'நிராகரி',approve:'அனுமதி'
     }

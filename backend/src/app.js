@@ -12,11 +12,9 @@ const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const engagementRoutes = require('./routes/engagementRoutes');
-const whatsappRoutes = require('./routes/whatsappRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 
 const app = express();
-app.set('trust proxy', 1);
 
 // Security Headers with relaxed directive for image serving and canvas
 app.use(helmet({
@@ -62,8 +60,6 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/engagement', engagementRoutes);
 
-// WhatsApp Cloud API webhook (Meta calls this directly, so it is not under /api and has no JWT auth).
-app.use('/webhook', whatsappRoutes);
 
 // Fallback route for SPA / Frontend pages
 app.get('*', (req, res, next) => {

@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.delete-user-btn').forEach(btn => btn.addEventListener('click', async () => {
         const row = btn.closest('tr');
         const username = row?.querySelector('strong')?.textContent || 'this user';
-        if (!confirm(`Delete ${username} permanently? A WhatsApp account-deletion message will be attempted before the account is removed.`)) return;
+        if (!confirm(`Delete ${username} permanently? An account-deletion email will be attempted before the account is removed.`)) return;
         try {
           await API.request(`/admin/users/${btn.dataset.id}`, { method:'DELETE', headers:API.getHeaders(true) });
           showToast('User deleted successfully.','success');

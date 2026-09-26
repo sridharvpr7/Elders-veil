@@ -2,6 +2,7 @@ const Chapter = require('../models/Chapter');
 const ReadingHistory = require('../models/ReadingHistory');
 const Comic = require('../models/Comic');
 const NotificationService = require('../services/notificationService');
+const EmailService = require('../services/emailService');
 const User = require('../models/User');
 const Engagement = require('../models/Engagement');
 
@@ -105,7 +106,7 @@ class ChapterController {
       const updated = await Chapter.update(req.params.id, { publishStatus: 'published', reviewNote: null });
       const followerIds=await Engagement.followers(comic.id);
       NotificationService.broadcastNewChapter(comic,updated,User,followerIds).catch(()=>{});
-      if(comic.creatorId) NotificationService.create(comic.creatorId,'chapter_approved','Chapter approved',`${comic.title} — Chapter ${updated.chapterNumber} was published.`,{comicId:comic.id,chapterId:updated.id}).catch(()=>{});
+      if(comic.creatorId){ NotificationService.create(comic.creatorId,'chapter_approved','Chapter approved',`${comic.title} — Chapter ${updated.chapterNumber} was published.`,{comicId:comic.id,chapterId:updated.id}).catch(()=>{}); User.findById(comic.creatorId).then(u=>u&&EmailService.sendChapterApprovedEmail(u,comic,updated).catch(e=>console.warn('[Email] Chapter approval email failed:',e.message))).catch(()=>{}); }
       res.json({ chapter: updated, message: 'Chapter approved and published.' });
     } catch (err) { next(err); }
   }
@@ -116,7 +117,7 @@ class ChapterController {
       const comic=await Comic.findById(chapter.comicId); if(!comic)return res.status(404).json({error:'Comic not found.'});
       const note=String(req.body.reason||'Please update this chapter and resubmit.').trim();
       const updated=await Chapter.update(chapter.id,{publishStatus:'changes_requested',reviewNote:note});
-      if(comic.creatorId)NotificationService.create(comic.creatorId,'changes_requested','Chapter changes requested',note,{comicId:comic.id,chapterId:chapter.id}).catch(()=>{});
+      if(comic.creatorId){NotificationService.create(comic.creatorId,'changes_requested','Chapter changes requested',note,{comicId:comic.id,chapterId:chapter.id}).catch(()=>{}); User.findById(comic.creatorId).then(u=>u&&EmailService.sendChapterRejectedEmail(u,comic,chapter,note).catch(e=>console.warn('[Email] Chapter review email failed:',e.message))).catch(()=>{});}
       res.json({chapter:updated,message:'Changes requested from creator.'});
     }catch(e){next(e)}
   }
@@ -124,7 +125,9 @@ class ChapterController {
     try {
       const chapter = await Chapter.findById(req.params.id);
       if (!chapter) return res.status(404).json({ error: 'Chapter not found.' });
-      const updated = await Chapter.update(req.params.id, { publishStatus: 'rejected', reviewNote: req.body.reason || 'Rejected by administrator.' });
+      const reason = req.body.reason || 'Rejected by administrator.';
+      const updated = await Chapter.update(req.params.id, { publishStatus: 'rejected', reviewNote: reason });
+      if(comic.creatorId){ User.findById(comic.creatorId).then(u=>u&&EmailService.sendChapterRejectedEmail(u,comic,updated,reason).catch(e=>console.warn('[Email] Chapter rejection email failed:',e.message))).catch(()=>{}); }
       res.json({ chapter: updated, message: 'Chapter rejected.' });
     } catch (err) { next(err); }
   }

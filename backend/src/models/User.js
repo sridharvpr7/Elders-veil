@@ -67,15 +67,15 @@ class User {
 
     if (db.isPgConnected()) {
       const res = await db.query(
-        `INSERT INTO users (id, username, email, password_hash, role, phone, avatar, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, created_at, updated_at`,
+        `INSERT INTO users (id, username, email, password_hash, role, phone, avatar, email_verified, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, $8, $9)
+         RETURNING id, username, email, role, phone, is_premium, premium_expires_at, account_status, avatar, email_verified, created_at, updated_at`,
         [id, username, email, password_hash, role, phone, avatar, now, now]
       );
       return res.rows[0];
     }
 
-    const newUser = { id, username, email, password_hash, role, phone, is_premium: false, premium_expires_at: null, account_status: 'active', avatar, created_at: now, updated_at: now };
+    const newUser = { id, username, email, password_hash, role, phone, email_verified: false, otp_hash: null, otp_expiry: null, otp_attempts: 0, reset_otp_hash: null, reset_otp_expiry: null, reset_otp_attempts: 0, is_premium: false, premium_expires_at: null, account_status: 'active', avatar, created_at: now, updated_at: now };
     db.fallbackStore.users.push(newUser);
     db.saveFallbackStore();
     const { password_hash: _, ...safeUser } = newUser;
@@ -120,6 +120,52 @@ class User {
       return true;
     }
     return false;
+  }
+
+  static async setOTP(id, otpHash, expiry) {
+    if (db.isPgConnected()) {
+      await db.query('UPDATE users SET otp_hash=$1, otp_expiry=$2, otp_attempts=0, updated_at=CURRENT_TIMESTAMP WHERE id=$3', [otpHash, expiry, id]);
+      return true;
+    }
+    const user=db.fallbackStore.users.find(u=>u.id===id); if(!user)return false;
+    user.otp_hash=otpHash; user.otp_expiry=expiry; user.otp_attempts=0; db.saveFallbackStore(); return true;
+  }
+
+  static async incrementOTPAttempts(id, reset=false) {
+    const hashField=reset?'reset_otp_attempts':'otp_attempts';
+    if (db.isPgConnected()) {
+      await db.query(`UPDATE users SET ${hashField}=COALESCE(${hashField},0)+1 WHERE id=$1`, [id]);
+      return true;
+    }
+    const user=db.fallbackStore.users.find(u=>u.id===id); if(!user)return false;
+    user[hashField]=(user[hashField]||0)+1; db.saveFallbackStore(); return true;
+  }
+
+  static async setVerified(id) {
+    if (db.isPgConnected()) {
+      await db.query('UPDATE users SET email_verified=TRUE, otp_hash=NULL, otp_expiry=NULL, otp_attempts=0, updated_at=CURRENT_TIMESTAMP WHERE id=$1', [id]);
+      return true;
+    }
+    const user=db.fallbackStore.users.find(u=>u.id===id); if(!user)return false;
+    user.email_verified=true; user.otp_hash=null; user.otp_expiry=null; user.otp_attempts=0; user.updated_at=new Date(); db.saveFallbackStore(); return true;
+  }
+
+  static async setResetOTP(id, otpHash, expiry) {
+    if (db.isPgConnected()) {
+      await db.query('UPDATE users SET reset_otp_hash=$1, reset_otp_expiry=$2, reset_otp_attempts=0, updated_at=CURRENT_TIMESTAMP WHERE id=$3', [otpHash, expiry, id]);
+      return true;
+    }
+    const user=db.fallbackStore.users.find(u=>u.id===id); if(!user)return false;
+    user.reset_otp_hash=otpHash; user.reset_otp_expiry=expiry; user.reset_otp_attempts=0; db.saveFallbackStore(); return true;
+  }
+
+  static async clearResetOTP(id) {
+    if (db.isPgConnected()) {
+      await db.query('UPDATE users SET reset_otp_hash=NULL, reset_otp_expiry=NULL, reset_otp_attempts=0, updated_at=CURRENT_TIMESTAMP WHERE id=$1', [id]);
+      return true;
+    }
+    const user=db.fallbackStore.users.find(u=>u.id===id); if(!user)return false;
+    user.reset_otp_hash=null; user.reset_otp_expiry=null; user.reset_otp_attempts=0; db.saveFallbackStore(); return true;
   }
 
   static async getAll() {

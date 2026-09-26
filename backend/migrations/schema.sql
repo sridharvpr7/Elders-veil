@@ -11,6 +11,13 @@ CREATE TABLE IF NOT EXISTS users (
   premium_expires_at TIMESTAMP WITH TIME ZONE,
   account_status VARCHAR(20) DEFAULT 'active',
   avatar TEXT,
+  email_verified BOOLEAN DEFAULT TRUE,
+  otp_hash VARCHAR(255),
+  otp_expiry TIMESTAMP WITH TIME ZONE,
+  otp_attempts INT DEFAULT 0,
+  reset_otp_hash VARCHAR(255),
+  reset_otp_expiry TIMESTAMP WITH TIME ZONE,
+  reset_otp_attempts INT DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -106,6 +113,13 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
 -- Backward-compatible upgrades for existing Render databases
 ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(25);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_hash VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expiry TIMESTAMP WITH TIME ZONE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_attempts INT DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp_hash VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp_expiry TIMESTAMP WITH TIME ZONE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp_attempts INT DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR(20) DEFAULT 'active';
@@ -149,11 +163,13 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id,creat
 
 CREATE TABLE IF NOT EXISTS notification_preferences (
   user_id VARCHAR(64) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  new_comic_whatsapp BOOLEAN DEFAULT TRUE,
-  new_chapter_whatsapp BOOLEAN DEFAULT TRUE,
+  new_comic_email BOOLEAN DEFAULT TRUE,
+  new_chapter_email BOOLEAN DEFAULT TRUE,
   email_enabled BOOLEAN DEFAULT TRUE,
   in_app_enabled BOOLEAN DEFAULT TRUE
 );
+ALTER TABLE notification_preferences ADD COLUMN IF NOT EXISTS new_comic_email BOOLEAN DEFAULT TRUE;
+ALTER TABLE notification_preferences ADD COLUMN IF NOT EXISTS new_chapter_email BOOLEAN DEFAULT TRUE;
 
 CREATE TABLE IF NOT EXISTS comic_likes (
   id VARCHAR(100) PRIMARY KEY,

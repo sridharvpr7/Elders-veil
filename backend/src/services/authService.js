@@ -1,78 +1,123 @@
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
 const NotificationService = require('./notificationService');
-const env = require('../config/env');
+const EmailService = require('./emailService');
 
 class AuthService {
-  static async register({ username, email, phone, password, confirmPassword }) {
-    if (!username || !email || !phone || !password) {
-      throw { statusCode: 400, message: 'Username, email, mobile number, and password are required.' };
-    }
-    if (!/^\+?[0-9]{10,15}$/.test(String(phone).replace(/[\s-]/g, ''))) {
-      throw { statusCode: 400, message: 'Enter a valid mobile number.' };
-    }
-    if (confirmPassword && password !== confirmPassword) {
-      throw { statusCode: 400, message: 'Passwords do not match.' };
-    }
-    if (!isValidUsername(username)) {
-      throw { statusCode: 400, message: 'Username must be between 3 and 30 characters.' };
-    }
-    if (!isValidEmail(email)) {
-      throw { statusCode: 400, message: 'Invalid email address format.' };
-    }
-    if (!isValidPassword(password)) {
-      throw { statusCode: 400, message: 'Password must be at least 6 characters long.' };
-    }
+  static generateSecureOTP() {
+    return crypto.randomInt(100000, 1000000).toString();
+  }
 
+  static async register({ username, email, password, confirmPassword }) {
+    if (!username || !email || !password || !confirmPassword) {
+      throw { statusCode: 400, message: 'Username, email, password, and confirm password are required.' };
+    }
+    if (password !== confirmPassword) throw { statusCode: 400, message: 'Passwords do not match.' };
+    if (!isValidUsername(username)) throw { statusCode: 400, message: 'Username must be between 3 and 30 characters.' };
+    if (!isValidEmail(email)) throw { statusCode: 400, message: 'Invalid email address format.' };
+    if (!isValidPassword(password)) throw { statusCode: 400, message: 'Password must be at least 6 characters long.' };
+
+    email = email.trim().toLowerCase();
     const existingEmail = await User.findByEmail(email);
-    if (existingEmail) {
-      throw { statusCode: 400, message: 'Email address is already registered.' };
-    }
+    if (existingEmail) throw { statusCode: 400, message: 'Email address is already registered.' };
+    const existingUsername = await User.findByUsername(username.trim());
+    if (existingUsername) throw { statusCode: 400, message: 'Username is already taken.' };
 
-    const existingUsername = await User.findByUsername(username);
-    if (existingUsername) {
-      throw { statusCode: 400, message: 'Username is already taken.' };
-    }
-
-    const userId = `user-${Date.now()}`;
     const user = await User.create({
-      id: userId,
-      username: username.trim(),
-      email: email.trim().toLowerCase(),
-      phone: String(phone).replace(/[\s-]/g, ''),
-      password,
-      role: 'user'
+      id: `user-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+      username: username.trim(), email, password, role: 'user'
     });
 
-    NotificationService.create(user.id,'welcome','Welcome to Elder’s Veil',`Welcome ${user.username}! Your account has been created successfully.`,{}).catch(()=>{});
-    NotificationService.whatsapp(user, env.WHATSAPP_WELCOME_TEMPLATE, {name:user.username})
-      .then(result => {
-        if (!result.sent) console.warn('[WhatsApp] Welcome message not sent:', result.reason || result.status || 'provider error');
-      })
-      .catch(err => console.warn('[WhatsApp] Welcome message error:', err.message));
-    const token = generateToken({ userId: user.id, role: user.role });
-    return { user, token };
+    const otp = this.generateSecureOTP();
+    await User.setOTP(user.id, await bcrypt.hash(otp, 10), new Date(Date.now() + 10 * 60 * 1000));
+    await EmailService.sendOTPEmail(user, otp);
+
+    return { requireVerification: true, email: user.email, message: 'Verification code sent to your email. It expires in 10 minutes.' };
+  }
+
+  static async verifyEmailOTP({ email, otp }) {
+    if (!email || !/^\d{6}$/.test(String(otp || ''))) throw { statusCode: 400, message: 'Enter the 6-digit verification code.' };
+    const user = await User.findByEmail(email.trim().toLowerCase());
+    if (!user) throw { statusCode: 400, message: 'Invalid or expired verification code.' };
+    if (user.email_verified) {
+      const token = generateToken({ userId: user.id, role: user.role });
+      const { password_hash, ...safeUser } = user;
+      return { user: safeUser, token, message: 'Email already verified.' };
+    }
+    if (!user.otp_hash || !user.otp_expiry || new Date(user.otp_expiry) <= new Date()) throw { statusCode: 400, message: 'Verification code has expired. Request a new code.' };
+    if ((user.otp_attempts || 0) >= 5) throw { statusCode: 429, message: 'Too many incorrect attempts. Request a new code.' };
+    const ok = await bcrypt.compare(String(otp), user.otp_hash);
+    if (!ok) { await User.incrementOTPAttempts(user.id); throw { statusCode: 400, message: 'Invalid verification code.' }; }
+
+    await User.setVerified(user.id);
+    const verifiedUser = await User.findByEmail(user.email);
+    NotificationService.create(user.id, 'welcome', 'Welcome to Elder’s Veil', `Welcome ${user.username}! Your account has been verified successfully.`, {}).catch(() => {});
+    EmailService.sendWelcomeEmail(verifiedUser).catch(err => console.warn('[Email] Welcome email failed:', err.message));
+    const token = generateToken({ userId: verifiedUser.id, role: verifiedUser.role });
+    const { password_hash, ...safeUser } = verifiedUser;
+    return { user: safeUser, token, message: 'Email verified successfully.' };
+  }
+
+  static async resendEmailOTP({ email }) {
+    const user = await User.findByEmail(String(email || '').trim().toLowerCase());
+    if (!user) return { message: 'If an account exists with that email, a new verification code has been sent.' };
+    if (user.email_verified) return { message: 'Your email is already verified. You can sign in.' };
+    const otp = this.generateSecureOTP();
+    await User.setOTP(user.id, await bcrypt.hash(otp, 10), new Date(Date.now() + 10 * 60 * 1000));
+    await EmailService.sendOTPEmail(user, otp);
+    return { message: 'A new verification code has been sent to your email.' };
   }
 
   static async login({ email, password }) {
-    if (!email || !password) {
-      throw { statusCode: 400, message: 'Email and password are required.' };
-    }
-
+    if (!email || !password) throw { statusCode: 400, message: 'Email and password are required.' };
     const user = await User.findByEmail(email.trim().toLowerCase());
-    if (!user) {
-      throw { statusCode: 401, message: 'Invalid email or password.' };
-    }
-
-    const isMatch = await User.verifyPassword(user, password);
-    if (!isMatch) {
-      throw { statusCode: 401, message: 'Invalid email or password.' };
-    }
-
+    if (!user || !(await User.verifyPassword(user, password))) throw { statusCode: 401, message: 'Invalid email or password.' };
+    if (user.email_verified === false) throw { statusCode: 403, message: 'Please verify your email before signing in.', requireVerification: true, email: user.email };
+    if (user.account_status && user.account_status !== 'active') throw { statusCode: 403, message: `Your account is ${user.account_status}.` };
     const token = generateToken({ userId: user.id, role: user.role });
     const { password_hash, ...safeUser } = user;
     return { user: safeUser, token };
+  }
+
+  static async requestPasswordReset({ email }) {
+    const normalized = String(email || '').trim().toLowerCase();
+    const generic = { message: 'If an account exists with that email, a password reset code has been sent.' };
+    if (!isValidEmail(normalized)) return generic;
+    const user = await User.findByEmail(normalized);
+    if (!user) return generic;
+    const otp = this.generateSecureOTP();
+    await User.setResetOTP(user.id, await bcrypt.hash(otp, 10), new Date(Date.now() + 10 * 60 * 1000));
+    await EmailService.sendForgotPasswordOTPEmail(user, otp);
+    return generic;
+  }
+
+  static async verifyResetOTP({ email, otp }) {
+    const user = await User.findByEmail(String(email || '').trim().toLowerCase());
+    if (!user || !/^\d{6}$/.test(String(otp || ''))) throw { statusCode: 400, message: 'Invalid or expired reset code.' };
+    if (!user.reset_otp_hash || !user.reset_otp_expiry || new Date(user.reset_otp_expiry) <= new Date()) throw { statusCode: 400, message: 'Reset code has expired. Request a new code.' };
+    if ((user.reset_otp_attempts || 0) >= 5) throw { statusCode: 429, message: 'Too many incorrect attempts. Request a new code.' };
+    const ok = await bcrypt.compare(String(otp), user.reset_otp_hash);
+    if (!ok) { await User.incrementOTPAttempts(user.id, true); throw { statusCode: 400, message: 'Invalid reset code.' }; }
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    // The token is kept server-side only in the user's reset fields by hashing it.
+    await User.setResetOTP(user.id, await bcrypt.hash(`TOKEN:${resetToken}`, 10), new Date(Date.now() + 10 * 60 * 1000));
+    return { resetToken, message: 'Code verified. You can now choose a new password.' };
+  }
+
+  static async resetPassword({ email, resetToken, newPassword, confirmPassword }) {
+    if (!email || !resetToken || !newPassword || !confirmPassword) throw { statusCode: 400, message: 'Email, reset token, new password, and confirm password are required.' };
+    if (newPassword !== confirmPassword) throw { statusCode: 400, message: 'Passwords do not match.' };
+    if (!isValidPassword(newPassword)) throw { statusCode: 400, message: 'Password must be at least 6 characters long.' };
+    const user = await User.findByEmail(email.trim().toLowerCase());
+    if (!user || !user.reset_otp_hash || !user.reset_otp_expiry || new Date(user.reset_otp_expiry) <= new Date()) throw { statusCode: 400, message: 'Reset session expired. Request a new code.' };
+    const ok = await bcrypt.compare(`TOKEN:${resetToken}`, user.reset_otp_hash);
+    if (!ok) throw { statusCode: 400, message: 'Invalid reset session.' };
+    await User.updatePassword(user.id, newPassword);
+    await User.clearResetOTP(user.id);
+    return { message: 'Password reset successful. You may now sign in.' };
   }
 }
 
