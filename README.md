@@ -45,3 +45,11 @@ Set `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, upload settings, and all `EMAI
 - Never put SMTP passwords or JWT secrets in frontend JavaScript.
 - Existing users are treated as verified by the migration default; newly registered users must verify their email.
 - Password reset responses are intentionally generic to reduce account enumeration.
+
+## Email / OTP deployment notes
+
+- Registration now requires email OTP verification before the account is activated for login.
+- Forgot Password flow is: email -> reset OTP -> new password + confirm password.
+- All transactional notifications use the centralized Nodemailer SMTP EmailService.
+- Render Free web services block outbound SMTP ports 25, 465 and 587. Use an SMTP provider that supports port 2525 (or move the Render service to a paid plan) for production SMTP delivery.
+- Never commit `.env` or SMTP credentials to GitHub.

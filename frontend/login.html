@@ -82,6 +82,7 @@
             window.location.href = '/verify-otp.html';
             return;
           }
+          if (err.message && /verify your email/i.test(err.message)) { sessionStorage.setItem('pendingVerificationEmail', email.trim().toLowerCase()); window.location.href = '/verify-otp.html'; return; }
           showToast(err.message, 'error');
         }
       });

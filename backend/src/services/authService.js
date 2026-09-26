@@ -33,7 +33,13 @@ class AuthService {
 
     const otp = this.generateSecureOTP();
     await User.setOTP(user.id, await bcrypt.hash(otp, 10), new Date(Date.now() + 10 * 60 * 1000));
-    await EmailService.sendOTPEmail(user, otp);
+    try {
+      await EmailService.sendOTPEmail(user, otp);
+    } catch (err) {
+      // Do not leave an unusable account behind if the OTP email cannot be delivered.
+      await User.deleteById(user.id);
+      throw { statusCode: 503, message: 'We could not send the verification email right now. Please try again later.' };
+    }
 
     return { requireVerification: true, email: user.email, message: 'Verification code sent to your email. It expires in 10 minutes.' };
   }

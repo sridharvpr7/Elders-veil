@@ -16,36 +16,55 @@
 </head>
 <body>
   <header id="app-header"></header>
-
   <main>
     <div class="auth-wrapper">
       <div class="auth-card">
         <div class="auth-header">
-          <h1 class="auth-title">Create Account</h1>
-          <p class="auth-subtitle">Join Elder's Veil to track reading progress and save favorites</p>
+          <h1 class="auth-title" id="register-title">Create Account</h1>
+          <p class="auth-subtitle" id="register-subtitle">Create your Elder's Veil account. Email verification is required on first registration.</p>
         </div>
 
-        <form id="register-form">
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" id="reg-username" class="form-input" required placeholder="ShadowNinja" />
+        <div id="register-step">
+          <form id="register-form">
+            <div class="form-group">
+              <label class="form-label" for="reg-username">Username</label>
+              <input type="text" id="reg-username" class="form-input" required minlength="3" maxlength="30" autocomplete="username" placeholder="ShadowNinja" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-email">Email Address</label>
+              <input type="email" id="reg-email" class="form-input" required autocomplete="email" placeholder="reader@example.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-password">Password</label>
+              <input type="password" id="reg-password" class="form-input" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-confirm">Confirm Password</label>
+              <input type="password" id="reg-confirm" class="form-input" required minlength="6" autocomplete="new-password" placeholder="Repeat password" />
+            </div>
+            <button id="register-submit" type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+              <i class="fas fa-user-plus"></i> Create Account & Send OTP
+            </button>
+          </form>
+        </div>
+
+        <div id="otp-step" style="display:none;">
+          <div style="padding:.85rem 1rem;margin-bottom:1rem;background:rgba(124,58,237,.10);border:1px solid rgba(124,58,237,.3);border-radius:10px;font-size:.9rem;line-height:1.5;">
+            <i class="fas fa-envelope"></i> We sent a 6-digit verification code to <strong id="otp-email"></strong>.
+            The code expires in 10 minutes.
           </div>
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input type="email" id="reg-email" class="form-input" required placeholder="reader@example.com" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" id="reg-password" class="form-input" required placeholder="At least 6 characters" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" id="reg-confirm" class="form-input" required placeholder="Repeat password" />
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
-            <i class="fas fa-user-plus"></i> Register Account
-          </button>
-        </form>
+          <form id="verify-form">
+            <div class="form-group">
+              <label class="form-label" for="reg-otp">Email OTP</label>
+              <input type="text" id="reg-otp" class="form-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" required placeholder="123456" />
+            </div>
+            <button id="verify-submit" type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+              <i class="fas fa-check-circle"></i> Verify Email & Continue
+            </button>
+          </form>
+          <button id="resend-otp" type="button" class="btn btn-secondary" style="width:100%;margin-top:.75rem;">Resend OTP</button>
+          <button id="change-email" type="button" class="btn" style="width:100%;margin-top:.5rem;">Use a different email</button>
+        </div>
 
         <div class="auth-footer">
           Already have an account? <a href="/login.html">Sign in</a>
@@ -53,7 +72,6 @@
       </div>
     </div>
   </main>
-
   <footer id="app-footer"></footer>
 
   <script src="/js/api.js"></script>
@@ -64,27 +82,112 @@
       renderNavbar('');
       renderFooter();
 
-      const form = document.getElementById('register-form');
-      form.addEventListener('submit', async (e) => {
+      const registerStep = document.getElementById('register-step');
+      const otpStep = document.getElementById('otp-step');
+      const registerForm = document.getElementById('register-form');
+      const verifyForm = document.getElementById('verify-form');
+      const resendButton = document.getElementById('resend-otp');
+      const emailLabel = document.getElementById('otp-email');
+      let pendingEmail = sessionStorage.getItem('pendingVerificationEmail') || '';
+      let resendTimer = null;
+      let resendSeconds = 0;
+
+      const showOtpStep = (email) => {
+        pendingEmail = email.trim().toLowerCase();
+        sessionStorage.setItem('pendingVerificationEmail', pendingEmail);
+        emailLabel.textContent = pendingEmail;
+        registerStep.style.display = 'none';
+        otpStep.style.display = 'block';
+        document.getElementById('register-title').textContent = 'Verify Your Email';
+        document.getElementById('register-subtitle').textContent = 'Enter the OTP sent to your email to finish creating your account.';
+        document.getElementById('reg-otp').focus();
+      };
+
+      const startResendCooldown = () => {
+        clearInterval(resendTimer);
+        resendSeconds = 60;
+        resendButton.disabled = true;
+        resendButton.textContent = `Resend OTP (${resendSeconds}s)`;
+        resendTimer = setInterval(() => {
+          resendSeconds -= 1;
+          if (resendSeconds <= 0) {
+            clearInterval(resendTimer);
+            resendButton.disabled = false;
+            resendButton.textContent = 'Resend OTP';
+          } else {
+            resendButton.textContent = `Resend OTP (${resendSeconds}s)`;
+          }
+        }, 1000);
+      };
+
+      if (pendingEmail) showOtpStep(pendingEmail);
+
+      registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('reg-username').value;
-        const email = document.getElementById('reg-email').value;
+        const username = document.getElementById('reg-username').value.trim();
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const password = document.getElementById('reg-password').value;
         const confirmPassword = document.getElementById('reg-confirm').value;
+        if (password !== confirmPassword) return showToast('Passwords do not match.', 'error');
 
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match.', 'error');
-          return;
-        }
-
+        const button = document.getElementById('register-submit');
+        button.disabled = true;
         try {
           const res = await API.post('/auth/register', { username, email, password, confirmPassword });
-          sessionStorage.setItem('pendingVerificationEmail', email.trim().toLowerCase());
-          showToast(res.message || 'Verification code sent to your email.', 'success');
-          setTimeout(() => window.location.href = '/verify-otp.html', 500);
+          if (res.requireVerification) {
+            showOtpStep(res.email || email);
+            startResendCooldown();
+            showToast(res.message || 'Verification code sent to your email.', 'success');
+          } else {
+            showToast('Registration completed.', 'success');
+          }
         } catch (err) {
-          showToast(err.message, 'error');
+          showToast(err.message || 'Registration failed.', 'error');
+        } finally {
+          button.disabled = false;
         }
+      });
+
+      verifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = document.getElementById('reg-otp').value.trim();
+        if (!/^\d{6}$/.test(otp)) return showToast('Enter the 6-digit OTP.', 'error');
+        const button = document.getElementById('verify-submit');
+        button.disabled = true;
+        try {
+          const res = await API.post('/auth/verify-email-otp', { email: pendingEmail, otp });
+          Auth.saveSession(res.user, res.token);
+          sessionStorage.removeItem('pendingVerificationEmail');
+          showToast(res.message || 'Email verified successfully!', 'success');
+          setTimeout(() => window.location.href = res.user.role === 'admin' ? '/admin/index.html' : '/dashboard.html', 600);
+        } catch (err) {
+          showToast(err.message || 'OTP verification failed.', 'error');
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      resendButton.addEventListener('click', async () => {
+        if (!pendingEmail || resendSeconds > 0) return;
+        try {
+          const res = await API.post('/auth/resend-email-otp', { email: pendingEmail });
+          showToast(res.message || 'A new OTP has been sent.', 'success');
+          startResendCooldown();
+        } catch (err) {
+          showToast(err.message || 'Could not resend OTP.', 'error');
+        }
+      });
+
+      document.getElementById('change-email').addEventListener('click', () => {
+        clearInterval(resendTimer);
+        sessionStorage.removeItem('pendingVerificationEmail');
+        pendingEmail = '';
+        otpStep.style.display = 'none';
+        registerStep.style.display = 'block';
+        document.getElementById('register-title').textContent = 'Create Account';
+        document.getElementById('register-subtitle').textContent = "Create your Elder's Veil account. Email verification is required on first registration.";
+        resendButton.disabled = false;
+        resendButton.textContent = 'Resend OTP';
       });
     });
   </script>
