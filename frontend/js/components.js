@@ -157,11 +157,14 @@ function renderComicCard(comic) {
   const slug = comic.slug || comic.id;
   const rating = comic.rating ? Number(comic.rating).toFixed(1) : '4.5';
   const type = comic.type || 'manga';
+  const isPrem = !!(comic.is_premium || comic.isPremium);
+  const premBadge = isPrem ? '<span class="badge" style="position:absolute; top:8px; right:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; z-index:2; font-size:0.75rem; padding:0.25rem 0.5rem;"><i class="fas fa-crown"></i> Premium</span>' : '';
 
   return `
     <div class="comic-card">
-      <div class="card-thumb">
+      <div class="card-thumb" style="position:relative;">
         <span class="badge badge-purple card-badge">${type}</span>
+        ${premBadge}
         <div class="card-rating"><i class="fas fa-star"></i> ${rating}</div>
         <a href="/comic.html?slug=${slug}">
           <img src="${coverUrl}" alt="${comic.title}" loading="lazy" />

@@ -4,10 +4,117 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const stats = await API.get('/admin/statistics');
-    const map = { 'stat-comics':'totalComics','stat-chapters':'totalChapters','stat-users':'totalUsers','stat-views':'totalViews','stat-likes':'totalLikes','stat-pending':'pendingSubmissions','stat-creators':'totalCreators','stat-premium':'totalPremiumUsers','stat-bookmarks':'totalBookmarks','stat-active':'totalActiveUsers','stat-rejected':'rejectedSubmissions','stat-chapter-views':'totalChapterViews','stat-pending-comics':'pendingComics','stat-pending-chapters':'pendingChapters' };
-    Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=Number(stats[key]||0).toLocaleString();});
+    const map = {
+      'stat-comics':'totalComics',
+      'stat-chapters':'totalChapters',
+      'stat-users':'totalUsers',
+      'stat-views':'totalViews',
+      'stat-likes':'totalLikes',
+      'stat-pending':'pendingSubmissions',
+      'stat-creators':'totalCreators',
+      'stat-premium':'totalPremiumUsers',
+      'stat-pending-premium':'pendingPremiumRequests',
+      'stat-bookmarks':'totalBookmarks',
+      'stat-active':'totalActiveUsers',
+      'stat-rejected':'rejectedSubmissions'
+    };
+    Object.entries(map).forEach(([id,key])=>{
+      const el=document.getElementById(id);
+      if(el) el.textContent=Number(stats[key] || stats[key.replace(/([A-Z])/g, '_$1').toLowerCase()] || 0).toLocaleString();
+    });
     const engine=document.getElementById('stat-engine'); if(engine)engine.textContent=stats.systemStatus;
   } catch(err) {}
+
+  // Load Premium Requests
+  const premReqContainer = document.getElementById('admin-premium-requests-container');
+  if (premReqContainer) {
+    try {
+      const res = await API.get('/admin/premium-requests');
+      const requests = res.requests || [];
+
+      if (requests.length === 0) {
+        premReqContainer.innerHTML = '<p style="color:var(--text-secondary); padding:1rem; text-align:center;">No pending or previous premium requests.</p>';
+      } else {
+        premReqContainer.innerHTML = `
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Mobile Number</th>
+                <th>Request Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${requests.map(r => `
+                <tr>
+                  <td><strong>${r.username || 'User'}</strong></td>
+                  <td>${r.email || '—'}</td>
+                  <td>${r.mobile_number || r.phone || '—'}</td>
+                  <td>${new Date(r.requested_at || r.created_at || Date.now()).toLocaleString()}</td>
+                  <td>
+                    <span class="badge ${r.status === 'approved' ? 'badge-cyan' : r.status === 'rejected' ? 'badge-purple' : 'badge-purple'}" style="${r.status === 'pending' ? 'background:#eab308; color:#000;' : ''}">
+                      ${(r.status || 'pending').toUpperCase()}
+                    </span>
+                  </td>
+                  <td>
+                    ${r.status === 'pending' ? `
+                      <button class="btn btn-primary btn-sm approve-prem-btn" data-id="${r.id}" data-username="${r.username}">
+                        <i class="fas fa-check"></i> Approve
+                      </button>
+                      <button class="btn btn-secondary btn-sm reject-prem-btn" data-id="${r.id}" data-username="${r.username}" style="color:var(--accent-pink);">
+                        <i class="fas fa-times"></i> Reject
+                      </button>
+                    ` : `
+                      <span style="font-size:0.85rem; color:var(--text-muted);">
+                        ${r.status === 'approved' ? 'Approved' : 'Rejected'}
+                      </span>
+                    `}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        document.querySelectorAll('.approve-prem-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const reqId = e.currentTarget.getAttribute('data-id');
+            const username = e.currentTarget.getAttribute('data-username');
+            if (confirm(`Approve Premium membership for user "${username}"?`)) {
+              try {
+                await API.post(`/admin/premium-requests/${reqId}/approve`, {});
+                showToast(`Premium approved for ${username}!`, 'success');
+                setTimeout(() => location.reload(), 600);
+              } catch (err) {
+                showToast(err.message, 'error');
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('.reject-prem-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const reqId = e.currentTarget.getAttribute('data-id');
+            const username = e.currentTarget.getAttribute('data-username');
+            if (confirm(`Reject Premium request for user "${username}"?`)) {
+              try {
+                await API.post(`/admin/premium-requests/${reqId}/reject`, {});
+                showToast(`Premium request rejected for ${username}.`, 'info');
+                setTimeout(() => location.reload(), 600);
+              } catch (err) {
+                showToast(err.message, 'error');
+              }
+            }
+          });
+        });
+      }
+    } catch (err) {
+      premReqContainer.innerHTML = `<p style="color:var(--accent-pink); padding:1rem;">Error loading premium requests: ${err.message}</p>`;
+    }
+  }
 
   try {
     const pending = await API.get('/admin/pending-submissions');

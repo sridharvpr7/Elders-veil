@@ -1,3 +1,182 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="api-base-url" content="https://elders-veil.onrender.com/api" />
-  <meta name="viewport" content="width=device-width,initial-scale=1"><link rel="manifest" href="manifest.json"><title>Premium — Elder's Veil</title><link rel="stylesheet" href="css/reset.css"><link rel="stylesheet" href="css/variables.css"><link rel="stylesheet" href="css/theme.css"><link rel="stylesheet" href="css/global.css"><link rel="stylesheet" href="css/navbar.css"><link rel="stylesheet" href="css/responsive.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><script src="js/theme.js"></script></head><body><header id="app-header"></header><main><div class="container"><div class="auth-card" style="max-width:780px;margin:2rem auto;text-align:center"><h1><i class="fas fa-crown"></i> Elder's Veil Premium</h1><p style="color:var(--text-secondary)">Premium is optional. Choose the monthly plan below or ask an administrator to grant premium access.</p><div id="premium-status" style="margin:1.5rem 0"></div><div class="premium-plan-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;text-align:left"><div class="stat-card"><strong>✨ Premium Theme</strong><span>Exclusive gold styling</span></div><div class="stat-card"><strong>🎨 Light/Dark</strong><span>Personal theme control</span></div><div class="stat-card"><strong>🏆 Badge</strong><span>Premium profile state</span></div><div class="stat-card"><strong>🔔 Alerts</strong><span>Premium reminders</span></div></div><button class="btn btn-primary" id="buy-premium"><i class="fas fa-bolt"></i> Buy 1 Month Premium</button><p id="payment-note" style="color:var(--text-muted);font-size:.8rem;margin-top:1rem"></p></div></div></main><footer id="app-footer"></footer><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/i18n.js"></script>
-<script src="js/components.js"></script><script src="js/pwa.js"></script><script src="https://checkout.razorpay.com/v1/checkout.js"></script><script>document.addEventListener('DOMContentLoaded',()=>{renderNavbar('');renderFooter();const u=Auth.getUser();const st=document.getElementById('premium-status');if(!u){st.innerHTML='<p>Please sign in first.</p>';document.getElementById('buy-premium').disabled=true;return;}const active=u.is_premium&&(!u.premium_expires_at||new Date(u.premium_expires_at)>new Date());st.innerHTML=active?`<span class="badge badge-purple">Premium active</span><p style="margin-top:.75rem">Expires ${new Date(u.premium_expires_at).toLocaleString()}</p>`:'<span class="badge badge-pink">Not active</span>';document.getElementById('buy-premium').onclick=async()=>{try{const o=await API.post('/payments/create-order',{});if(!window.Razorpay){throw new Error('Payment checkout is unavailable.');}const rzp=new Razorpay({key:o.keyId,amount:o.order.amount,currency:o.order.currency,name:"Elder's Veil",description:'1 Month Premium',order_id:o.order.id,handler:async(response)=>{const v=await API.post('/payments/verify',response);Auth.saveSession(v.user,Auth.getToken());showToast('Premium activated!','success');setTimeout(()=>location.reload(),700);},prefill:{name:u.username,email:u.email,contact:u.phone||''},theme:{color:'#7c3aed'}});rzp.open();}catch(e){document.getElementById('payment-note').textContent=e.message;showToast(e.message,'error')}}});</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Membership — Elder's Veil</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/cards.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container">
+      <div class="auth-card" style="max-width:780px; margin:2rem auto; text-align:center;">
+        <div style="font-size:2.5rem; color:var(--accent-purple-light); margin-bottom:0.5rem;">
+          <i class="fas fa-crown"></i>
+        </div>
+        <h1 style="font-size:2rem; font-weight:700; margin-bottom:0.5rem;">Elder's Veil Premium</h1>
+        <p style="color:var(--text-secondary); max-width:550px; margin:0 auto 1.5rem auto;">
+          Unlock exclusive premium comics, early chapter access, and support your favorite creators.
+        </p>
+
+        <!-- Premium Status Card -->
+        <div id="premium-status-card" style="background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:12px; padding:1.5rem; margin:1.5rem 0;">
+          <p style="color:var(--text-muted); font-size:0.9rem;">Checking status...</p>
+        </div>
+
+        <div class="premium-plan-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; text-align:left; margin-bottom:1.5rem;">
+          <div class="stat-card">
+            <strong><i class="fas fa-star" style="color:#eab308"></i> Exclusive Access</strong>
+            <span style="font-size:0.85rem; color:var(--text-secondary)">Read Premium-marked comics</span>
+          </div>
+          <div class="stat-card">
+            <strong><i class="fas fa-crown" style="color:#a855f7"></i> Member Badge</strong>
+            <span style="font-size:0.85rem; color:var(--text-secondary)">Displays Premium status</span>
+          </div>
+          <div class="stat-card">
+            <strong><i class="fas fa-bolt" style="color:#06b6d4"></i> Early Chapters</strong>
+            <span style="font-size:0.85rem; color:var(--text-secondary)">Read new releases first</span>
+          </div>
+          <div class="stat-card">
+            <strong><i class="fas fa-shield-alt" style="color:#22c55e"></i> Direct Admin Review</strong>
+            <span style="font-size:0.85rem; color:var(--text-secondary)">Fast status activation</span>
+          </div>
+        </div>
+
+        <div id="premium-action-container">
+          <!-- Button injected dynamically -->
+        </div>
+
+        <p id="premium-note" style="color:var(--text-muted); font-size:0.85rem; margin-top:1rem;"></p>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderNavbar('');
+      renderFooter();
+
+      const user = Auth.getUser();
+      const statusCard = document.getElementById('premium-status-card');
+      const actionContainer = document.getElementById('premium-action-container');
+      const noteEl = document.getElementById('premium-note');
+
+      if (!user) {
+        statusCard.innerHTML = '<p style="color:var(--text-secondary)">Please sign in to view your Premium status.</p>';
+        actionContainer.innerHTML = '<a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In to Request Premium</a>';
+        return;
+      }
+
+      async function loadPremiumStatus() {
+        try {
+          const res = await API.get('/users/premium-status');
+          const status = res.premium_status || (res.is_premium ? 'approved' : 'none');
+
+          if (status === 'approved' || res.is_premium) {
+            statusCard.innerHTML = `
+              <span class="badge" style="background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-size:1rem; padding:0.4rem 1rem;">
+                <i class="fas fa-crown"></i> Premium Active
+              </span>
+              <h3 style="margin-top:0.75rem; color:var(--text-primary)">You are a Premium Member!</h3>
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
+                Enjoy unlimited access to all exclusive comics and chapters.
+              </p>
+            `;
+            actionContainer.innerHTML = `
+              <button class="btn btn-secondary" disabled style="opacity:0.8">
+                <i class="fas fa-check-circle"></i> Premium Active
+              </button>
+            `;
+            noteEl.textContent = 'Thank you for supporting Elder\'s Veil.';
+          } else if (status === 'pending') {
+            statusCard.innerHTML = `
+              <span class="badge" style="background:#eab308; color:#000; font-size:0.95rem; padding:0.4rem 1rem;">
+                <i class="fas fa-clock"></i> Request Pending
+              </span>
+              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Your Premium request has been submitted.</h3>
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
+                Please wait for admin approval. You will receive an email once reviewed.
+              </p>
+            `;
+            actionContainer.innerHTML = `
+              <button class="btn btn-secondary" disabled style="opacity:0.7">
+                <i class="fas fa-hourglass-half"></i> Request Pending Approval
+              </button>
+            `;
+            noteEl.textContent = 'Admin review in progress.';
+          } else if (status === 'rejected') {
+            statusCard.innerHTML = `
+              <span class="badge" style="background:#ef4444; color:#fff; font-size:0.95rem; padding:0.4rem 1rem;">
+                <i class="fas fa-times-circle"></i> Request Rejected
+              </span>
+              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Status: Request Rejected</h3>
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
+                Your previous request was not approved. You may submit a new request below.
+              </p>
+            `;
+            actionContainer.innerHTML = `
+              <button class="btn btn-primary" id="request-premium-btn">
+                <i class="fas fa-paper-plane"></i> Request Premium Again
+              </button>
+            `;
+            attachRequestEvent();
+          } else {
+            statusCard.innerHTML = `
+              <span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary); font-size:0.95rem; padding:0.4rem 1rem;">
+                Status: Not Premium
+              </span>
+              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Unlock Premium Membership</h3>
+              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
+                Request premium status to read all exclusive comics on Elder's Veil.
+              </p>
+            `;
+            actionContainer.innerHTML = `
+              <button class="btn btn-primary" id="request-premium-btn" style="font-size:1.05rem; padding:0.75rem 1.75rem;">
+                <i class="fas fa-crown"></i> Request Premium
+              </button>
+            `;
+            attachRequestEvent();
+          }
+        } catch (err) {
+          statusCard.innerHTML = `<p style="color:var(--accent-red)">Error loading premium status: ${err.message}</p>`;
+        }
+      }
+
+      function attachRequestEvent() {
+        const btn = document.getElementById('request-premium-btn');
+        if (!btn) return;
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Request...';
+          try {
+            const res = await API.post('/users/premium-request', {});
+            showToast(res.message || 'Your Premium request has been submitted. Please wait for admin approval.', 'success');
+            loadPremiumStatus();
+          } catch (err) {
+            showToast(err.message || 'Failed to submit premium request.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-crown"></i> Request Premium';
+          }
+        });
+      }
+
+      loadPremiumStatus();
+    });
+  </script>
+</body>
+</html>

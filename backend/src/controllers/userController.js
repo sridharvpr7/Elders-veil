@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Bookmark = require('../models/Bookmark');
 const Favorite = require('../models/Favorite');
 const ReadingHistory = require('../models/ReadingHistory');
+const EmailService = require('../services/emailService');
+const NotificationService = require('../services/notificationService');
 
 class UserController {
   static async getProfile(req, res) {
@@ -17,7 +19,6 @@ class UserController {
       next(err);
     }
   }
-
 
   static async becomeCreator(req, res, next) {
     try {
@@ -42,6 +43,60 @@ class UserController {
 
       await User.updatePassword(req.user.id, newPassword);
       res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async requestPremium(req, res, next) {
+    try {
+      const fullUser = await User.findById(req.user.id);
+      if (fullUser.is_premium) {
+        return res.status(400).json({ error: 'You already have an active Premium membership.' });
+      }
+      if (fullUser.premium_status === 'pending') {
+        return res.status(400).json({ error: 'Your Premium request has been submitted. Please wait for admin approval.' });
+      }
+
+      const result = await User.requestPremium(req.user.id, req.body.note || '');
+
+      // Email confirmation to user
+      EmailService.sendPremiumRequestedEmail(fullUser).catch(err => console.warn('[Email] Premium request email failed:', err.message));
+
+      // Notify admins
+      const allUsers = await User.getAll();
+      const adminUsers = allUsers.filter(u => u.role === 'admin');
+      for (const admin of adminUsers) {
+        NotificationService.create(
+          admin.id,
+          'premium_request_admin',
+          'New Premium Request',
+          `${fullUser.username} (${fullUser.email}) requested Premium membership.`,
+          { userId: fullUser.id, requestId: result.id }
+        ).catch(() => {});
+      }
+
+      res.status(200).json({
+        message: 'Your Premium request has been submitted. Please wait for admin approval.',
+        status: 'pending',
+        request: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getPremiumStatus(req, res, next) {
+    try {
+      const fullUser = await User.findById(req.user.id);
+      res.status(200).json({
+        isPremium: !!fullUser.is_premium,
+        premiumStatus: fullUser.premium_status || 'none',
+        requestedAt: fullUser.premium_requested_at,
+        approvedAt: fullUser.premium_approved_at,
+        rejectedAt: fullUser.premium_rejected_at,
+        expiresAt: fullUser.premium_expires_at
+      });
     } catch (err) {
       next(err);
     }

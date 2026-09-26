@@ -11,6 +11,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Genre dropdown "Others" toggle
+  const genreSelect = document.getElementById('comic-genre-select');
+  const customGenreGroup = document.getElementById('custom-genre-group');
+  const customGenreInput = document.getElementById('comic-custom-genre');
+
+  if (genreSelect && customGenreGroup) {
+    genreSelect.addEventListener('change', () => {
+      if (genreSelect.value === 'Others') {
+        customGenreGroup.style.display = 'block';
+        if (customGenreInput) customGenreInput.focus();
+      } else {
+        customGenreGroup.style.display = 'none';
+      }
+    });
+  }
+
   // Comic Creation Form
   const comicForm = document.getElementById('create-comic-form');
   const coverFileInput = document.getElementById('cover-file');
@@ -20,6 +36,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     comicForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const selectedGenre = genreSelect ? genreSelect.value : 'Action';
+      let finalGenre = selectedGenre;
+      let customGenreVal = '';
+
+      if (selectedGenre === 'Others') {
+        customGenreVal = customGenreInput ? customGenreInput.value.trim() : '';
+        if (!customGenreVal) {
+          return showToast('Please enter your custom genre.', 'error');
+        }
+        finalGenre = customGenreVal;
+      }
+
+      const isPremium = document.getElementById('comic-is-premium')?.checked || false;
+
       const submitBtn = comicForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading & Submitting...';
@@ -44,9 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           bannerUrl = bannerRes.url;
         }
 
-        const genresVal = document.getElementById('comic-genres').value;
-        const genres = genresVal ? genresVal.split(',').map(s => s.trim()).filter(Boolean) : ['Action'];
-
         const payload = {
           title: document.getElementById('comic-title').value.trim(),
           description: document.getElementById('comic-desc').value.trim(),
@@ -55,14 +82,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           status: document.getElementById('comic-status').value,
           type: document.getElementById('comic-type').value,
           rating: parseFloat(document.getElementById('comic-rating').value) || 4.5,
-          genres,
+          genre: selectedGenre,
+          customGenre: customGenreVal,
+          genres: [finalGenre],
+          is_premium: isPremium,
+          isPremium: isPremium,
           coverImage: coverUrl,
           bannerImage: bannerUrl
         };
 
         const res = await API.post('/comics', payload);
         showToast(res.message || 'Comic submitted for admin review.', 'success');
-        setTimeout(() => window.location.href = '/creator/dashboard.html', 700);
+        setTimeout(() => window.location.href = currentUser.role === 'admin' ? '/admin/comics.html' : '/creator/dashboard.html', 700);
 
       } catch (err) {
         showToast(`Creation failed: ${err.message}`, 'error');

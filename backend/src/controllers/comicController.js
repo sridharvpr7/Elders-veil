@@ -10,7 +10,7 @@ const User = require('../models/User');
 class ComicController {
   static async getComics(req, res, next) {
     try {
-      const { search, genre, status, type, sortBy, limit, offset } = req.query;
+      const { search, genre, status, type, sortBy, limit, offset, premium } = req.query;
       const comics = await Comic.getAll({
         search,
         genre,
@@ -20,7 +20,8 @@ class ComicController {
         limit: limit ? parseInt(limit, 10) : 24,
         offset: offset ? parseInt(offset, 10) : 0,
         creatorId: req.query.mine && req.user ? req.user.id : null,
-        includeDrafts: !!(req.user && (req.user.role === 'admin' || req.query.mine))
+        includeDrafts: !!(req.user && (req.user.role === 'admin' || req.query.mine)),
+        isPremiumOnly: String(premium).toLowerCase() === 'true'
       });
       res.status(200).json({ comics, count: comics.length });
     } catch (err) {
@@ -45,7 +46,28 @@ class ComicController {
 
       const canSeeUnpublished = !!(req.user && (req.user.role === 'admin' || (comic.creatorId && comic.creatorId === req.user.id)));
       if (comic.publishStatus !== 'published' && !canSeeUnpublished) return res.status(404).json({ error: 'Comic not found.' });
+
+      // Server-side Premium access check for chapters/comic view
+      const isOwnerOrAdmin = !!(req.user && (req.user.role === 'admin' || (comic.creatorId && comic.creatorId === req.user.id)));
+      const isUserPremium = !!(req.user && req.user.is_premium);
+      const isComicPremium = !!comic.isPremium;
+
       const chapters = await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished });
+
+      if (isComicPremium && !isUserPremium && !isOwnerOrAdmin) {
+        return res.status(403).json({
+          error: 'This comic is available exclusively to Premium members.',
+          requirePremium: true,
+          isPremiumComic: true,
+          comic: {
+            id: comic.id,
+            title: comic.title,
+            slug: comic.slug,
+            coverImage: comic.coverImage,
+            isPremium: true
+          }
+        });
+      }
 
       res.status(200).json({
         comic,
@@ -75,7 +97,27 @@ class ComicController {
 
       const canSeeUnpublished = !!(req.user && (req.user.role === 'admin' || (comic.creatorId && comic.creatorId === req.user.id)));
       if (comic.publishStatus !== 'published' && !canSeeUnpublished) return res.status(404).json({ error: 'Comic not found.' });
+
+      const isOwnerOrAdmin = !!(req.user && (req.user.role === 'admin' || (comic.creatorId && comic.creatorId === req.user.id)));
+      const isUserPremium = !!(req.user && req.user.is_premium);
+      const isComicPremium = !!comic.isPremium;
+
       const chapters = await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished });
+
+      if (isComicPremium && !isUserPremium && !isOwnerOrAdmin) {
+        return res.status(403).json({
+          error: 'This comic is available exclusively to Premium members.',
+          requirePremium: true,
+          isPremiumComic: true,
+          comic: {
+            id: comic.id,
+            title: comic.title,
+            slug: comic.slug,
+            coverImage: comic.coverImage,
+            isPremium: true
+          }
+        });
+      }
 
       res.status(200).json({
         comic,
@@ -120,7 +162,18 @@ class ComicController {
       if (!req.user) return res.status(401).json({ error: 'Login required.' });
       if (req.user.role !== 'admin' && req.user.role !== 'creator') return res.status(403).json({ error: 'Become a Comic Writer from your dashboard before uploading.' });
       if (!req.body.title || String(req.body.title).trim().length < 2) return res.status(400).json({ error: 'Comic title is required.' });
-      const payload = { ...req.body, creatorId: req.user.role === 'admin' ? (req.body.creatorId || null) : req.user.id, publishStatus: req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'pending' };
+
+      // Custom Genre Validation
+      if (req.body.genre === 'Others' && (!req.body.customGenre || !String(req.body.customGenre).trim())) {
+        return res.status(400).json({ error: 'Please specify your custom genre when "Others" is selected.' });
+      }
+
+      const payload = {
+        ...req.body,
+        creatorId: req.user.role === 'admin' ? (req.body.creatorId || null) : req.user.id,
+        publishStatus: req.user.role === 'admin' ? (req.body.publishStatus || 'published') : 'pending',
+        isPremium: req.body.isPremium !== undefined ? !!req.body.isPremium : !!req.body.is_premium
+      };
       const comic = await Comic.create(payload);
       res.status(201).json({ comic, message: 'Comic created successfully.' });
     } catch (err) {
@@ -128,28 +181,34 @@ class ComicController {
     }
   }
 
-
   static async publishComic(req, res, next) {
     try {
       if (req.user.role !== 'admin') return res.status(403).json({ error: 'Only an administrator can publish submissions.' });
       const comic = await Comic.findById(req.params.id);
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
       const updated = await Comic.update(req.params.id, { publishStatus: 'published', reviewNote: null });
-      NotificationService.broadcastNewComic(updated, User).catch(()=>{});
-      if (updated.creatorId) { NotificationService.create(updated.creatorId,'comic_approved','Comic approved',`${updated.title} was approved and published.`,{comicId:updated.id}).catch(()=>{}); User.findById(updated.creatorId).then(u=>u&&EmailService.sendComicApprovedEmail(u,updated).catch(e=>console.warn('[Email] Comic approval email failed:',e.message))).catch(()=>{}); }
+      NotificationService.broadcastNewComic(updated, User).catch(() => {});
+      if (updated.creatorId) {
+        NotificationService.create(updated.creatorId, 'comic_approved', 'Comic approved', `${updated.title} was approved and published.`, { comicId: updated.id }).catch(() => {});
+        User.findById(updated.creatorId).then(u => u && EmailService.sendComicApprovedEmail(u, updated).catch(e => console.warn('[Email] Comic approval email failed:', e.message))).catch(() => {});
+      }
       res.json({ comic: updated, message: 'Comic approved and published.' });
-    } catch (err) { next(err); }
+    } catch (err) {
+      next(err);
+    }
   }
 
-  static async requestChanges(req,res,next){
-    try{
-      const comic=await Comic.findById(req.params.id);
-      if(!comic)return res.status(404).json({error:'Comic not found.'});
-      const note=String(req.body.reason||'Please update this submission and resubmit.').trim();
-      const updated=await Comic.update(req.params.id,{publishStatus:'changes_requested',reviewNote:note});
-      if(updated.creatorId) NotificationService.create(updated.creatorId,'changes_requested','Changes requested',note,{comicId:updated.id}).catch(()=>{});
-      res.json({comic:updated,message:'Changes requested from creator.'});
-    }catch(e){next(e)}
+  static async requestChanges(req, res, next) {
+    try {
+      const comic = await Comic.findById(req.params.id);
+      if (!comic) return res.status(404).json({ error: 'Comic not found.' });
+      const note = String(req.body.reason || 'Please update this submission and resubmit.').trim();
+      const updated = await Comic.update(req.params.id, { publishStatus: 'changes_requested', reviewNote: note });
+      if (updated.creatorId) NotificationService.create(updated.creatorId, 'changes_requested', 'Changes requested', note, { comicId: updated.id }).catch(() => {});
+      res.json({ comic: updated, message: 'Changes requested from creator.' });
+    } catch (e) {
+      next(e);
+    }
   }
 
   static async rejectComic(req, res, next) {
@@ -159,9 +218,13 @@ class ComicController {
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
       const reason = req.body.reason || 'Rejected by administrator.';
       const updated = await Comic.update(req.params.id, { publishStatus: 'rejected', reviewNote: reason });
-      if(updated.creatorId){ User.findById(updated.creatorId).then(u=>u&&EmailService.sendComicRejectedEmail(u,updated,reason).catch(e=>console.warn('[Email] Comic rejection email failed:',e.message))).catch(()=>{}); }
+      if (updated.creatorId) {
+        User.findById(updated.creatorId).then(u => u && EmailService.sendComicRejectedEmail(u, updated, reason).catch(e => console.warn('[Email] Comic rejection email failed:', e.message))).catch(() => {});
+      }
       res.json({ comic: updated, message: 'Comic rejected.' });
-    } catch (err) { next(err); }
+    } catch (err) {
+      next(err);
+    }
   }
 
   static async resubmitComic(req, res, next) {
@@ -171,7 +234,9 @@ class ComicController {
       if (req.user.role !== 'admin' && comic.creatorId !== req.user.id) return res.status(403).json({ error: 'You can only resubmit your own comics.' });
       const updated = await Comic.update(req.params.id, { publishStatus: 'pending', reviewNote: null });
       res.json({ comic: updated, message: 'Comic resubmitted for administrator review.' });
-    } catch (err) { next(err); }
+    } catch (err) {
+      next(err);
+    }
   }
 
   static async updateComic(req, res, next) {
@@ -181,6 +246,11 @@ class ComicController {
       if (req.user.role !== 'admin' && existing.creatorId !== req.user.id) {
         return res.status(403).json({ error: 'You can only edit your own comics.' });
       }
+
+      if (req.body.genre === 'Others' && (!req.body.customGenre || !String(req.body.customGenre).trim())) {
+        return res.status(400).json({ error: 'Please specify your custom genre when "Others" is selected.' });
+      }
+
       const payload = req.user.role === 'admin' ? req.body : { ...req.body, publishStatus: 'pending', reviewNote: null };
       const comic = await Comic.update(req.params.id, payload);
       if (!comic) {

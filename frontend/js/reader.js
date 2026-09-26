@@ -180,13 +180,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
   } catch (err) {
-    readerContainer.innerHTML = `
-      <div style="text-align:center; padding:5rem 1rem;">
-        <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:var(--accent-pink); margin-bottom:1rem;"></i>
-        <h2>Error Loading Reader</h2>
-        <p style="color:var(--text-secondary); margin-bottom:1.5rem;">${err.message}</p>
-        <a href="/comics.html" class="btn btn-primary">Return to Catalog</a>
-      </div>
-    `;
+    const isPremiumBlock = err.message && /exclusively|premium|403/i.test(err.message);
+    if (isPremiumBlock) {
+      readerContainer.innerHTML = `
+        <div style="max-width:550px; margin:4rem auto; text-align:center; padding:2.5rem; background:var(--bg-secondary); border:1px solid rgba(124,58,237,0.3); border-radius:16px;">
+          <div style="font-size:3.5rem; color:#a855f7; margin-bottom:1rem;">
+            <i class="fas fa-crown"></i>
+          </div>
+          <h2 style="font-size:1.6rem; font-weight:700; margin-bottom:0.75rem; color:var(--text-primary);">Premium Comic Access Required</h2>
+          <p style="color:var(--text-secondary); font-size:1rem; line-height:1.6; margin-bottom:1.75rem;">
+            This comic is available exclusively to Premium members.
+          </p>
+          <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+            <a href="/premium.html" class="btn btn-primary" style="padding:0.75rem 1.75rem;">
+              <i class="fas fa-crown"></i> Request Premium
+            </a>
+            <a href="/comics.html" class="btn btn-secondary" style="padding:0.75rem 1.5rem;">
+              Return to Catalog
+            </a>
+          </div>
+        </div>
+      `;
+    } else {
+      readerContainer.innerHTML = `
+        <div style="text-align:center; padding:5rem 1rem;">
+          <i class="fas fa-exclamation-triangle" style="font-size:3rem; color:var(--accent-pink); margin-bottom:1rem;"></i>
+          <h2>Error Loading Reader</h2>
+          <p style="color:var(--text-secondary); margin-bottom:1.5rem;">${err.message}</p>
+          <a href="/comics.html" class="btn btn-primary">Return to Catalog</a>
+        </div>
+      `;
+    }
   }
 });

@@ -72,8 +72,36 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Genres (Comma-separated)</label>
-                <input type="text" id="comic-genres" class="form-input" placeholder="Action, Fantasy, Supernatural" />
+                <label class="form-label">Genre</label>
+                <select id="comic-genre-select" class="form-select">
+                  <option value="Action">Action</option>
+                  <option value="Adventure">Adventure</option>
+                  <option value="Comedy">Comedy</option>
+                  <option value="Drama">Drama</option>
+                  <option value="Fantasy">Fantasy</option>
+                  <option value="Horror">Horror</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Sci-Fi">Sci-Fi</option>
+                  <option value="Mystery">Mystery</option>
+                  <option value="Thriller">Thriller</option>
+                  <option value="Supernatural">Supernatural</option>
+                  <option value="Historical">Historical</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Slice of Life">Slice of Life</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="custom-genre-group" style="display:none; margin-top:0.5rem;">
+                <label class="form-label">Enter your genre</label>
+                <input type="text" id="comic-custom-genre" class="form-input" placeholder="e.g. Mythological Adventure" />
+              </div>
+
+              <div class="form-group" style="margin-top:0.75rem; display:flex; align-items:center; gap:0.5rem;">
+                <input type="checkbox" id="comic-is-premium" style="width:18px; height:18px; cursor:pointer;" />
+                <label for="comic-is-premium" class="form-label" style="margin:0; cursor:pointer; font-weight:600;">
+                  <i class="fas fa-crown" style="color:var(--accent-purple-light);"></i> Premium Comic (Exclusive to Premium members)
+                </label>
               </div>
 
               <div class="form-group">

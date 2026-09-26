@@ -1,82 +1,135 @@
 {
-  "otp": {
-    "subject": "Verify your Elder's Veil account",
-    "title": "Verify your email address",
-    "content": "Hi {{username}},<br><br>Your Elder's Veil verification code is <strong style=\"font-size:28px;letter-spacing:6px\">{{otp}}</strong>.<br><br>This code expires in 10 minutes. If you did not create this account, you can ignore this email."
-  },
-  "welcome": {
-    "subject": "Welcome to Elder's Veil",
-    "title": "Welcome to Elder's Veil",
-    "content": "Hi {{username}},<br><br>Your email has been verified and your Elder's Veil account is ready. Happy reading!"
-  },
-  "resetOtp": {
-    "subject": "Your Elder's Veil password reset code",
-    "title": "Password reset verification",
-    "content": "Hi {{username}},<br><br>Your password reset code is <strong style=\"font-size:28px;letter-spacing:6px\">{{otp}}</strong>.<br><br>This code expires in 10 minutes. If you did not request a password reset, you can ignore this email."
-  },
-  "comicApproved": {
-    "subject": "Your comic was approved — Elder's Veil",
-    "title": "Comic approved",
-    "content": "Hi {{username}},<br><br><strong>{{comicTitle}}</strong> has been approved and published on Elder's Veil."
-  },
-  "comicRejected": {
-    "subject": "Comic review update — Elder's Veil",
-    "title": "Comic review update",
-    "content": "Hi {{username}},<br><br>Your comic <strong>{{comicTitle}}</strong> was not approved at this time.<br><br>Review note: {{reason}}"
-  },
-  "chapterApproved": {
-    "subject": "Your chapter was approved — Elder's Veil",
-    "title": "Chapter approved",
-    "content": "Hi {{username}},<br><br><strong>{{comicTitle}}</strong> — Chapter {{chapterNumber}} has been approved and published."
-  },
-  "chapterRejected": {
-    "subject": "Chapter review update — Elder's Veil",
-    "title": "Chapter review update",
-    "content": "Hi {{username}},<br><br>Your chapter <strong>{{comicTitle}} — Chapter {{chapterNumber}}</strong> was not approved at this time.<br><br>Review note: {{reason}}"
-  },
-  "newComic": {
-    "subject": "New comic released — {{comicTitle}}",
-    "title": "New comic released",
-    "content": "Hi {{username}},<br><br><strong>{{comicTitle}}</strong> is now available on Elder's Veil.<br><br><a href=\"{{url}}\" style=\"color:#c4b5fd\">Read comic</a>"
-  },
-  "newChapter": {
-    "subject": "New chapter released — {{comicTitle}}",
-    "title": "New chapter released",
-    "content": "Hi {{username}},<br><br><strong>{{comicTitle}}</strong> — Chapter {{chapterNumber}} is now available.<br><br><a href=\"{{url}}\" style=\"color:#c4b5fd\">Read chapter</a>"
-  },
-  "premiumActivated": {
-    "subject": "Elder's Veil Premium activated",
-    "title": "Premium activated",
-    "content": "Hi {{username}},<br><br>Your Elder's Veil Premium access is now active until <strong>{{expiresAt}}</strong>. Enjoy your premium benefits!"
-  },
-  "paymentSuccess": {
-    "subject": "Payment successful — Elder's Veil",
-    "title": "Payment successful",
-    "content": "Hi {{username}},<br><br>Your payment of <strong>{{amount}}</strong> was successful. Your Elder's Veil Premium access is active until <strong>{{expiresAt}}</strong>."
-  },
-  "paymentFailed": {
-    "subject": "Payment update — Elder's Veil",
-    "title": "Payment could not be completed",
-    "content": "Hi {{username}},<br><br>We could not confirm your payment{{amountText}}. Please try again from the Premium page."
-  },
-  "adminAnnouncement": {
-    "subject": "Elder's Veil announcement",
-    "title": "Announcement",
-    "content": "Hi {{username}},<br><br>{{message}}"
-  },
-  "adminPromoted": {
-    "subject": "Administrator access granted — Elder's Veil",
-    "title": "Administrator access granted",
-    "content": "Hi {{username}},<br><br>Your Elder's Veil account has been granted administrator access."
-  },
-  "adminRemoved": {
-    "subject": "Administrator access updated — Elder's Veil",
-    "title": "Administrator access removed",
-    "content": "Hi {{username}},<br><br>Your administrator access on Elder's Veil has been removed."
-  },
-  "accountDeleted": {
-    "subject": "Elder's Veil account deleted",
-    "title": "Account deleted",
-    "content": "Hi {{username}},<br><br>Your Elder's Veil account has been deleted by an administrator."
+  "appName": "Elder's Veil",
+  "appUrl": "http://localhost:5000",
+  "companyName": "Elder's Veil Media Inc.",
+  "supportEmail": "support@eldersveil.com",
+  "themeColor": "#8b5cf6",
+  "templates": {
+    "otp": {
+      "subject": "Your Verification Code — Elder's Veil",
+      "title": "Verify Your Account",
+      "badge": "Security Verification",
+      "preheader": "Use your 6-digit OTP code to verify your Elder's Veil account.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Thank you for creating an account with Elder's Veil. Please enter the verification code below to activate your profile:</p><div style=\"background:#1e1b4b;border:2px dashed #7c3aed;border-radius:12px;padding:24px;text-align:center;margin:28px 0;\"><div style=\"font-size:38px;font-weight:800;letter-spacing:12px;color:#a855f7;font-family:'Courier New',monospace;\">{{otp}}</div></div><p style=\"font-size:13px;color:#9ca3af;\">This verification code will expire in <strong>10 minutes</strong>. If you did not register on Elder's Veil, please ignore this email.</p>",
+      "buttonText": "Verify Email",
+      "actionPath": "/verify-otp.html"
+    },
+    "welcome": {
+      "subject": "Welcome to Elder's Veil! 📚",
+      "title": "Welcome to the Realm",
+      "badge": "Account Verified",
+      "preheader": "Your email is verified. Start reading exclusive comics and manga!",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Your email address has been verified successfully! You now have full access to Elder's Veil's library of epic comics, manga, and manhwa.</p><p>Explore trending releases, bookmark your favorites, and track reading progress seamlessly across devices.</p>",
+      "buttonText": "Explore Comics",
+      "actionPath": "/index.html"
+    },
+    "resetOtp": {
+      "subject": "Password Reset Code — Elder's Veil",
+      "title": "Reset Your Password",
+      "badge": "Security Alert",
+      "preheader": "Your 6-digit OTP code to reset your Elder's Veil account password.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>We received a request to reset your password. Use the 6-digit verification code below to enter a new password:</p><div style=\"background:#1e1b4b;border:2px dashed #7c3aed;border-radius:12px;padding:24px;text-align:center;margin:28px 0;\"><div style=\"font-size:38px;font-weight:800;letter-spacing:12px;color:#a855f7;font-family:'Courier New',monospace;\">{{otp}}</div></div><p style=\"font-size:13px;color:#9ca3af;\">This code expires in <strong>10 minutes</strong>. If you did not request a password reset, your account is safe and no action is required.</p>",
+      "buttonText": "Reset Password",
+      "actionPath": "/forgot-password.html"
+    },
+    "premiumRequested": {
+      "subject": "Premium Request Received — Elder's Veil",
+      "title": "Premium Request Under Review",
+      "badge": "VIP Membership Request",
+      "preheader": "We have received your Premium membership request on Elder's Veil.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Your request for <strong>Elder's Veil Premium Membership</strong> has been received and submitted for administrator review.</p><div style=\"background:#1e1b4b;border-left:4px solid #8b5cf6;padding:16px 20px;margin:24px 0;border-radius:8px;\"><p style=\"margin:0;color:#c084fc;font-weight:600;\">Status: Pending Administrator Approval</p></div><p>You will receive an email confirmation as soon as an administrator reviews and approves your request.</p>",
+      "buttonText": "View Dashboard",
+      "actionPath": "/dashboard.html"
+    },
+    "premiumActivated": {
+      "subject": "Premium Membership Activated — Elder's Veil 💎",
+      "title": "Welcome to Premium VIP!",
+      "badge": "VIP Unlocked",
+      "preheader": "Your Premium access is active. Enjoy unlimited access to exclusive comics.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Great news! Your <strong>Elder's Veil Premium Membership</strong> has been approved and activated until <strong>{{expiresAt}}</strong>.</p><p>You now enjoy exclusive perks including:</p><ul style=\"padding-left:20px;color:#ddd6fe;\"><li>Unlimited access to all Premium comics and chapters</li><li>Ad-free immersive reading experience</li><li>Exclusive VIP badge on your profile and comments</li></ul>",
+      "buttonText": "Read Premium Comics",
+      "actionPath": "/index.html"
+    },
+    "premiumRejected": {
+      "subject": "Premium Request Update — Elder's Veil",
+      "title": "Premium Request Update",
+      "badge": "Membership Status",
+      "preheader": "Update regarding your Premium membership request on Elder's Veil.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Thank you for your interest in Elder's Veil Premium. After review, your Premium membership request could not be approved at this time.</p><div style=\"background:#1e1b4b;border-left:4px solid #ef4444;padding:16px 20px;margin:24px 0;border-radius:8px;\"><p style=\"margin:0;color:#f87171;\">Note: {{reason}}</p></div><p>You may submit a new request from your User Dashboard at any time.</p>",
+      "buttonText": "Go to Dashboard",
+      "actionPath": "/dashboard.html"
+    },
+    "comicApproved": {
+      "subject": "Your Comic Has Been Approved — Elder's Veil",
+      "title": "Submission Approved!",
+      "badge": "Creator Update",
+      "preheader": "Your comic publication \"{{comicTitle}}\" has passed review.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Congratulations! Your comic submission <strong>\"{{comicTitle}}\"</strong> has been approved by our moderation team and is now published live on Elder's Veil.</p>",
+      "buttonText": "View Your Comic",
+      "actionPath": "/comic-detail.html?id={{comicId}}"
+    },
+    "comicRejected": {
+      "subject": "Update on Your Comic Submission — Elder's Veil",
+      "title": "Submission Feedback",
+      "badge": "Creator Update",
+      "preheader": "Review feedback regarding your comic \"{{comicTitle}}\".",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Your comic submission <strong>\"{{comicTitle}}\"</strong> was reviewed by our moderation team. Unfortunately, it cannot be published at this time.</p><div style=\"background:#1e1b4b;border-left:4px solid #ef4444;padding:16px 20px;margin:24px 0;border-radius:8px;\"><strong style=\"color:#f87171;\">Feedback / Reason:</strong><br/>{{reason}}</div><p>Please update your submission in Creator Studio and resubmit for review.</p>",
+      "buttonText": "Creator Studio",
+      "actionPath": "/creator/index.html"
+    },
+    "newComic": {
+      "subject": "New Comic Released: \"{{comicTitle}}\"",
+      "title": "New Release Alert!",
+      "badge": "Catalog Update",
+      "preheader": "Discover brand new release \"{{comicTitle}}\" on Elder's Veil!",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>A brand-new comic has just premiered on Elder's Veil: <strong>\"{{comicTitle}}\"</strong>!</p><p>Dive in and be among the first readers to start this epic journey.</p>",
+      "buttonText": "Read Now",
+      "actionPath": "{{url}}"
+    },
+    "newChapter": {
+      "subject": "New Chapter Out: \"{{comicTitle}}\" — Chapter {{chapterNumber}}",
+      "title": "New Chapter Available!",
+      "badge": "Chapter Release",
+      "preheader": "Chapter {{chapterNumber}} of {{comicTitle}} is now live.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Chapter <strong>{{chapterNumber}}</strong> of <strong>\"{{comicTitle}}\"</strong> is now live!</p>",
+      "buttonText": "Read Chapter",
+      "actionPath": "{{url}}"
+    },
+    "paymentSuccess": {
+      "subject": "Payment Receipt — Elder's Veil",
+      "title": "Payment Confirmed",
+      "badge": "Billing Receipt",
+      "preheader": "Receipt for your transaction on Elder's Veil.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>Your payment of <strong>${{amount}} USD</strong> has been processed successfully. Transaction ID: <code>{{transactionId}}</code>.</p>",
+      "buttonText": "View Membership",
+      "actionPath": "/profile.html"
+    },
+    "paymentFailed": {
+      "subject": "Payment Unsuccessful — Elder's Veil",
+      "title": "Payment Action Required",
+      "badge": "Billing Notice",
+      "preheader": "We could not process your transaction on Elder's Veil.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>We were unable to process your payment of <strong>${{amount}} USD</strong>. Reason: {{reason}}.</p>",
+      "buttonText": "Try Again",
+      "actionPath": "/premium.html"
+    },
+    "adminAnnouncement": {
+      "subject": "System Announcement — Elder's Veil",
+      "title": "Platform Announcement",
+      "badge": "Announcement",
+      "preheader": "An official announcement from the Elder's Veil administration team.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><div style=\"font-size:15px;line-height:1.7;color:#e2e8f0;\">{{message}}</div>",
+      "buttonText": "Visit Elder's Veil",
+      "actionPath": "/index.html"
+    },
+    "securityNotice": {
+      "subject": "Security Notice — Elder's Veil",
+      "title": "Account Security Update",
+      "badge": "Security Alert",
+      "preheader": "Important security notification regarding your Elder's Veil account.",
+      "content": "<p>Hello <strong>{{username}}</strong>,</p><p>{{message}}</p><p style=\"font-size:13px;color:#9ca3af;\">If you did not initiate this change, please contact support immediately at support@eldersveil.com.</p>",
+      "buttonText": "Account Settings",
+      "actionPath": "/profile.html"
+    }
   }
 }

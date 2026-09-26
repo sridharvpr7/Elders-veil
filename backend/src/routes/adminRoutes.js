@@ -14,6 +14,11 @@ router.patch('/users/:id/role', AdminController.setRole);
 router.delete('/users/:id', AdminController.deleteUser);
 router.get('/statistics', AdminController.getStatistics);
 router.get('/pending-submissions', AdminController.getPendingSubmissions);
+
+router.get('/premium-requests', AdminController.getPremiumRequests);
+router.post('/premium-requests/:id/approve', AdminController.approvePremiumRequest);
+router.post('/premium-requests/:id/reject', AdminController.rejectPremiumRequest);
+
 router.post('/comics/import', AdminController.importComicsJson);
 router.get('/comics/export', AdminController.exportComicsJson);
 

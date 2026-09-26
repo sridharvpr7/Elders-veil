@@ -40,8 +40,30 @@
         <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
         <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
         <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
-        <a href="/notifications.html" class="tab-btn"><i class="fas fa-bell"></i> Notifications</a><a href="/profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
+        <a href="/notifications.html" class="tab-btn"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="/premium.html" class="tab-btn"><i class="fas fa-crown"></i> Premium Status</a>
+        <a href="/profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
       </div>
+
+      <!-- Premium Status Section -->
+      <section style="margin-bottom:2.5rem;">
+        <div class="auth-card" id="dash-premium-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border:1px solid rgba(124,58,237,0.3); background:rgba(124,58,237,0.06);">
+          <div>
+            <h3 style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+              <i class="fas fa-crown" style="color:var(--accent-purple-light)"></i> Premium Membership
+            </h3>
+            <p style="color:var(--text-secondary); font-size:0.9rem;" id="dash-premium-desc">
+              Unlock premium comics and exclusive chapters.
+            </p>
+            <div style="margin-top:0.5rem;" id="dash-premium-status-badge">
+              <span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary);">Status: Loading...</span>
+            </div>
+          </div>
+          <div id="dash-premium-action">
+            <!-- Dynamic button -->
+          </div>
+        </div>
+      </section>
 
       <!-- Overview Content -->
       <section style="margin-bottom:3rem;">
@@ -81,6 +103,61 @@
         document.getElementById('dash-role').textContent = user.role.toUpperCase();
         if (user.avatar) document.getElementById('dash-avatar').src = user.avatar;
       }
+
+      // Load Premium Status
+      async function updateDashboardPremiumUI() {
+        const badgeEl = document.getElementById('dash-premium-status-badge');
+        const actionEl = document.getElementById('dash-premium-action');
+        const descEl = document.getElementById('dash-premium-desc');
+        if (!badgeEl || !actionEl) return;
+
+        try {
+          const res = await API.get('/users/premium-status');
+          const status = res.premium_status || (res.is_premium ? 'approved' : 'none');
+
+          if (status === 'approved' || res.is_premium) {
+            badgeEl.innerHTML = '<span class="badge" style="background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff;"><i class="fas fa-crown"></i> Premium Active</span>';
+            descEl.textContent = 'Premium Member — You have unlimited access to exclusive comics.';
+            actionEl.innerHTML = '<a href="/premium.html" class="btn btn-secondary btn-sm"><i class="fas fa-crown"></i> View Premium Details</a>';
+          } else if (status === 'pending') {
+            badgeEl.innerHTML = '<span class="badge" style="background:#eab308; color:#000;"><i class="fas fa-clock"></i> Premium Request Pending</span>';
+            descEl.textContent = 'Your Premium request has been submitted. Please wait for admin approval.';
+            actionEl.innerHTML = '<button class="btn btn-secondary btn-sm" disabled style="opacity:0.7"><i class="fas fa-hourglass-half"></i> Pending Review</button>';
+          } else if (status === 'rejected') {
+            badgeEl.innerHTML = '<span class="badge" style="background:#ef4444; color:#fff;"><i class="fas fa-times-circle"></i> Request Rejected</span>';
+            descEl.textContent = 'Your previous request was not approved. You can submit a new request.';
+            actionEl.innerHTML = '<button class="btn btn-primary btn-sm" id="dash-req-prem-btn"><i class="fas fa-paper-plane"></i> Request Premium</button>';
+            attachDashReqHandler();
+          } else {
+            badgeEl.innerHTML = '<span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary);">Status: Not Premium</span>';
+            descEl.textContent = 'Unlock premium comics and exclusive chapters.';
+            actionEl.innerHTML = '<button class="btn btn-primary btn-sm" id="dash-req-prem-btn"><i class="fas fa-crown"></i> Request Premium</button>';
+            attachDashReqHandler();
+          }
+        } catch (err) {
+          badgeEl.innerHTML = '<span class="badge badge-pink">Status Error</span>';
+        }
+      }
+
+      function attachDashReqHandler() {
+        const btn = document.getElementById('dash-req-prem-btn');
+        if (!btn) return;
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+          try {
+            const res = await API.post('/users/premium-request', {});
+            showToast(res.message || 'Your Premium request has been submitted. Please wait for admin approval.', 'success');
+            updateDashboardPremiumUI();
+          } catch (err) {
+            showToast(err.message || 'Failed to submit premium request.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-crown"></i> Request Premium';
+          }
+        });
+      }
+
+      updateDashboardPremiumUI();
 
       // Load Recent Reading Progress
       try {

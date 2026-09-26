@@ -10,6 +10,9 @@ router.put('/me', UserController.updateProfile);
 router.post('/me/become-creator', UserController.becomeCreator);
 router.post('/me/password', UserController.changePassword);
 
+router.post('/premium-request', UserController.requestPremium);
+router.get('/premium-status', UserController.getPremiumStatus);
+
 router.get('/me/bookmarks', UserController.getBookmarks);
 router.post('/me/bookmarks', UserController.addBookmark);
 router.delete('/me/bookmarks/:comicId', UserController.removeBookmark);

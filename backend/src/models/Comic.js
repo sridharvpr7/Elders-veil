@@ -2,7 +2,7 @@ const db = require('../config/database');
 const { createSlug } = require('../utils/slug');
 
 class Comic {
-  static async getAll({ search, genre, status, type, sortBy = 'latest', limit = 20, offset = 0, creatorId = null, includeDrafts = false } = {}) {
+  static async getAll({ search, genre, status, type, sortBy = 'latest', limit = 20, offset = 0, creatorId = null, includeDrafts = false, isPremiumOnly = false } = {}) {
     if (db.isPgConnected()) {
       let sql = `
         SELECT c.*, 
@@ -18,6 +18,7 @@ class Comic {
 
       if (!includeDrafts) sql += ` AND c.publish_status = 'published'`;
       if (creatorId) { params.push(creatorId); sql += ` AND c.creator_id = $${params.length}`; }
+      if (isPremiumOnly) { sql += ` AND c.is_premium = TRUE`; }
 
       if (search) {
         params.push(`%${search}%`);
@@ -54,6 +55,7 @@ class Comic {
     let list = [...db.fallbackStore.comics];
     if (!includeDrafts) list = list.filter(c => (c.publish_status || 'published') === 'published');
     if (creatorId) list = list.filter(c => (c.creator_id || c.creatorId) === creatorId);
+    if (isPremiumOnly) list = list.filter(c => !!(c.is_premium || c.isPremium));
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(c =>
@@ -119,6 +121,23 @@ class Comic {
     const id = data.id || `comic-${Date.now()}`;
     const slug = data.slug || createSlug(data.title);
     const now = new Date();
+    const isPremium = data.isPremium !== undefined ? !!data.isPremium : !!data.is_premium;
+
+    // Process genres (including Custom "Others" genre)
+    let genreList = [];
+    if (Array.isArray(data.genres)) {
+      genreList = [...data.genres];
+    } else if (typeof data.genres === 'string') {
+      genreList = data.genres.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (data.genre) {
+      if (data.genre === 'Others' && data.customGenre && data.customGenre.trim()) {
+        genreList.push(data.customGenre.trim());
+      } else if (data.genre !== 'Others' && !genreList.includes(data.genre)) {
+        genreList.push(data.genre);
+      }
+    }
+    genreList = [...new Set(genreList.filter(Boolean))];
 
     const comicData = {
       id,
@@ -138,32 +157,31 @@ class Comic {
       creator_id: data.creatorId || data.creator_id || null,
       publish_status: data.publishStatus || data.publish_status || 'published',
       review_note: data.reviewNote || data.review_note || null,
+      is_premium: isPremium,
       created_at: now,
       updated_at: now,
-      genres: data.genres || []
+      genres: genreList
     };
 
     if (db.isPgConnected()) {
       await db.query(
-        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, creator_id, publish_status, review_note, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+        `INSERT INTO comics (id, title, slug, description, author, artist, status, type, cover_image, banner_image, rating, views, release_year, language, creator_id, publish_status, review_note, is_premium, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
         [
           comicData.id, comicData.title, comicData.slug, comicData.description,
           comicData.author, comicData.artist, comicData.status, comicData.type,
           comicData.cover_image, comicData.banner_image, comicData.rating, comicData.views,
-          comicData.release_year, comicData.language, comicData.creator_id, comicData.publish_status, comicData.review_note, comicData.created_at, comicData.updated_at
+          comicData.release_year, comicData.language, comicData.creator_id, comicData.publish_status, comicData.review_note, comicData.is_premium, comicData.created_at, comicData.updated_at
         ]
       );
 
       // Handle genres
-      if (Array.isArray(comicData.genres)) {
-        for (const gName of comicData.genres) {
-          const gId = `genre-${createSlug(gName)}`;
-          await db.query(`INSERT INTO genres (id, name) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, [gId, gName]);
-          const gRes = await db.query(`SELECT id FROM genres WHERE LOWER(name) = LOWER($1)`, [gName]);
-          if (gRes.rows[0]) {
-            await db.query(`INSERT INTO comic_genres (comic_id, genre_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [id, gRes.rows[0].id]);
-          }
+      for (const gName of genreList) {
+        const gId = `genre-${createSlug(gName)}`;
+        await db.query(`INSERT INTO genres (id, name) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, [gId, gName]);
+        const gRes = await db.query(`SELECT id FROM genres WHERE LOWER(name) = LOWER($1)`, [gName]);
+        if (gRes.rows[0]) {
+          await db.query(`INSERT INTO comic_genres (comic_id, genre_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [id, gRes.rows[0].id]);
         }
       }
       return this.findById(id);
@@ -194,6 +212,7 @@ class Comic {
         language: data.language,
         publish_status: data.publishStatus || data.publish_status,
         review_note: data.reviewNote !== undefined ? data.reviewNote : data.review_note,
+        is_premium: data.isPremium !== undefined ? !!data.isPremium : (data.is_premium !== undefined ? !!data.is_premium : undefined),
         updated_at: new Date()
       };
 
@@ -208,9 +227,22 @@ class Comic {
         await db.query(`UPDATE comics SET ${updates.join(', ')} WHERE id = $1`, params);
       }
 
+      let genreList = null;
       if (Array.isArray(data.genres)) {
+        genreList = [...data.genres];
+      }
+      if (data.genre) {
+        genreList = genreList || [];
+        if (data.genre === 'Others' && data.customGenre && data.customGenre.trim()) {
+          genreList.push(data.customGenre.trim());
+        } else if (data.genre !== 'Others' && !genreList.includes(data.genre)) {
+          genreList.push(data.genre);
+        }
+      }
+
+      if (genreList && genreList.length > 0) {
         await db.query(`DELETE FROM comic_genres WHERE comic_id = $1`, [id]);
-        for (const gName of data.genres) {
+        for (const gName of genreList) {
           const gId = `genre-${createSlug(gName)}`;
           await db.query(`INSERT INTO genres (id, name) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING`, [gId, gName]);
           const gRes = await db.query(`SELECT id FROM genres WHERE LOWER(name) = LOWER($1)`, [gName]);
@@ -236,6 +268,8 @@ class Comic {
     if (data.rating !== undefined) target.rating = Number(data.rating);
     if (data.publishStatus || data.publish_status) target.publish_status = data.publishStatus || data.publish_status;
     if (data.reviewNote !== undefined || data.review_note !== undefined) target.review_note = data.reviewNote || data.review_note;
+    if (data.isPremium !== undefined) target.is_premium = !!data.isPremium;
+    if (data.is_premium !== undefined) target.is_premium = !!data.is_premium;
     if (data.genres) target.genres = data.genres;
     target.updated_at = new Date();
 
@@ -291,6 +325,7 @@ class Comic {
       creatorId: row.creator_id || row.creatorId || null,
       publishStatus: row.publish_status || row.publishStatus || 'published',
       reviewNote: row.review_note || row.reviewNote || null,
+      isPremium: !!(row.is_premium || row.isPremium),
       chapterCount: parseInt(row.chapter_count || 0, 10),
       createdAt: row.created_at,
       updatedAt: row.updated_at
