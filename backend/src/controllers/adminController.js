@@ -210,15 +210,37 @@ class AdminController {
   static async deleteUser(req, res, next) {
     try {
       const targetId = req.params.id;
-      if (targetId === req.user.id) return res.status(400).json({ error: 'You cannot delete your own administrator account.' });
-      const user = await User.findById(targetId);
-      if (!user) return res.status(404).json({ error: 'User not found.' });
+      if (!targetId) {
+        return res.status(400).json({ success: false, message: 'User ID is required.' });
+      }
+      if (targetId === req.user.id) {
+        return res.status(400).json({ success: false, message: 'You cannot delete your own administrator account.' });
+      }
 
-      EmailService.sendAccountDeletedEmail(user).catch(e => console.warn('[Email] Account deletion email failed:', e.message));
+      const user = await User.findById(targetId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      // Send account deletion email notification safely (email failure does NOT break DB deletion)
+      try {
+        if (typeof EmailService.sendAccountDeletedEmail === 'function') {
+          EmailService.sendAccountDeletedEmail(user).catch(e => console.warn('[Email] Account deletion email failed:', e.message));
+        }
+      } catch (emailErr) {
+        console.warn('[Email] Account deletion email exception:', emailErr.message);
+      }
 
       const deleted = await User.deleteById(targetId);
-      if (!deleted) return res.status(404).json({ error: 'User not found.' });
-      res.json({ message: 'User account deleted successfully.', user: deleted });
+      if (!deleted) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'User deleted successfully',
+        user: deleted
+      });
     } catch (e) {
       next(e);
     }

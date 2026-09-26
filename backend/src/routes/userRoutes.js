@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/userController');
+const AdminController = require('../controllers/adminController');
 const { authMiddleware } = require('../middleware/authMiddleware');
+const adminMiddleware = require('../middleware/adminMiddleware');
 
 router.use(authMiddleware);
 
@@ -23,5 +25,8 @@ router.delete('/me/favorites/:comicId', UserController.removeFavorite);
 
 router.get('/me/history', UserController.getHistory);
 router.post('/me/history', UserController.saveHistory);
+
+// Admin User Deletion under /api/users/:id
+router.delete('/:id', adminMiddleware, AdminController.deleteUser);
 
 module.exports = router;

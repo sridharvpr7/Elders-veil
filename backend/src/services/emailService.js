@@ -213,6 +213,70 @@ class EmailService {
   static sendSecurityNoticeEmail(user, message) {
     return this.sendTemplate('securityNotice', { to: user.email, values: { username: user.username, message } });
   }
+
+  // 15. Account Deleted Email
+  static sendAccountDeletedEmail(userOrEmail) {
+    const to = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
+    const username = (typeof userOrEmail === 'object' && userOrEmail?.username) ? userOrEmail.username : 'User';
+    if (!to) {
+      return Promise.resolve({ sent: false, reason: 'Recipient email address is required.' });
+    }
+    return this.sendTemplate('securityNotice', {
+      to,
+      values: {
+        username,
+        message: 'Your Elder\'s Veil account has been deleted by an administrator. If you believe this was done in error, please contact support.'
+      }
+    });
+  }
+
+  // 16. Admin Promoted Email
+  static sendAdminPromotedEmail(user) {
+    return this.sendTemplate('securityNotice', {
+      to: user.email,
+      values: {
+        username: user.username,
+        message: 'Your Elder\'s Veil account has been promoted to Administrator.'
+      }
+    });
+  }
+
+  // 17. Admin Removed Email
+  static sendAdminRemovedEmail(user) {
+    return this.sendTemplate('securityNotice', {
+      to: user.email,
+      values: {
+        username: user.username,
+        message: 'Your Administrator privileges on Elder\'s Veil have been updated.'
+      }
+    });
+  }
+
+  // 18. Chapter Approved Email
+  static sendChapterApprovedEmail(user, comic, chapter) {
+    const chNum = chapter.chapterNumber || chapter.chapter_number || 1;
+    return this.sendTemplate('comicApproved', {
+      to: user.email,
+      values: {
+        username: user.username,
+        comicTitle: `${comic.title} (Chapter ${chNum})`,
+        comicId: comic.id
+      }
+    });
+  }
+
+  // 19. Chapter Rejected Email
+  static sendChapterRejectedEmail(user, comic, chapter, reason) {
+    const chNum = chapter.chapterNumber || chapter.chapter_number || 1;
+    return this.sendTemplate('comicRejected', {
+      to: user.email,
+      values: {
+        username: user.username,
+        comicTitle: `${comic.title} (Chapter ${chNum})`,
+        reason: reason || 'Review feedback'
+      }
+    });
+  }
 }
 
 module.exports = EmailService;
