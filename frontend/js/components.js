@@ -37,9 +37,9 @@ function renderNavbar(activePage = 'home') {
 
           ${isLoggedIn ? `
             <div class="user-menu">
-              <button class="user-avatar-btn" id="user-menu-btn">
+              <button class="user-avatar-btn" id="user-menu-btn" aria-label="Account Menu">
                 <img src="${userAvatar}" class="avatar-img" alt="User" />
-                <span style="font-weight:600; font-size:0.9rem;">${user ? user.username : 'Account'}</span>
+                <span class="user-username-label" style="font-weight:600; font-size:0.9rem;">${user ? user.username : 'Account'}</span>
                 <i class="fas fa-chevron-down" style="font-size:0.75rem; color:var(--text-muted);"></i>
               </button>
               <div class="dropdown-menu" id="user-dropdown-menu">
@@ -58,21 +58,87 @@ function renderNavbar(activePage = 'home') {
               </div>
             </div>
           ` : `
-            <div style="display:flex; gap:0.75rem;">
+            <div class="nav-auth-buttons" style="display:flex; gap:0.75rem;">
               <a href="/login.html" class="btn btn-secondary btn-sm">Sign In</a>
               <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
             </div>
           `}
+
+          <!-- Mobile Hamburger Toggle -->
+          <button class="mobile-toggle" id="mobile-nav-toggle" aria-label="Open Mobile Menu">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
       </div>
     </nav>
+
+    <!-- Mobile Drawer Overlay & Panel -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+    <aside class="mobile-nav-drawer" id="mobile-nav-drawer">
+      <div class="mobile-drawer-header">
+        <a href="/index.html" class="navbar-logo">
+          <i class="fas fa-book-open"></i>
+          <span>ELDER'S <span class="text-gradient">VEIL</span></span>
+        </a>
+        <button class="mobile-close-btn" id="mobile-nav-close" aria-label="Close Mobile Menu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="mobile-drawer-body">
+        <div class="mobile-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="mobile-search-input" placeholder="Search title, author, genre..." />
+        </div>
+
+        ${isLoggedIn ? `
+          <div class="mobile-user-card">
+            <img src="${userAvatar}" class="avatar-img" alt="Avatar" />
+            <div class="mobile-user-details">
+              <strong>${user ? user.username : 'User'}</strong>
+              <small>${user ? user.email : ''}</small>
+              ${premiumBadge ? `<div style="margin-top:0.2rem;">${premiumBadge}</div>` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="mobile-drawer-nav">
+          <div class="mobile-nav-section-title">Navigation</div>
+          <a href="/index.html" class="mobile-nav-link ${activePage === 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+          <a href="/comics.html" class="mobile-nav-link ${activePage === 'comics' ? 'active' : ''}"><i class="fas fa-book"></i> Comics</a>
+          <a href="/categories.html" class="mobile-nav-link ${activePage === 'categories' ? 'active' : ''}"><i class="fas fa-tags"></i> Genres</a>
+          <a href="/popular.html" class="mobile-nav-link ${activePage === 'popular' ? 'active' : ''}"><i class="fas fa-fire"></i> Popular</a>
+          <a href="/latest.html" class="mobile-nav-link ${activePage === 'latest' ? 'active' : ''}"><i class="fas fa-clock"></i> Latest</a>
+
+          ${isLoggedIn ? `
+            <div class="mobile-nav-section-title">My Account</div>
+            <a href="/dashboard.html" class="mobile-nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/bookmarks.html" class="mobile-nav-link"><i class="fas fa-bookmark"></i> Bookmarks</a>
+            <a href="/favorites.html" class="mobile-nav-link"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="/history.html" class="mobile-nav-link"><i class="fas fa-history"></i> Reading History</a>
+            <a href="/profile.html" class="mobile-nav-link"><i class="fas fa-user-cog"></i> Profile Settings</a>
+            ${canCreate ? `<a href="/creator/dashboard.html" class="mobile-nav-link"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
+            ${canAdminUpload ? `<a href="/admin/upload.html" class="mobile-nav-link"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
+            ${isAdmin ? `
+              <a href="/admin/index.html" class="mobile-nav-link admin-highlight"><i class="fas fa-user-shield"></i> Admin Portal</a>
+            ` : ''}
+            <button class="mobile-nav-link danger" id="mobile-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          ` : `
+            <div class="mobile-auth-actions">
+              <a href="/login.html" class="btn btn-secondary" style="width:100%"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+              <a href="/register.html" class="btn btn-primary" style="width:100%"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+          `}
+        </div>
+      </div>
+    </aside>
   `;
 
   const headerEl = document.getElementById('app-header');
   if (headerEl) {
     headerEl.innerHTML = html;
     
-    // Bind search input Enter key
+    // Bind desktop search input Enter key
     const searchInput = document.getElementById('global-search-input');
     if (searchInput) {
       searchInput.addEventListener('keydown', (e) => {
@@ -82,7 +148,7 @@ function renderNavbar(activePage = 'home') {
       });
     }
 
-    // Bind User Dropdown Toggle
+    // Bind User Dropdown Toggle (Desktop)
     const menuBtn = document.getElementById('user-menu-btn');
     const dropdownMenu = document.getElementById('user-dropdown-menu');
     if (menuBtn && dropdownMenu) {
@@ -93,10 +159,65 @@ function renderNavbar(activePage = 'home') {
       document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
     }
 
-    // Bind Logout
+    // Bind Desktop Logout
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => Auth.logout());
+    }
+
+    // Bind Mobile Drawer Controls
+    const mobileToggle = document.getElementById('mobile-nav-toggle');
+    const mobileClose = document.getElementById('mobile-nav-close');
+    const mobileOverlay = document.getElementById('mobile-nav-overlay');
+    const mobileDrawer = document.getElementById('mobile-nav-drawer');
+
+    const openDrawer = () => {
+      if (mobileDrawer && mobileOverlay) {
+        mobileDrawer.classList.add('open');
+        mobileOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    };
+
+    const closeDrawer = () => {
+      if (mobileDrawer && mobileOverlay) {
+        mobileDrawer.classList.remove('open');
+        mobileOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    };
+
+    if (mobileToggle) mobileToggle.addEventListener('click', openDrawer);
+    if (mobileClose) mobileClose.addEventListener('click', closeDrawer);
+    if (mobileOverlay) mobileOverlay.addEventListener('click', closeDrawer);
+
+    // Close drawer when clicking any link inside drawer
+    if (mobileDrawer) {
+      mobileDrawer.querySelectorAll('a, button').forEach(el => {
+        if (el.id !== 'mobile-nav-close' && el.id !== 'mobile-search-input') {
+          el.addEventListener('click', closeDrawer);
+        }
+      });
+    }
+
+    // Mobile Search Input Enter Key
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    if (mobileSearchInput) {
+      mobileSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && mobileSearchInput.value.trim() !== '') {
+          closeDrawer();
+          window.location.href = `/search.html?q=${encodeURIComponent(mobileSearchInput.value.trim())}`;
+        }
+      });
+    }
+
+    // Mobile Logout Button
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', () => {
+        closeDrawer();
+        Auth.logout();
+      });
     }
   }
 }

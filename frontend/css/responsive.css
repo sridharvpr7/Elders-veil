@@ -1,50 +1,637 @@
-@media (max-width: 1024px) {
-  .hero-title {
-    font-size: 2.2rem;
+/* 
+ * Elder's Veil — Commercial Production Mobile & Desktop Responsive Stylesheet
+ * Breakpoints: <=320px, <=360px, <=375px, <=390px, <=414px, <=430px, <=768px, <=1024px
+ */
+
+/* -------------------------------------------------------------------------- */
+/* 1. GLOBAL & CONTAINER RESPONSIVENESS                                      */
+/* -------------------------------------------------------------------------- */
+
+html, body {
+  overflow-x: hidden !important;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Ensure mobile form controls do not trigger iOS Safari auto-zoom (font-size >= 16px) */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
   }
-  .admin-layout {
-    grid-template-columns: 1fr;
-  }
-  .footer-content {
-    grid-template-columns: 1fr 1fr;
+}
+
+/* Container paddings per device width */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 100%;
+    padding: 0 1.25rem;
   }
 }
 
 @media (max-width: 768px) {
-  .nav-links, .nav-search {
-    display: none;
+  .container {
+    padding: 0 1rem;
+  }
+  main {
+    padding-top: 5rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+}
+
+/* Responsive typography & titles */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .section-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. NAVBAR & MOBILE DRAWER TOGGLE                                          */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .nav-links,
+  .nav-search,
+  .user-username-label,
+  .nav-auth-buttons {
+    display: none !important;
   }
   .mobile-toggle {
-    display: block;
+    display: flex !important;
+  }
+  .app-navbar {
+    height: 4rem;
+  }
+  .navbar-logo {
+    font-size: 1.3rem;
+  }
+  .navbar-logo i {
+    font-size: 1.5rem;
+  }
+  .user-avatar-btn {
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. HOME PAGE: HERO BANNER, CONTINUE READING, GENRE PILLS                   */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .hero-banner {
+    min-height: auto;
+    margin-bottom: 2rem;
+    border-radius: var(--radius-md);
   }
   .hero-content {
-    padding: 1.75rem;
+    padding: 1.5rem 1.25rem;
+    max-width: 100%;
   }
   .hero-title {
-    font-size: 1.75rem;
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .hero-desc {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.65rem;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero-meta {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+  .genre-pills {
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .genre-pill {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.82rem;
+  }
+  .continue-reading-section {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+  .continue-card {
+    flex-direction: row;
+    gap: 0.85rem;
+    padding: 0.85rem;
+  }
+  .continue-cover {
+    width: 50px;
+    height: 68px;
+    border-radius: var(--radius-sm);
+  }
+  .continue-info h4 {
+    font-size: 0.95rem;
+  }
+  .continue-info p {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .continue-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .continue-card .btn {
+    width: 100%;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 4. COMIC GRID & CARDS                                                      */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .comic-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .comic-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+  .comic-card {
+    border-radius: var(--radius-md);
+  }
+  .card-content {
+    padding: 0.75rem;
+  }
+  .card-title {
+    font-size: 0.88rem;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+  }
+  .card-meta {
+    font-size: 0.75rem;
+  }
+  .card-badge {
+    top: 0.4rem;
+    left: 0.4rem;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .card-rating {
+    top: 0.4rem;
+    right: 0.4rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.45rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .comic-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+  .card-content {
+    padding: 0.6rem;
+  }
+  .card-title {
+    font-size: 0.82rem;
+  }
+  .card-meta {
+    font-size: 0.7rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .comic-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .card-content {
+    padding: 0.5rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. COMIC DETAIL PAGE                                                      */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .comic-detail-header {
+    min-height: auto;
+    margin-bottom: 1.75rem;
   }
   .comic-detail-content {
     grid-template-columns: 1fr;
+    padding: 1.75rem 1rem;
+    gap: 1.5rem;
     justify-items: center;
     text-align: center;
   }
   .comic-cover-wrap {
-    width: 180px;
+    width: 170px;
+    max-width: 50vw;
+    margin: 0 auto;
+  }
+  .comic-info {
+    align-items: center;
+    width: 100%;
+  }
+  .comic-info-title {
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+  }
+  .comic-meta-row {
+    justify-content: center;
+    font-size: 0.85rem;
+    gap: 0.85rem;
+  }
+  .comic-genres-list {
+    justify-content: center;
   }
   .comic-actions {
     justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.65rem;
   }
-  .comic-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
+  .comic-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
-  .footer-content {
+  .comic-description-box {
+    padding: 1.25rem 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+  }
+  .chapters-section {
+    padding: 1.25rem 1rem;
+  }
+  .chapters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .chapters-list {
     grid-template-columns: 1fr;
+    gap: 0.65rem;
   }
+  .chapter-item {
+    padding: 0.85rem 1rem;
+    min-height: 44px;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 6. COMIC READER PAGE                                                      */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
   .reader-header {
-    padding: 0 1rem;
+    height: 3.8rem;
+    padding: 0 0.85rem;
+  }
+  .reader-title-group {
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
   }
   .reader-comic-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+  }
+  .reader-chapter-title {
+    display: none; /* Hide secondary text on narrow viewports */
+  }
+  .reader-controls {
+    gap: 0.35rem;
+  }
+  .reader-controls .btn-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  .reader-container {
+    margin-top: 4.2rem;
+    margin-bottom: 2rem;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+  }
+  .reader-image-wrap {
+    width: 100%;
+    overflow: hidden;
+  }
+  .reader-image {
+    width: 100%;
+    max-width: 100vw;
+    height: auto;
+    object-fit: contain;
+  }
+  .reader-navigation-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+    margin: 1.5rem auto 3rem;
+  }
+  .reader-navigation-footer .btn {
+    width: 100%;
+  }
+  .page-counter-pill {
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .reader-comic-title {
+    max-width: 90px;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 7. AUTHENTICATION PAGES (LOGIN, REGISTER, OTP, RESET)                      */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .auth-wrapper {
+    padding: 1rem 0.5rem;
+    min-height: auto;
+  }
+  .auth-card {
+    padding: 1.5rem 1rem;
+    border-radius: var(--radius-md);
+    width: 100%;
+    max-width: 100%;
+  }
+  .auth-title {
+    font-size: 1.5rem;
+  }
+  .auth-subtitle {
+    font-size: 0.85rem;
+  }
+  /* OTP boxes fit 320px screens cleanly */
+  #otp, #reset-otp {
+    font-size: 1.6rem !important;
+    letter-spacing: 0.35rem !important;
+    text-align: center;
+    padding: 0.65rem 0.5rem !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 8. USER DASHBOARD & PROFILE                                               */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+  }
+  .profile-avatar-xl {
+    width: 85px;
+    height: 85px;
+  }
+  .profile-info h2 {
+    font-size: 1.4rem;
+  }
+  .profile-grid-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    white-space: nowrap;
+    gap: 0.4rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .tab-btn {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .history-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+  .history-card .btn {
+    width: 100%;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 9. PREMIUM PAGE                                                           */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .premium-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .premium-card {
+    padding: 1.5rem 1.25rem;
+  }
+  .premium-card .btn {
+    width: 100%;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 10. ADMIN PORTAL & CREATOR STUDIO                                         */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .admin-sidebar {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.65rem;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+  }
+  .admin-nav-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    border-left: none !important;
+    border-bottom: 2px solid transparent;
+  }
+  .admin-nav-item.active {
+    border-bottom-color: var(--accent-purple);
+    background: var(--bg-tertiary);
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-val {
+    font-size: 1.6rem;
+  }
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+}
+
+/* Data Tables Responsive Horizontal Scroll Wrapper */
+.data-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  display: block;
+}
+
+.data-table {
+  min-width: 640px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .data-table th, .data-table td {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 11. MODAL RESPONSIVENESS                                                  */
+/* -------------------------------------------------------------------------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-fast);
+}
+
+.modal-overlay.show, .modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  width: calc(100vw - 2rem);
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    width: calc(100vw - 1rem);
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 12. FOOTER RESPONSIVENESS                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .footer-brand p {
+    max-width: 100%;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
   }
 }
