@@ -1,3 +1,11 @@
+function getUserManualUrl() {
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  const base = window.location.hostname.endsWith('github.io') && parts.length
+    ? `/${parts[0]}/`
+    : '/';
+  return `${base}user-manual/index.html`;
+}
+
 function renderNavbar(activePage = 'home') {
   const user = Auth.getUser();
   const premiumActive = !!(user && user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()));
@@ -25,7 +33,7 @@ function renderNavbar(activePage = 'home') {
             <a href="/categories.html" class="nav-link ${activePage === 'categories' ? 'active' : ''}">Genres</a>
             <a href="/popular.html" class="nav-link ${activePage === 'popular' ? 'active' : ''}">Popular</a>
             <a href="/latest.html" class="nav-link ${activePage === 'latest' ? 'active' : ''}">Latest</a>
-            <a href="/user-manual/index.html"
+            <a href="${getUserManualUrl()}"
    class="nav-link"
    target="_blank"
    rel="noopener noreferrer">
@@ -115,7 +123,7 @@ function renderNavbar(activePage = 'home') {
           <a href="/categories.html" class="mobile-nav-link ${activePage === 'categories' ? 'active' : ''}"><i class="fas fa-tags"></i> Genres</a>
           <a href="/popular.html" class="mobile-nav-link ${activePage === 'popular' ? 'active' : ''}"><i class="fas fa-fire"></i> Popular</a>
           <a href="/latest.html" class="mobile-nav-link ${activePage === 'latest' ? 'active' : ''}"><i class="fas fa-clock"></i> Latest</a>
-          <a href="/user-manual/index.html"
+          <a href="${getUserManualUrl()}"
    class="mobile-nav-link"
    target="_blank"
    rel="noopener noreferrer">
@@ -278,7 +286,7 @@ function renderFooter() {
               <a href="/admin/index.html">Admin Portal</a>
 
               <!-- User Manual -->
-              <a href="/user-manual/index.html"
+              <a href="${getUserManualUrl()}"
                  target="_blank"
                  rel="noopener noreferrer">
                 <i class="fas fa-book-open"></i> User Manual
