@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elder's Veil — User Manual</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{
+  --bg-primary:#0b0b0f;--bg-secondary:#15151d;--bg-card:#1b1b24;--border:#2a2a35;
+  --text:#ffffff;--text-secondary:#a8a8b3;--accent:#8b5cf6;--accent2:#a855f7;
+  --success:#22c55e;--warn:#f59e0b;--err:#ef4444;
+  --radius:12px;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+:root:not([data-theme="light"]){}
+:root[data-theme="light"]{
+  --bg-primary:#f7f6fb;--bg-secondary:#ffffff;--bg-card:#ffffff;--border:#e4e1ee;
+  --text:#17141f;--text-secondary:#615c72;--accent:#7c3aed;--accent2:#9333ea;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg-primary);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;transition:background .2s,color .2s}
+a{color:inherit;text-decoration:none}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 20px 12px;background:rgba(11,11,15,.85);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+:root[data-theme="light"] header{background:rgba(255,255,255,.85)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;white-space:nowrap}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand small{display:block;font-weight:500;color:var(--text-secondary);font-size:11px}
+.searchbox{flex:1;max-width:520px;margin:0 auto;position:relative}
+.searchbox input{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:10px 40px 10px 14px;font-size:14px}
+.searchbox kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-secondary);
+  border:1px solid var(--border);border-radius:5px;padding:2px 5px}
+.hbtn{background:var(--bg-card);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:8px 12px;
+  font-size:13px;cursor:pointer;white-space:nowrap}
+.menu-btn,.search-icon-btn{display:none}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr) 220px;gap:0;max-width:1400px;margin:0 auto}
+nav.sidebar{padding:22px 14px;border-right:1px solid var(--border);position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.progress-wrap{margin-bottom:16px;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius)}
+.progress-wrap .label{font-size:12px;color:var(--text-secondary);margin-bottom:6px;display:flex;justify-content:space-between}
+.bar{height:6px;border-radius:4px;background:var(--border);overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.cat{margin-bottom:6px}
+.cat-title{font-size:11px;letter-spacing:.06em;color:var(--text-secondary);text-transform:uppercase;padding:12px 10px 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13.5px;color:var(--text-secondary);cursor:pointer}
+.navitem:hover{background:var(--bg-card)}
+.navitem.active{background:var(--bg-card);color:var(--text);box-shadow:inset 3px 0 0 var(--accent)}
+.navitem .dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.navitem.done .dot{background:var(--success)}
+
+main{padding:32px 40px;min-width:0}
+.crumb{font-size:12.5px;color:var(--text-secondary);margin-bottom:14px}
+.crumb b{color:var(--text)}
+h1.pagetitle{font-size:30px;margin:0 0 8px;letter-spacing:-.01em}
+.meta-row{display:flex;gap:14px;color:var(--text-secondary);font-size:12.5px;margin-bottom:26px;flex-wrap:wrap}
+.desc{color:var(--text-secondary);font-size:15.5px;margin-bottom:6px}
+.content h2{font-size:20px;margin:32px 0 12px;scroll-margin-top:70px}
+.content h2:first-child{margin-top:0}
+.content p{line-height:1.7;color:var(--text-secondary);font-size:15px}
+.box{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin:16px 0;font-size:14.5px}
+.box b{display:block;margin-bottom:4px}
+.box.tip{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3)}
+.box.tip b{color:var(--accent2)}
+.box.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.35)}
+.box.warn b{color:var(--warn)}
+.box.success{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.35)}
+.box.success b{color:var(--success)}
+.box.err{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.35)}
+.box.err b{color:var(--err)}
+.steps{counter-reset:s;margin:18px 0}
+.step{display:flex;gap:14px;padding:12px 0;border-bottom:1px dashed var(--border)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:var(--bg-card);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--accent2)}
+.step .t{font-weight:600;font-size:14.5px;margin-bottom:2px}
+.step .d{color:var(--text-secondary);font-size:14px;line-height:1.6}
+ul.plain{color:var(--text-secondary);font-size:14.5px;line-height:1.8;padding-left:20px}
+.shot{border:1px dashed var(--border);border-radius:var(--radius);padding:34px 16px;text-align:center;color:var(--text-secondary);
+  font-size:13.5px;background:var(--bg-card);margin:16px 0}
+.faq details{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;background:var(--bg-card)}
+.faq summary{cursor:pointer;font-weight:600;font-size:14.5px}
+.faq p{margin:10px 0 0}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:44px;padding-top:20px;border-top:1px solid var(--border)}
+.pager a{flex:1;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13.5px}
+.pager a:hover{background:var(--bg-card)}
+.pager .lbl{color:var(--text-secondary);font-size:11px;text-transform:uppercase}
+.pager .r{text-align:right}
+.markdone{margin-top:26px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;font-size:13.5px;cursor:pointer;width:fit-content;color:var(--text-secondary)}
+.markdone.on{color:var(--success);border-color:rgba(34,197,94,.4)}
+
+/* TOC */
+.toc{position:sticky;top:64px;height:fit-content;padding:26px 18px;font-size:13px}
+.toc .h{color:var(--text-secondary);text-transform:uppercase;font-size:11px;letter-spacing:.06em;margin-bottom:10px}
+.toc a{display:block;padding:5px 0;color:var(--text-secondary);border-left:2px solid transparent;padding-left:10px}
+.toc a.active{color:var(--accent2);border-color:var(--accent2)}
+
+/* Command palette */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:12vh}
+.overlay.show{display:flex}
+.palette{width:min(600px,92vw);background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.palette input{width:100%;border:none;background:transparent;color:var(--text);font-size:16px;padding:16px 18px;border-bottom:1px solid var(--border)}
+.palette input:focus{outline:none}
+.presults{max-height:50vh;overflow-y:auto;padding:6px}
+.presult{padding:11px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.presult .p{font-size:11.5px;color:var(--text-secondary)}
+.presult:hover,.presult.sel{background:var(--bg-card)}
+
+/* mobile drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49;display:none}
+.scrim.show{display:block}
+
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  nav.sidebar{position:fixed;left:0;top:0;bottom:0;width:78vw;max-width:300px;background:var(--bg-primary);z-index:50;
+    transform:translateX(-100%);transition:transform .25s;height:100vh;padding-top:calc(env(safe-area-inset-top,0px)+18px)}
+  nav.sidebar.open{transform:translateX(0)}
+  .toc{display:none}
+  main{padding:22px 16px 60px}
+  .searchbox{display:none}
+  .menu-btn,.search-icon-btn{display:inline-flex;align-items:center;justify-content:center}
+  h1.pagetitle{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="hbtn menu-btn" id="menuBtn">☰</button>
+  <div class="brand"><div class="mark">👁</div><div><div>Elder's Veil</div><small>User Manual</small></div></div>
+  <div class="searchbox"><input id="searchInput" placeholder="Search the Elder's Veil manual..."><kbd>Ctrl K</kbd></div>
+  <button class="hbtn search-icon-btn" id="searchIconBtn">🔍</button>
+  <button class="hbtn" id="themeBtn">🌙</button>
+  <a class="hbtn" href="#" id="backLink">← Back to Elder's Veil</a>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar">
+    <div class="progress-wrap"><div class="label"><span>Your progress</span><span id="progPct">0%</span></div>
+      <div class="bar"><i id="progBar" style="width:0%"></i></div></div>
+    <div id="navTree"></div>
+  </nav>
+
+  <main id="mainArea"></main>
+
+  <aside class="toc" id="tocArea"></aside>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="palette">
+    <input id="paletteInput" placeholder="Search documentation or jump to a section...">
+    <div class="presults" id="paletteResults"></div>
+  </div>
+</div>
+
+<script>
+/* ============ CONTENT (JSON-driven; edit this object to update the manual) ============ */
+const DOCS = [
+{id:"getting-started",title:"Getting Started",pages:[
+ {id:"welcome",title:"Welcome to Elder's Veil",time:"2 min",desc:"What Elder's Veil is and what you can do here.",
+  content:[
+   {h:"What is Elder's Veil"},
+   {p:"Elder's Veil is a comic and anime reading platform where you can browse a growing library, read chapters online, keep track of what you've read, and — if you're a creator — publish your own comics for others to enjoy."},
+   {tip:"New here?",t:"Jump straight to Creating an Account, or use the Quick Start steps below."},
+   {h:"What you can do"},
+   {ul:["Browse and search comics by title, genre and status","Read chapters in a distraction-free reader","Bookmark, favorite and track your reading history","Like, rate, follow and comment on comics","Request Premium access for exclusive titles","Upload your own comics as a Creator (subject to admin review)","Install Elder's Veil as an app on your phone or computer"]},
+   {h:"Start reading in a few steps"},
+   {steps:[["Create your account","Sign up with a username, email and mobile number."],["Verify your email","Enter the 6-digit code sent to your inbox."],["Browse the library","Explore Latest, Popular or search for a title."],["Open a comic and start reading","Pick a chapter and begin — your progress is saved automatically."]]}
+  ]},
+ {id:"create-account",title:"Creating an Account",time:"2 min",desc:"Sign up with your username, email, mobile number and password.",
+  content:[
+   {h:"Before you start"},
+   {p:"You'll need a valid email address (for verification) and a mobile number. Registration is free."},
+   {h:"Creating your account"},
+   {steps:[["Open the Register page","Tap Sign Up from the login screen or navbar."],["Fill in your details","Username (3–30 characters), email address, mobile number, and a password of at least 6 characters, then confirm it."],["Submit the form","An Email OTP field appears — a 6-digit code is sent to your email."],["Enter the code","Type the 6-digit code into the Email OTP field to finish registering."]]},
+   {box:"success",t:"Success",d:"Once verified, you're signed in automatically and taken to your dashboard."},
+   {box:"warn",t:"Important",d:"Use a real email address — it's the only way to verify your account and reset your password later."}
+  ]},
+ {id:"login",title:"Logging In",time:"1 min",desc:"Sign in with your email and password.",
+  content:[
+   {h:"Signing in"},
+   {steps:[["Open the Login page","Available from the navbar on any page."],["Enter your email and password","The same ones you registered with."],["Submit","You'll land on your dashboard if the sign-in succeeds."]]},
+   {box:"tip",t:"Tip",d:"If your account hasn't been verified yet, you'll be asked to enter your Email OTP again before continuing."}
+  ]},
+ {id:"verify-email",title:"Account Verification",time:"1 min",desc:"Confirm your email address with a 6-digit code.",
+  content:[
+   {h:"Verifying your email"},
+   {p:"After registering, a 6-digit verification code is emailed to you. Enter it on the Verify Email screen to activate your account."},
+   {steps:[["Check your inbox","Look for the Elder's Veil verification email."],["Enter the 6-digit code","Type it into the Verification Code field."],["Tap Verify Email","Your session starts immediately on success."]]},
+   {box:"tip",t:"Didn't get a code?",d:"Use the Resend Code button on the same screen to request a new one."}
+  ]},
+ {id:"forgot-password",title:"Password Reset",time:"2 min",desc:"Recover access if you forget your password.",
+  content:[
+   {h:"Resetting a forgotten password"},
+   {steps:[["Go to Forgot Password","Linked from the Login page."],["Enter your account email","Submit to request a reset."],["Follow the reset flow","Use the Reset Password screen to set a new password."],["Log in","Sign in with your new password."]]},
+   {box:"warn",t:"Security",d:"Never share a reset code or link with anyone else, including someone claiming to be Elder's Veil support."}
+  ]}
+]},
+
+{id:"discovering",title:"Discovering Comics",pages:[
+ {id:"browse",title:"Browsing Comics",time:"2 min",desc:"Find comics through Home, Latest, Popular and Categories.",
+  content:[
+   {h:"Ways to browse"},
+   {ul:["Home — a curated overview of the library","Latest — recently added or updated comics","Popular — comics ranked by engagement","Categories — browse by genre"]},
+   {shot:"Homepage with Latest and Popular comic rows"}
+  ]},
+ {id:"search-filter",title:"Search & Filters",time:"2 min",desc:"Find a specific title or narrow the library by genre and status.",
+  content:[
+   {h:"Searching"},
+   {p:"Use the Search page to look up comics by title. Results update as you refine your query."},
+   {h:"Filtering"},
+   {p:"Combine search with genre and status filters (e.g. Ongoing, Completed) to narrow results to exactly what you're after."}
+  ]},
+ {id:"comic-details",title:"Comic Details",time:"2 min",desc:"What you'll find on a comic's details page.",
+  content:[
+   {h:"On this page"},
+   {ul:["Cover image, title, author and artist","Genre tags and average rating","A Premium badge on Premium-only titles","Synopsis / description","Chapter list","Bookmark, Favorite, Like, Follow and Rate actions","A Comments section at the bottom"]}
+  ]}
+]},
+
+{id:"reading",title:"Reading",pages:[
+ {id:"reader",title:"The Comic Reader & Chapter Navigation",time:"3 min",desc:"How to read chapters and move between them.",
+  content:[
+   {h:"Opening a chapter"},
+   {p:"From a comic's details page, choose a chapter to open it in the reader."},
+   {h:"Keyboard shortcuts (desktop)"},
+   {ul:["← Left Arrow — previous chapter","→ Right Arrow — next chapter","Fullscreen button — toggle fullscreen reading"]},
+   {box:"warn",t:"Only real shortcuts shown",d:"These are the shortcuts currently built into the reader — no others are implemented yet."},
+   {box:"err",t:"Premium Comic Access Required",d:"If a chapter belongs to a Premium comic and you don't have Premium access, the reader shows this message instead of the pages. See the Premium section to request access."}
+  ]},
+ {id:"continue-history",title:"Continue Reading & Reading History",time:"2 min",desc:"Pick up where you left off and review what you've read.",
+  content:[
+   {h:"Continue Reading"},
+   {p:"Elder's Veil remembers your last-read chapter for every comic so you can jump straight back in from your Dashboard."},
+   {h:"Reading History"},
+   {p:"Visit the History page to see a chronological list of comics and chapters you've read."}
+  ]},
+ {id:"bookmarks-favorites",title:"Bookmarks & Favorites",time:"2 min",desc:"Save comics for later or mark your favorites.",
+  content:[
+   {h:"Bookmarking a comic"},
+   {p:"On a comic's details page, tap Bookmark to save it to your Bookmarks list, or tap again to remove it."},
+   {h:"Favoriting a comic"},
+   {p:"Tap Favorite to add a comic to your Favorites — a quick way to flag the titles you love most, separate from your reading queue."}
+  ]}
+]},
+
+{id:"community",title:"Community",pages:[
+ {id:"engagement",title:"Likes, Ratings & Following",time:"2 min",desc:"Show appreciation and keep up with comics you care about.",
+  content:[
+   {ul:["Like — tap Like on a comic's details page; tap again to unlike","Rate — submit a numeric rating for a comic","Follow — follow a comic to keep it easy to find again"]}
+  ]},
+ {id:"comments-notifications",title:"Comments & Notifications",time:"3 min",desc:"Join the conversation and manage what you're notified about.",
+  content:[
+   {h:"Comments"},
+   {p:"Every comic has a Comments section. Write a comment (up to 2000 characters) and tap Post Comment. You'll need to be signed in to comment, like, follow or rate."},
+   {h:"Notifications"},
+   {p:"The Notifications page lists updates such as new chapters, marking each as read individually."},
+   {h:"Notification preferences"},
+   {ul:["New comic email","New chapter email","In-app notifications"]},
+   {box:"tip",t:"Tip",d:"Preferences are saved from the Notifications page and apply immediately."}
+  ]}
+]},
+
+{id:"premium",title:"Premium",pages:[
+ {id:"premium-overview",title:"What Is Premium?",time:"2 min",desc:"Unlock exclusive comics and early chapter access.",
+  content:[
+   {p:"Premium membership unlocks comics and chapters marked Premium in the library, and displays a Premium badge on your profile."},
+   {box:"warn",t:"Important",d:"Premium payments are currently unavailable. Premium access is activated manually by the administrator after you submit a request."}
+  ]},
+ {id:"request-premium",title:"Requesting Premium",time:"2 min",desc:"How to request Premium and what happens next.",
+  content:[
+   {h:"Requesting access"},
+   {steps:[["Open the Premium page","Sign in first if you haven't already."],["Tap Request Premium","Your request is sent to the admin team."],["Wait for review","Your status shows as Request Pending Approval."],["Check your status","Approved requests unlock Premium immediately; rejected requests can be re-submitted."]]},
+   {h:"Status meanings"},
+   {ul:["No request yet — you'll see a Request Premium button","Pending — your request is awaiting admin review","Approved / Active — Premium is unlocked on your account","Rejected — you may submit a new request"]}
+  ]}
+]},
+
+{id:"creators",title:"Creators",pages:[
+ {id:"become-creator",title:"Creator Dashboard & Uploading a Comic",time:"3 min",desc:"Publish your own comics on Elder's Veil.",
+  content:[
+   {h:"The Creator Dashboard"},
+   {p:"Creators get a dashboard for managing their own comics and chapters, separate from the public reading experience."},
+   {h:"Uploading a new comic"},
+   {p:"Required and optional fields when adding a comic:"},
+   {ul:["Comic Title","Type (e.g. comic / manhwa / manga)","Author name and Artist name","Status (e.g. Ongoing / Completed)","Rating (0–5.0)","Genre tag(s)","Premium toggle — mark the comic as Premium-only","Description / synopsis","Cover image file and Banner image file"]}
+  ]},
+ {id:"upload-chapters",title:"Uploading Chapters",time:"2 min",desc:"Add chapters to one of your comics.",
+  content:[
+   {steps:[["Choose the target comic","Select which of your comics the chapter belongs to."],["Set the chapter number","Chapters are ordered by this number."],["Add a chapter title (optional)","Give the chapter a name if you'd like."],["Upload the pages","Add the chapter's page images (JPG, PNG or WEBP), in multiple pages."]]}
+  ]},
+ {id:"review-process",title:"Submission & Admin Review",time:"2 min",desc:"What happens after you submit a comic or chapter.",
+  content:[
+   {h:"The review pipeline"},
+   {steps:[["Submit","Your comic or chapter enters the review queue as Pending."],["Admin review","An admin previews the submission."],["One of three outcomes","Approve & Publish, Request Changes (with a note for you), or Reject (with a reason)."],["Published","Approved submissions become visible to all readers."]]},
+   {box:"warn",t:"Important",d:"A comic or chapter you upload is NOT visible to other readers until an admin approves it."}
+  ]}
+]},
+
+{id:"account",title:"Account",pages:[
+ {id:"profile-settings",title:"Profile & Account Settings",time:"2 min",desc:"Manage your public profile and account details.",
+  content:[
+   {p:"Your Profile page shows your account details and Premium status. Use it to review and update your information."}
+  ]},
+ {id:"security",title:"Security & Changing Your Password",time:"2 min",desc:"Keep your account safe.",
+  content:[
+   {h:"Security tips"},
+   {ul:["Never share your password","Use a strong, unique password","Never share a verification or reset code with anyone","Log out on shared or public devices"]},
+   {p:"To change your password while signed in, use the password option on your account/profile settings."}
+  ]}
+]},
+
+{id:"pwa",title:"PWA / App",pages:[
+ {id:"install-pwa",title:"Installing Elder's Veil",time:"3 min",desc:"Install Elder's Veil as an app on desktop, Android or iPhone.",
+  content:[
+   {h:"Desktop (Chrome / Edge)"},
+   {steps:[["Open Elder's Veil in your browser",""],["Look for the Install App button or the browser's install icon in the address bar",""],["Confirm the install","The app opens in its own window and appears in your app launcher."]]},
+   {h:"Android (Chrome)"},
+   {steps:[["Open Elder's Veil in Chrome",""],["Tap Install App when it appears (or the browser menu's Add to Home Screen)",""],["Confirm","The app icon appears on your home screen."]]},
+   {h:"iPhone (Safari)"},
+   {steps:[["Open Elder's Veil in Safari",""],["Tap the Share icon",""],["Choose Add to Home Screen",""]]},
+   {box:"tip",t:"Already installed?",d:"The Install App button automatically hides once Elder's Veil is running as an installed app (standalone mode)."}
+  ]}
+]},
+
+{id:"troubleshooting",title:"Troubleshooting",pages:[
+ {id:"troubleshooting",title:"Troubleshooting",time:"3 min",desc:"Solutions for the most common issues.",
+  content:[
+   {h:"I can't log in"},
+   {ul:["Double-check your email and password","Make sure your account is verified (check for an Email OTP prompt)","Use Forgot Password if you don't remember your password"]},
+   {h:"I never got my verification code"},
+   {ul:["Check spam/junk folders","Use Resend Code on the Verify Email screen","Make sure you registered with the correct email"]},
+   {h:"Comics or images aren't loading"},
+   {ul:["Check your internet connection","Refresh the page","Try again shortly — the image may still be uploading"]},
+   {h:"My upload isn't showing up"},
+   {ul:["New comics and chapters need admin approval first — check the review status","Look for a Request Changes note if it was sent back to you"]},
+   {h:"Premium isn't unlocking"},
+   {ul:["Confirm your request shows Approved on the Premium page","Premium is activated manually — allow time for admin review"]},
+   {h:"The Install button isn't showing"},
+   {ul:["It only appears when the app isn't already installed","Not all browsers support installation — try Chrome or Edge"]}
+  ]}
+]},
+
+{id:"support",title:"Support",pages:[
+ {id:"faq",title:"FAQ",time:"2 min",desc:"Quick answers to common questions.",
+  content:[
+   {faq:[
+     ["How do I create an account?","Go to Register and fill in your username, email, mobile number and password, then verify with the emailed code."],
+     ["How do I reset my password?","Use Forgot Password from the Login page."],
+     ["How do I find a comic?","Use Search, or browse Latest, Popular and Categories."],
+     ["How do I continue reading?","Your last-read chapter is available from your Dashboard's Continue Reading section."],
+     ["Where can I find my bookmarks?","On the Bookmarks page, linked from your account area."],
+     ["How do I upload my comic?","Open the Creator Dashboard and use Upload to add a new comic or chapter."],
+     ["Why is my comic not published yet?","New submissions wait for admin review before they're visible to readers."],
+     ["How do I request Premium?","Open the Premium page and tap Request Premium."],
+     ["Why can't I install the app?","The install option depends on your browser; it also hides once the app is already installed."],
+     ["How do I contact support?","See Contact & Support below."]
+   ]}
+  ]},
+ {id:"contact-support",title:"Contact & Support",time:"1 min",desc:"Get help, or review our policies.",
+  content:[
+   {p:"Reach the Elder's Veil team from the Support page for account or technical issues."},
+   {ul:["Support — report a problem or ask a question","Privacy Policy — how your data is handled","Terms of Service — platform terms"]}
+  ]}
+]}
+];
+
+/* ============ RENDER ENGINE ============ */
+const flat = [];
+DOCS.forEach(c=>c.pages.forEach(p=>flat.push({cat:c,page:p})));
+let current = flat[0];
+
+function saveTheme(t){localStorage.setItem('ev_theme',t);document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeBtn').textContent = t==='light' ? '☀️' : '🌙';}
+saveTheme(localStorage.getItem('ev_theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light':'dark'));
+document.getElementById('themeBtn').onclick=()=>saveTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+
+function getDone(){try{return JSON.parse(localStorage.getItem('ev_done')||'{}')}catch(e){return {}}}
+function setDone(id,val){const d=getDone();if(val)d[id]=true;else delete d[id];localStorage.setItem('ev_done',JSON.stringify(d));renderProgress();renderNav();}
+function renderProgress(){const d=getDone();const pct=Math.round(100*Object.keys(d).length/flat.length);
+  document.getElementById('progPct').textContent=pct+'%';document.getElementById('progBar').style.width=pct+'%';}
+
+function renderNav(){
+  const done=getDone();
+  document.getElementById('navTree').innerHTML = DOCS.map(c=>`
+    <div class="cat"><div class="cat-title">${c.title}</div>
+    ${c.pages.map(p=>`<div class="navitem ${p.id===current.page.id?'active':''} ${done[p.id]?'done':''}" data-cat="${c.id}" data-page="${p.id}">
+      <span class="dot"></span>${p.title}</div>`).join('')}
+    </div>`).join('');
+  document.querySelectorAll('.navitem').forEach(el=>el.onclick=()=>{go(el.dataset.cat,el.dataset.page);closeSidebar();});
+}
+
+function block(b){
+  if(b.h) return `<h2 id="${slug(b.h)}">${b.h}</h2>`;
+  if(b.p) return `<p>${b.p}</p>`;
+  if(b.ul) return `<ul class="plain">${b.ul.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+  if(b.tip) return `<div class="box tip"><b>💡 ${b.tip}</b>${b.t}</div>`;
+  if(b.box) return `<div class="box ${b.box}"><b>${b.box==='warn'?'⚠ Important':b.box==='success'?'✓ Success':b.box==='err'?'✕ Troubleshooting':b.box}</b>${b.d}</div>`;
+  if(b.steps) return `<div class="steps">${b.steps.map((s,i)=>`<div class="step"><div class="n">${i+1}</div><div><div class="t">${s[0]}</div><div class="d">${s[1]||''}</div></div></div>`).join('')}</div>`;
+  if(b.shot) return `<div class="shot">🖼️ Screenshot coming soon<br><small>${b.shot}</small></div>`;
+  if(b.faq) return `<div class="faq">${b.faq.map(f=>`<details><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join('')}</div>`;
+  return '';
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
+
+function render(){
+  const {cat,page}=current;
+  const idx=flat.findIndex(f=>f.page.id===page.id);
+  const prev=flat[idx-1], next=flat[idx+1];
+  const done=getDone()[page.id];
+  document.getElementById('mainArea').innerHTML = `
+    <div class="crumb">User Manual / ${cat.title} / <b>${page.title}</b></div>
+    <h1 class="pagetitle">${page.title}</h1>
+    <div class="desc">${page.desc}</div>
+    <div class="meta-row"><span>⏱ ${page.time} read</span><span>Updated Sep 2026</span></div>
+    <div class="content">${page.content.map(block).join('')}</div>
+    <div class="markdone ${done?'on':''}" id="markDone">${done? '✓ Marked as completed' : '○ Mark as completed'}</div>
+    <div class="pager">
+      ${prev?`<a href="#" data-nav="${prev.cat.id}|${prev.page.id}"><div class="lbl">← Previous</div>${prev.page.title}</a>`:'<div></div>'}
+      ${next?`<a href="#" class="r" data-nav="${next.cat.id}|${next.page.id}"><div class="lbl">Next →</div>${next.page.title}</a>`:'<div></div>'}
+    </div>`;
+  document.querySelectorAll('[data-nav]').forEach(el=>el.onclick=(e)=>{e.preventDefault();const[c,p]=el.dataset.nav.split('|');go(c,p);window.scrollTo(0,0);});
+  document.getElementById('markDone').onclick=()=>setDone(page.id, !getDone()[page.id]);
+
+  const heads = page.content.filter(b=>b.h);
+  document.getElementById('tocArea').innerHTML = heads.length? `<div class="h">On this page</div>${heads.map(h=>`<a href="#${slug(h.h)}">${h.h}</a>`).join('')}` : '';
+  window.scrollTo(0,0);
+  renderNav(); renderProgress();
+}
+
+function go(catId,pageId){
+  const c = DOCS.find(x=>x.id===catId); const p = c.pages.find(x=>x.id===pageId);
+  current={cat:c,page:p}; location.hash = catId+'/'+pageId; render();
+}
+
+/* mobile sidebar */
+const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim');
+function openSidebar(){sidebar.classList.add('open');scrim.classList.add('show')}
+function closeSidebar(){sidebar.classList.remove('open');scrim.classList.remove('show')}
+document.getElementById('menuBtn').onclick=openSidebar;
+scrim.onclick=closeSidebar;
+
+/* search + command palette */
+const overlay=document.getElementById('overlay'), paletteInput=document.getElementById('paletteInput'), paletteResults=document.getElementById('paletteResults');
+function openPalette(){overlay.classList.add('show');paletteInput.value='';paletteInput.focus();searchRun('')}
+function closePalette(){overlay.classList.remove('show')}
+document.getElementById('searchInput').onclick=openPalette;
+document.getElementById('searchIconBtn').onclick=openPalette;
+overlay.onclick=(e)=>{if(e.target===overlay)closePalette()};
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();overlay.classList.contains('show')?closePalette():openPalette();}
+  if(e.key==='Escape')closePalette();
+});
+function searchRun(q){
+  q=q.toLowerCase().trim();
+  let matches=[];
+  flat.forEach(f=>{
+    const hay=(f.page.title+' '+f.page.desc+' '+JSON.stringify(f.page.content)).toLowerCase();
+    if(!q || hay.includes(q)) matches.push(f);
+  });
+  matches=matches.slice(0,20);
+  paletteResults.innerHTML = matches.length? matches.map(m=>`<div class="presult" data-cat="${m.cat.id}" data-page="${m.page.id}">${m.page.title}<div class="p">${m.cat.title}</div></div>`).join('')
+    : `<div class="presult" style="color:var(--text-secondary)">No results</div>`;
+  document.querySelectorAll('.presult[data-page]').forEach(el=>el.onclick=()=>{go(el.dataset.cat,el.dataset.page);closePalette();});
+}
+paletteInput.addEventListener('input',()=>searchRun(paletteInput.value));
+
+/* scroll-spy for TOC */
+window.addEventListener('scroll',()=>{
+  const links=[...document.querySelectorAll('.toc a')];
+  if(!links.length)return;
+  let activeIdx=0;
+  document.querySelectorAll('.content h2').forEach((h,i)=>{ if(h.getBoundingClientRect().top < 100) activeIdx=i; });
+  links.forEach((l,i)=>l.classList.toggle('active', i===activeIdx));
+},{passive:true});
+
+/* init from hash */
+(function init(){
+  const h=(location.hash||'').replace('#','');
+  if(h.includes('/')){
+    const[c,p]=h.split('/'); const cat=DOCS.find(x=>x.id===c);
+    if(cat){const pg=cat.pages.find(x=>x.id===p); if(pg) current={cat,page:pg};}
+  }
+  render();
+})();
+</script>
+</body>
+</html>

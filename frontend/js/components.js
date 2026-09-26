@@ -25,6 +25,12 @@ function renderNavbar(activePage = 'home') {
             <a href="/categories.html" class="nav-link ${activePage === 'categories' ? 'active' : ''}">Genres</a>
             <a href="/popular.html" class="nav-link ${activePage === 'popular' ? 'active' : ''}">Popular</a>
             <a href="/latest.html" class="nav-link ${activePage === 'latest' ? 'active' : ''}">Latest</a>
+            <a href="/user-manual/index.html"
+   class="nav-link"
+   target="_blank"
+   rel="noopener noreferrer">
+  <i class="fas fa-book-open"></i> User Manual
+</a>
           </div>
         </div>
 
@@ -109,6 +115,12 @@ function renderNavbar(activePage = 'home') {
           <a href="/categories.html" class="mobile-nav-link ${activePage === 'categories' ? 'active' : ''}"><i class="fas fa-tags"></i> Genres</a>
           <a href="/popular.html" class="mobile-nav-link ${activePage === 'popular' ? 'active' : ''}"><i class="fas fa-fire"></i> Popular</a>
           <a href="/latest.html" class="mobile-nav-link ${activePage === 'latest' ? 'active' : ''}"><i class="fas fa-clock"></i> Latest</a>
+          <a href="/user-manual/index.html"
+   class="mobile-nav-link"
+   target="_blank"
+   rel="noopener noreferrer">
+  <i class="fas fa-book-open"></i> User Manual
+</a>
 
           ${isLoggedIn ? `
             <div class="mobile-nav-section-title">My Account</div>
@@ -227,13 +239,18 @@ function renderFooter() {
     <footer class="app-footer">
       <div class="container">
         <div class="footer-content">
+
           <div class="footer-brand">
             <div class="logo">
               <i class="fas fa-book-open text-gradient"></i>
               <span>ELDER'S VEIL</span>
             </div>
-            <p>The ultimate dark-themed commercial reading destination for HD Manga, Manhwa, and Manhua comics.</p>
+            <p>
+              The ultimate dark-themed commercial reading destination
+              for HD Manga, Manhwa, and Manhua comics.
+            </p>
           </div>
+
           <div class="footer-column">
             <h4>Discovery</h4>
             <div class="footer-links">
@@ -243,6 +260,7 @@ function renderFooter() {
               <a href="/latest.html">Latest Releases</a>
             </div>
           </div>
+
           <div class="footer-column">
             <h4>User Account</h4>
             <div class="footer-links">
@@ -252,27 +270,48 @@ function renderFooter() {
               <a href="/history.html">Reading Progress</a>
             </div>
           </div>
+
           <div class="footer-column">
             <h4>Platform</h4>
             <div class="footer-links">
+
               <a href="/admin/index.html">Admin Portal</a>
+
+              <!-- User Manual -->
+              <a href="/user-manual/index.html"
+                 target="_blank"
+                 rel="noopener noreferrer">
+                <i class="fas fa-book-open"></i> User Manual
+              </a>
+
               <a href="#">Privacy Policy</a>
               <a href="#">Terms of Service</a>
               <a href="#">API Documentation</a>
+
             </div>
           </div>
+
         </div>
+
         <div class="footer-bottom">
-          <span>&copy; ${new Date().getFullYear()} Elder's Veil. Production Commercial Build.</span>
+          <span>
+            &copy; ${new Date().getFullYear()}
+            Elder's Veil. Production Commercial Build.
+          </span>
+
           <span>PostgreSQL & Render Ready</span>
         </div>
+
       </div>
     </footer>
   `;
-  const footerEl = document.getElementById('app-footer');
-  if (footerEl) footerEl.innerHTML = html;
-}
 
+  const footerEl = document.getElementById('app-footer');
+
+  if (footerEl) {
+    footerEl.innerHTML = html;
+  }
+}
 function renderComicCard(comic) {
   const coverUrl = comic.coverImage || '/uploads/covers/default.jpg';
   const slug = comic.slug || comic.id;
