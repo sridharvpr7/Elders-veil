@@ -120,109 +120,76 @@ ul.plain{color:var(--text-secondary);font-size:14.5px;line-height:1.8;padding-le
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49;display:none}
 .scrim.show{display:block}
 
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  nav.sidebar{position:fixed;left:0;top:0;bottom:0;width:78vw;max-width:300px;background:var(--bg-primary);z-index:50;
+    transform:translateX(-100%);transition:transform .25s;height:100vh;padding-top:calc(env(safe-area-inset-top,0px)+18px)}
+  nav.sidebar.open{transform:translateX(0)}
+  .toc{display:none}
+  main{padding:22px 16px 60px}
+  .searchbox{display:none}
+  .menu-btn,.search-icon-btn{display:inline-flex;align-items:center;justify-content:center}
+  h1.pagetitle{font-size:24px}
+}
+
+/* Back to Elder's Veil button */
+#backLink{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  min-height:38px;
+  padding:8px 12px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+
+.back-arrow{
+  font-size:18px;
+  line-height:1;
+}
+
+.back-text{
+  font-size:13px;
+  font-weight:600;
+}
+
 @media (max-width:560px){
+  header{
+    gap:6px;
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .brand{
+    flex:1;
+    min-width:0;
+  }
+
+  .brand small{
+    display:none;
+  }
+
   #backLink{
-    display:inline-flex;
-    width:auto;
-    min-width:40px;
+    display:inline-flex !important;
+    width:auto !important;
+    min-width:62px;
     height:38px;
     padding:7px 10px;
-    font-size:0;
+    font-size:13px;
+    flex-shrink:0;
   }
 
-  #backLink::before{
-    content:"←";
-    font-size:20px;
-    margin-right:4px;
+  #backLink .back-arrow{
+    display:inline;
+    font-size:18px;
   }
 
-  #backLink::after{
-    content:"Back";
+  #backLink .back-text{
+    display:inline;
     font-size:13px;
     font-weight:600;
   }
-}
-
-/* ===== Responsive polish ===== */
-body{overflow-x:hidden}
-header{min-height:64px}
-.main-content,.content{max-width:860px}
-.content img{max-width:100%;height:auto}
-button,a,input{font:inherit}
-
-@media (max-width:980px){
-  html{scroll-padding-top:64px}
-  header{padding:8px 12px;gap:8px;min-height:60px}
-  .brand{gap:8px;min-width:0;flex:1}
-  .brand>div:last-child{min-width:0}
-  .brand div:nth-child(2)>div{overflow:hidden;text-overflow:ellipsis}
-  .brand small{font-size:10px}
-  .brand .mark{width:34px;height:34px;flex:0 0 34px}
-  .hbtn{min-width:38px;min-height:38px;padding:8px 10px;border-radius:10px}
-  .menu-btn,.search-icon-btn{display:inline-flex;flex:0 0 auto}
-  #themeBtn{flex:0 0 auto}
-  #backLink{display:none}
-  .shell{display:block;width:100%;}
-  nav.sidebar{width:min(88vw,330px);max-width:none;padding:78px 14px 24px;box-shadow:18px 0 50px rgba(0,0,0,.35);overflow-y:auto;overscroll-behavior:contain}
-  main{width:100%;padding:22px 16px 72px}
-  .crumb{margin-bottom:12px}
-  h1.pagetitle{font-size:clamp(22px,7vw,28px);line-height:1.18}
-  .desc{font-size:15px;line-height:1.55}
-  .meta-row{gap:8px;margin-bottom:22px}
-  .content h2{font-size:19px;line-height:1.3;margin-top:28px}
-  .content p{font-size:15px;line-height:1.72}
-  .box{font-size:14px;padding:13px 14px}
-  .steps{margin:14px 0}
-  .step{gap:10px;padding:12px 0;align-items:flex-start}
-  .step .n{width:28px;height:28px;flex:0 0 28px}
-  .step .t{font-size:14px;line-height:1.4}
-  .step .d{font-size:13.5px;line-height:1.6}
-  ul.plain{font-size:14px;line-height:1.75;padding-left:20px}
-  .shot{padding:26px 14px;line-height:1.5}
-  .pager{flex-direction:column;margin-top:34px}
-  .pager a{width:100%;}
-  .pager .r{text-align:left}
-  .markdone{width:100%;justify-content:center;min-height:44px}
-  .overlay{padding:8vh 12px 20px}
-  .palette{width:100%;max-height:80vh}
-  .palette input{font-size:16px;padding:15px}
-  .presults{max-height:62vh}
-}
-
-@media (max-width:560px){
-  header{gap:6px;padding-left:10px;padding-right:10px}
-  .brand{gap:7px}
-  .brand .mark{width:32px;height:32px;flex-basis:32px;font-size:14px}
-  .brand small{display:none}
-  .brand div:nth-child(2)>div{font-size:14px}
-  .hbtn{width:38px;height:38px;padding:7px;display:inline-flex;align-items:center;justify-content:center}
-  main{padding:18px 13px 64px}
-  .meta-row{font-size:12px}
-  .content h2{font-size:18px}
-  .content p{font-size:14.5px}
-  .box{border-radius:10px}
-  .faq details{padding:11px 12px}
-  .faq summary{font-size:14px;line-height:1.45}
-}
-
-@media (max-width:380px){
-  header{gap:4px}
-  .brand .mark{display:none}
-  .brand div:nth-child(2)>div{font-size:13px}
-  .hbtn{width:36px;height:36px;min-width:36px}
-  main{padding-left:11px;padding-right:11px}
-}
-
-@media (min-width:981px) and (max-width:1150px){
-  .shell{grid-template-columns:220px minmax(0,1fr)}
-  .toc{display:none}
-  main{padding-left:30px;padding-right:30px}
-}
-
-/* Better touch behavior */
-@media (hover:none){
-  .navitem,.hbtn,.pager a,.markdone,.faq summary{touch-action:manipulation}
-  .navitem{padding-top:10px;padding-bottom:10px}
 }
 
 </style>
@@ -230,12 +197,12 @@ button,a,input{font:inherit}
 <body>
 
 <header>
-  <button class="hbtn menu-btn" id="menuBtn" aria-label="Open manual navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
+  <button class="hbtn menu-btn" id="menuBtn">☰</button>
   <div class="brand"><div class="mark">👁</div><div><div>Elder's Veil</div><small>User Manual</small></div></div>
   <div class="searchbox"><input id="searchInput" placeholder="Search the Elder's Veil manual..."><kbd>Ctrl K</kbd></div>
-  <button class="hbtn search-icon-btn" id="searchIconBtn" aria-label="Search manual">🔍</button>
-  <button class="hbtn" id="themeBtn" aria-label="Toggle theme">🌙</button>
-  <a class="hbtn" href="../index.html" id="backLink">← Back to Elder's Veil</a>
+  <button class="hbtn search-icon-btn" id="searchIconBtn">🔍</button>
+  <button class="hbtn" id="themeBtn">🌙</button>
+  <a class="hbtn" href="../index.html" id="backLink"><span class="back-arrow">←</span><span class="back-text">Back</span></a>
 </header>
 <div class="scrim" id="scrim"></div>
 
@@ -540,8 +507,8 @@ function go(catId,pageId){
 
 /* mobile sidebar */
 const sidebar=document.getElementById('sidebar'), scrim=document.getElementById('scrim');
-function openSidebar(){sidebar.classList.add('open');scrim.classList.add('show');document.getElementById('menuBtn').setAttribute('aria-expanded','true');document.body.style.overflow='hidden'}
-function closeSidebar(){sidebar.classList.remove('open');scrim.classList.remove('show');document.getElementById('menuBtn').setAttribute('aria-expanded','false');document.body.style.overflow=''}
+function openSidebar(){sidebar.classList.add('open');scrim.classList.add('show')}
+function closeSidebar(){sidebar.classList.remove('open');scrim.classList.remove('show')}
 document.getElementById('menuBtn').onclick=openSidebar;
 scrim.onclick=closeSidebar;
 
