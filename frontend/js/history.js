@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           ${history.map(item => `
             <div class="history-card">
               <div class="history-thumb-wrap">
-                <img src="${item.comicCover || '/uploads/covers/default.jpg'}" class="history-thumb" alt="Cover" />
+                <img src="${API.assetUrl(item.comicCover) || API.assetUrl('/uploads/covers/default.jpg')}" class="history-thumb" alt="Cover" />
                 <div>
                   <h4 style="font-size:1.1rem;"><a href="/comic.html?slug=${item.comicSlug}">${item.comicTitle || 'Untitled'}</a></h4>
                   <p style="color:var(--accent-cyan-light); font-size:0.9rem; font-weight:600;">

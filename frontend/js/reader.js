@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       readerContainer.innerHTML = pages.map((url, idx) => `
         <div class="reader-image-wrap" id="page-${idx + 1}" data-page="${idx + 1}">
-          <img src="${url}" class="reader-image" alt="Page ${idx + 1}" loading="lazy" />
+          <img src="${API.assetUrl(url)}" class="reader-image" alt="Page ${idx + 1}" loading="${idx === 0 ? 'eager' : 'lazy'}" decoding="async" />
         </div>
       `).join('');
     }
