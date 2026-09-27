@@ -52,28 +52,18 @@ class ComicController {
       const isUserPremium = !!(req.user && (req.user.role === 'admin' || req.user.is_premium));
       const isComicPremium = !!comic.isPremium;
 
-      const chapters = await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished });
-
-      if (isComicPremium && !isUserPremium && !isOwnerOrAdmin) {
-        return res.status(403).json({
-          error: 'This comic is available exclusively to Premium members.',
-          requirePremium: true,
-          isPremiumComic: true,
-          comic: {
-            id: comic.id,
-            title: comic.title,
-            slug: comic.slug,
-            coverImage: comic.coverImage,
-            isPremium: true
-          }
-        });
-      }
+      const hasPremiumAccess = !isComicPremium || isUserPremium || isOwnerOrAdmin;
+      const chapters = hasPremiumAccess
+        ? await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished })
+        : [];
 
       res.status(200).json({
         comic,
         chapters,
         isBookmarked,
-        isFavorite
+        isFavorite,
+        requiresPremium: isComicPremium && !hasPremiumAccess,
+        premiumChapterCount: isComicPremium && !hasPremiumAccess ? await Chapter.getByComicId(comic.id, { includeUnpublished: false }).then(list => list.length).catch(() => 0) : chapters.length
       });
     } catch (err) {
       next(err);
@@ -102,28 +92,18 @@ class ComicController {
       const isUserPremium = !!(req.user && (req.user.role === 'admin' || req.user.is_premium));
       const isComicPremium = !!comic.isPremium;
 
-      const chapters = await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished });
-
-      if (isComicPremium && !isUserPremium && !isOwnerOrAdmin) {
-        return res.status(403).json({
-          error: 'This comic is available exclusively to Premium members.',
-          requirePremium: true,
-          isPremiumComic: true,
-          comic: {
-            id: comic.id,
-            title: comic.title,
-            slug: comic.slug,
-            coverImage: comic.coverImage,
-            isPremium: true
-          }
-        });
-      }
+      const hasPremiumAccess = !isComicPremium || isUserPremium || isOwnerOrAdmin;
+      const chapters = hasPremiumAccess
+        ? await Chapter.getByComicId(comic.id, { includeUnpublished: canSeeUnpublished })
+        : [];
 
       res.status(200).json({
         comic,
         chapters,
         isBookmarked,
-        isFavorite
+        isFavorite,
+        requiresPremium: isComicPremium && !hasPremiumAccess,
+        premiumChapterCount: isComicPremium && !hasPremiumAccess ? await Chapter.getByComicId(comic.id, { includeUnpublished: false }).then(list => list.length).catch(() => 0) : chapters.length
       });
     } catch (err) {
       next(err);

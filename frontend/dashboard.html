@@ -111,12 +111,12 @@
           }
           const premiumActive = !!(user && (user.role === 'admin' || (user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()))));
           grid.innerHTML = comics.map(comic => {
-            const cover = comic.coverImage || comic.cover_image || '/uploads/covers/default.jpg';
+            const cover = API.assetUrl(comic.coverImage || comic.cover_image) || API.assetUrl('/assets/icon.png');
             const title = comic.title || 'Untitled Comic';
             const slug = comic.slug || comic.id;
             return `<article class="comic-card premium-comic-card ${premiumActive ? 'premium-unlocked' : 'premium-locked'}">
               <div class="card-thumb">
-                <img src="${cover}" alt="${title.replace(/"/g,'&quot;')}" loading="lazy" />
+                <img src="${cover}" alt="${title.replace(/"/g,'&quot;')}" loading="lazy" onerror="this.onerror=null;this.src='/assets/icon.png'" />
                 <span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>
                 ${!premiumActive ? '<span class="premium-lock"><i class="fas fa-lock"></i></span>' : '<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>'}
               </div>

@@ -1,6 +1,14 @@
 const API_BASE_URL = (document.querySelector('meta[name="api-base-url"]')?.content || 'https://elders-veil1.onrender.com/api').replace(/\/$/, '');
 
 class API {
+  static assetUrl(value) {
+    if (!value) return '';
+    const raw = String(value);
+    if (/^https?:\/\//i.test(raw) || raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
+    const origin = API_BASE_URL.replace(/\/api\/?$/, '');
+    return raw.startsWith('/') ? `${origin}${raw}` : `${origin}/${raw}`;
+  }
+
   static getToken() {
     return localStorage.getItem('token') || '';
   }

@@ -25,7 +25,7 @@
       <span class="premium-eyebrow">ELDER'S VEIL EXCLUSIVE</span>
       <h1>Premium Comics</h1>
       <p>Discover gold-tier stories, exclusive chapters and creator specials.</p>
-      <div class="premium-hero-actions">
+      <div class="premium-hero-actions" id="premium-hero-actions">
         <a href="/comics.html" class="btn btn-secondary"><i class="fas fa-book"></i> Browse All Comics</a>
       </div>
     </div>
@@ -42,6 +42,7 @@
 </main>
 <footer id="app-footer"></footer>
 <script src="/js/api.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/components.js"></script>
 <script>
@@ -50,6 +51,38 @@ document.addEventListener('DOMContentLoaded',()=>{
   const grid=document.getElementById('premium-grid'), count=document.getElementById('premium-count'), sort=document.getElementById('premium-sort');
   const user=Auth.getUser();
   const premiumActive=!!(user&&(user.role==='admin'||(user.is_premium&&(!user.premium_expires_at||new Date(user.premium_expires_at).getTime()>Date.now()))));
+  const heroActions=document.getElementById('premium-hero-actions');
+  function renderPurchaseAction(activeState=premiumActive){
+    if(!heroActions) return;
+    if(!user){
+      heroActions.innerHTML='<a href="/login.html?redirect=premium-comics.html" class="btn btn-premium"><i class="fas fa-right-to-bracket"></i> Sign In to Buy Premium</a><a href="/comics.html" class="btn btn-secondary"><i class="fas fa-book"></i> Browse All Comics</a>';
+      return;
+    }
+    if(user.role==='admin'){
+      heroActions.innerHTML='<span class="btn btn-premium" style="cursor:default"><i class="fas fa-crown"></i> Admin Premium</span><a href="/comics.html" class="btn btn-secondary"><i class="fas fa-book"></i> Browse All Comics</a>';
+      return;
+    }
+    heroActions.innerHTML=`<button type="button" id="premium-buy-btn" class="btn btn-premium"><i class="fas fa-credit-card"></i> ${activeState?'Renew Premium':'Buy Premium'}</button><a href="/comics.html" class="btn btn-secondary"><i class="fas fa-book"></i> Browse All Comics</a>`;
+    bindPurchase();
+  }
+  async function bindPurchase(){
+    const btn=document.getElementById('premium-buy-btn'); if(!btn||btn.dataset.bound==='1') return; btn.dataset.bound='1';
+    btn.addEventListener('click',async()=>{
+      if(!Auth.isLoggedIn()){location.href='/login.html?redirect=premium-comics.html';return;}
+      btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Preparing payment...';
+      try{
+        const order=await API.post('/platform/payments/subscription/order',{plan:'premium_monthly'});
+        if(!order.configured) throw new Error(order.error||'Online payment is not configured yet.');
+        if(!window.Razorpay) throw new Error('Payment gateway could not be loaded. Please refresh.');
+        const rz=new Razorpay({key:order.keyId,amount:order.order.amount,currency:order.order.currency||'INR',name:"Elder's Veil",description:'Premium Membership',order_id:order.order.id,prefill:{email:user?.email||'',name:user?.username||''},theme:{color:'#facc15'},handler:async(resp)=>{
+          try{await API.post('/platform/payments/subscription/verify',{orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature,months:1});showToast('Premium activated successfully!','success');const fresh=await API.get('/auth/me').catch(()=>null);if(fresh?.user){localStorage.setItem('user',JSON.stringify(fresh.user));}location.reload();}
+          catch(e){showToast(e.message||'Payment verification failed.','error');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium';}
+        },modal:{ondismiss:()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium';}}});
+        rz.open();
+      }catch(e){showToast(e.message||'Unable to start Premium payment.','error');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium';}
+    });
+  }
+  renderPurchaseAction();
   const esc=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
   async function load(){
     grid.innerHTML='<div class="premium-loading-card"><i class="fas fa-spinner fa-spin"></i> Loading Premium Library...</div>';
@@ -58,9 +91,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       const comics=res.comics||[]; count.textContent=comics.length+' exclusive title'+(comics.length===1?'':'s');
       if(!comics.length){grid.innerHTML='<div class="premium-empty-card"><i class="fas fa-crown"></i><strong>No Premium Comics Yet</strong><span>Exclusive titles will appear here when published.</span></div>';return;}
       grid.innerHTML=comics.map(c=>{
-        const cover=c.coverImage||c.cover_image||'/uploads/covers/default.jpg', slug=c.slug||c.id;
+        const cover=API.assetUrl(c.coverImage||c.cover_image)||API.assetUrl('/assets/icon.png'), slug=c.slug||c.id;
         return `<article class="comic-card premium-comic-card ${premiumActive?'premium-unlocked':'premium-locked'}">
-          <div class="card-thumb"><img src="${cover}" alt="${esc(c.title)}" loading="lazy"><span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>${premiumActive?'<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>':'<span class="premium-lock"><i class="fas fa-lock"></i></span>'}</div>
+          <div class="card-thumb"><img src="${cover}" alt="${esc(c.title)}" loading="lazy" onerror="this.onerror=null;this.src='/assets/icon.png'"><span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>${premiumActive?'<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>':'<span class="premium-lock"><i class="fas fa-lock"></i></span>'}</div>
           <div class="card-content"><h3 class="card-title"><a href="/comic.html?slug=${encodeURIComponent(slug)}">${esc(c.title)}</a></h3><p class="premium-card-description">${esc(c.description || "Exclusive Elders Veil story.")}</p><div class="card-meta"><span>${esc(c.author||'Creator')}</span><span class="card-chapters">${c.chapterCount||c.chapter_count||0} Chapters</span></div></div>
         </article>`;
       }).join('');

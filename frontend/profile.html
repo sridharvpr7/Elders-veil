@@ -95,7 +95,7 @@
       const user = Auth.getUser();
       if (user) {
         document.getElementById('prof-username').value = user.username || '';
-        document.getElementById('prof-avatar-preview').src=user.avatar||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
+        document.getElementById('prof-avatar-preview').src=API.assetUrl(user.avatar)||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
       }
 
       // Load creator follow statistics
