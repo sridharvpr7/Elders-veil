@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { UPLOAD_DIR } = require('./config/uploadConfig');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -43,7 +44,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Static Assets
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/uploads', express.static(UPLOAD_DIR));
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Health Check API
