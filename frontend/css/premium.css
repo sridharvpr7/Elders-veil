@@ -14,3 +14,6 @@
 #premium-sort{color:#000!important;background-color:#fff!important;border-color:rgba(234,179,8,.55)!important;}
 #premium-sort option{color:#000!important;background:#fff!important;}
 #premium-sort:focus{color:#000!important;outline:2px solid rgba(250,204,21,.35);outline-offset:2px;}
+
+.premium-purchase-actions .btn-primary{min-width:190px;box-shadow:0 8px 24px rgba(124,58,237,.22)}
+.premium-purchase-actions .btn-premium{min-width:205px}
