@@ -1,1 +1,70 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="api-base-url" content="https://elders-veil.onrender.com/api"><link rel="manifest" href="manifest.json?v=4"><title>Creator — Elder's Veil</title><link rel="stylesheet" href="css/reset.css"><link rel="stylesheet" href="css/variables.css"><link rel="stylesheet" href="css/theme.css"><link rel="stylesheet" href="css/global.css"><link rel="stylesheet" href="css/navbar.css"><link rel="stylesheet" href="css/cards.css"><script src="js/theme.js"></script></head><body><header id="app-header"></header><main><div class="container"><div id="creator-profile"></div><div id="creator-comics"></div></div></main><footer id="app-footer"></footer><script src="js/api.js"></script><script src="js/auth.js"></script><script src="js/i18n.js"></script><script src="js/components.js"></script><script src="js/pwa.js"></script><script>document.addEventListener('DOMContentLoaded',async()=>{renderNavbar('');renderFooter();const id=new URLSearchParams(location.search).get('id');if(!id)return;try{const r=await API.get('/users/creator/'+encodeURIComponent(id));document.getElementById('creator-profile').innerHTML=`<div class="profile-header"><img class="profile-avatar-xl" src="${r.creator.avatar||'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}"><div class="profile-info"><h1>${r.creator.username}</h1><p>Comic Writer</p><button class="btn btn-primary" id="follow">${r.following?'Following':'Follow Creator'}</button></div></div>`;document.getElementById('creator-comics').innerHTML='<div class="section-title">Published Comics</div><div class="comic-grid">'+(r.comics||[]).map(renderComicCard).join('')+'</div>';document.getElementById('follow').onclick=async()=>{if(!Auth.isLoggedIn())return showToast('Please sign in first.','error');const x=await API.post('/engagement/creators/'+r.creator.id+'/follow',{});document.getElementById('follow').textContent=x.following?'Following':'Follow Creator';}}catch(e){document.getElementById('creator-profile').innerHTML='<p>'+e.message+'</p>'}});</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="api-base-url" content="https://elders-veil.onrender.com/api">
+<link rel="manifest" href="manifest.json?v=4">
+<title>Creator — Elder's Veil</title>
+<link rel="stylesheet" href="css/reset.css"><link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/theme.css"><link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/navbar.css"><link rel="stylesheet" href="css/cards.css">
+<script src="js/theme.js"></script>
+<style>
+.creator-social{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
+.creator-stat{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .85rem;border:1px solid var(--glass-border);border-radius:999px;background:var(--bg-secondary);color:var(--text-primary);text-decoration:none}
+.creator-stat:hover{border-color:var(--primary)}
+.follow-btn{min-width:150px}
+</style>
+</head>
+<body>
+<header id="app-header"></header>
+<main><div class="container"><div id="creator-profile"></div><div id="creator-comics"></div></div></main>
+<footer id="app-footer"></footer>
+<script src="js/api.js"></script><script src="https://checkout.razorpay.com/v1/checkout.js"></script><script src="js/auth.js"></script><script src="js/i18n.js"></script>
+<script src="js/components.js"></script><script src="js/pwa.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',async()=>{
+  renderNavbar('');renderFooter();
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id)return;
+  try{
+    const r=await API.get('/users/creator/'+encodeURIComponent(id));
+    const c=r.creator;
+    const avatar=c.avatar||'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    document.getElementById('creator-profile').innerHTML=
+      '<div class="profile-header">'+
+        '<img class="profile-avatar-xl" src="'+avatar+'" alt="'+c.username+'">'+
+        '<div class="profile-info"><h1>'+c.username+'</h1><p>Comic Writer</p>'+
+        '<div class="creator-social">'+
+          '<button class="btn btn-primary follow-btn" id="follow">'+(r.following?'Following':'Follow Creator')+'</button>'+
+          '<button class="btn btn-secondary" id="tip"><i class="fas fa-heart"></i> Tip Creator</button>'+
+          '<a class="creator-stat" id="followers-link" href="/connections.html?type=followers&userId='+encodeURIComponent(c.id)+'"><i class="fas fa-users"></i><strong id="followers-count">'+Number(r.followersCount||0).toLocaleString()+'</strong> Followers</a>'+
+          '<a class="creator-stat" href="/connections.html?type=following&userId='+encodeURIComponent(c.id)+'"><i class="fas fa-user-plus"></i><strong>'+Number(r.followingCount||0).toLocaleString()+'</strong> Following</a>'+
+        '</div></div></div>';
+
+    document.getElementById('creator-comics').innerHTML=
+      '<div class="section-title">Published Comics</div><div class="comic-grid">'+
+      (r.comics||[]).map(renderComicCard).join('')+'</div>';
+
+    document.getElementById('follow').onclick=async()=>{
+      if(!Auth.isLoggedIn())return showToast('Please sign in first.','error');
+      try{
+        const x=await API.post('/engagement/creators/'+encodeURIComponent(c.id)+'/follow',{});
+        document.getElementById('follow').textContent=x.following?'Following':'Follow Creator';
+        document.getElementById('followers-count').textContent=Number(x.followersCount||0).toLocaleString();
+      }catch(e){showToast(e.message,'error')}
+    };
+    document.getElementById('tip').onclick=async()=>{
+      if(!Auth.isLoggedIn())return showToast('Please sign in first.','error');
+      const amount=prompt('Tip amount in INR (minimum ₹10):','50');if(!amount)return;
+      try{
+        const r=await API.post('/platform/tips/order',{creatorId:c.id,amount:Number(amount)});
+        if(!r.configured)throw new Error(r.error||'Creator tips are not configured yet.');
+        const rz=new Razorpay({key:r.keyId,amount:r.order.amount,currency:'INR',name:"Elder's Veil",description:'Creator Tip',order_id:r.order.id,prefill:{email:Auth.getUser()?.email},handler:async(resp)=>{await API.post('/platform/tips/verify',{tipId:r.tip.id,orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature});showToast('Tip sent successfully ❤️');}});
+        rz.open();
+      }catch(e){showToast(e.message,'error')}
+    };
+  }catch(e){document.getElementById('creator-profile').innerHTML='<p>'+e.message+'</p>'}
+});
+</script>
+</body></html>

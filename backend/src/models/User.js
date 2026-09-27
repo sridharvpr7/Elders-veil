@@ -100,7 +100,7 @@ class User {
                 premium_expires_at, 
                 CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END AS premium_expired, 
                 premium_status, premium_requested_at, premium_approved_at, premium_rejected_at, premium_request_note,
-                account_status, email_verified, avatar, created_at, updated_at 
+                account_status, email_verified, avatar, bio, two_factor_enabled, accessibility_settings, created_at, updated_at 
          FROM users WHERE id = $1`,
         [id]
       );

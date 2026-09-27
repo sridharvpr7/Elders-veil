@@ -8,6 +8,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 router.use(authMiddleware);
 
 router.get('/me', UserController.getProfile);
+router.get('/creator/:id', UserController.getCreatorProfile);
 router.put('/me', UserController.updateProfile);
 router.post('/me/become-creator', UserController.becomeCreator);
 router.post('/me/password', UserController.changePassword);

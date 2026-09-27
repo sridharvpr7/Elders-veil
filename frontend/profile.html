@@ -28,6 +28,17 @@
         <a href="/profile.html" class="tab-btn active"><i class="fas fa-user-cog"></i> Account Settings</a>
       </div>
 
+      <div class="profile-social-card" style="margin-bottom:2rem;background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div><h3 style="margin:0 0 .25rem;"><i class="fas fa-users text-gradient"></i> Creator Connections</h3>
+          <p style="color:var(--text-muted);margin:0;">Follow creators and see who you follow.</p></div>
+          <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
+            <a class="btn btn-secondary" id="following-link" href="/connections.html?type=following"><i class="fas fa-user-plus"></i> Following <strong id="following-count">0</strong></a>
+            <a class="btn btn-secondary" id="followers-link" href="/connections.html?type=followers" style="display:none;"><i class="fas fa-users"></i> Followers <strong id="followers-count">0</strong></a>
+          </div>
+        </div>
+      </div>
+
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
         <!-- Edit Profile Form -->
         <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
@@ -86,6 +97,19 @@
         document.getElementById('prof-username').value = user.username || '';
         document.getElementById('prof-avatar-preview').src=user.avatar||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
       }
+
+      // Load creator follow statistics
+      (async () => {
+        try {
+          const following = await API.get('/engagement/me/following');
+          document.getElementById('following-count').textContent = Number(following.followingCount || 0).toLocaleString();
+          if (user && ['creator','admin'].includes(user.role)) {
+            const followers = await API.get('/engagement/me/followers');
+            document.getElementById('followers-link').style.display = '';
+            document.getElementById('followers-count').textContent = Number(followers.followersCount || 0).toLocaleString();
+          }
+        } catch (e) { console.warn('Follow stats unavailable:', e.message); }
+      })();
 
       // Profile Edit Form Submit
       document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {

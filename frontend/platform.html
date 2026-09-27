@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Platform Center — Elder's Veil</title>
+<link rel="stylesheet" href="/css/reset.css"><link rel="stylesheet" href="/css/variables.css"><link rel="stylesheet" href="/css/theme.css"><link rel="stylesheet" href="/css/global.css"><link rel="stylesheet" href="/css/navbar.css"><link rel="stylesheet" href="/css/responsive.css">
+<link rel="stylesheet" href="/css/platform.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><script src="/js/theme.js"></script>
+</head>
+<body><header id="app-header"></header>
+<main><div class="container platform-wrap">
+  <div class="platform-hero"><div><span class="eyebrow">ELDER'S VEIL</span><h1>Platform Center</h1><p>Your reading life, creator connections, safety, preferences and discovery — all in one place.</p></div><a class="btn btn-primary" href="/comics.html"><i class="fas fa-compass"></i> Explore Comics</a></div>
+  <div id="platform-alert"></div>
+  <div class="platform-grid">
+    <section class="platform-card wide"><div class="card-head"><h2><i class="fas fa-fire"></i> Reading Streak</h2><button class="btn btn-secondary btn-sm" id="checkin"><i class="fas fa-book-open"></i> Mark Today Read</button></div><div id="streak"></div></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-trophy"></i> Achievements</h2></div><div id="achievements" class="badge-grid"></div></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-list"></i> Reading Lists</h2><button class="btn btn-primary btn-sm" id="new-list">New List</button></div><div id="lists"></div></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-bolt"></i> Discovery</h2></div><div class="tabs"><button class="tab active" data-discover="recommendations">For You</button><button class="tab" data-discover="trending">Trending</button><button class="tab" data-discover="rising">Rising</button></div><div id="discover" class="mini-list"></div></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-bell"></i> Email & Notifications</h2></div><div id="notification-settings"></div></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-universal-access"></i> Accessibility</h2></div><form id="access-form"><label>Bio<textarea id="bio" maxlength="500" placeholder="Tell readers about you"></textarea></label><label>Font scale<select id="font-scale"><option value="1">Normal</option><option value="1.1">Large</option><option value="1.2">Extra Large</option></select></label><label class="check"><input type="checkbox" id="reduce-motion"> Reduce motion</label><label class="check"><input type="checkbox" id="high-contrast"> High contrast</label><button class="btn btn-primary">Save Accessibility</button></form></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-book-reader"></i> Reader Preferences</h2></div><form id="reader-form" class="form-grid"><label>Reading mode<select id="reading-mode"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option><option value="single">Single Page</option></select></label><label>Fit<select id="fit-mode"><option value="width">Fit Width</option><option value="contain">Contain</option><option value="original">Original</option></select></label><label>Quality<select id="image-quality"><option>high</option><option>medium</option><option>low</option></select></label><label class="check"><input type="checkbox" id="auto-scroll"> Auto-scroll</label><button class="btn btn-primary">Save Reader Settings</button></form></section>
+    <section class="platform-card"><div class="card-head"><h2><i class="fas fa-shield-halved"></i> Security</h2></div><div id="security"></div></section>
+  </div>
+</div></main><footer id="app-footer"></footer>
+<script src="/js/api.js"></script><script src="/js/auth.js"></script><script src="/js/components.js"></script><script src="/js/platform.js"></script>
+</body></html>

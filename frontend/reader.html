@@ -31,6 +31,10 @@
       <select id="chapter-selector" class="form-select" style="padding:0.4rem 0.75rem; font-size:0.85rem; max-width:200px;">
         <option value="">Selecting...</option>
       </select>
+      <select id="reader-mode" class="form-select reader-extra-control"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option><option value="single">Single Page</option></select>
+      <select id="reader-fit" class="form-select reader-extra-control"><option value="width">Fit Width</option><option value="contain">Contain</option><option value="original">Original</option></select>
+      <button class="btn btn-secondary btn-icon" id="recap-btn" title="Chapter Recap"><i class="fas fa-brain"></i></button>
+      <button class="btn btn-secondary btn-icon" id="offline-btn" title="Save Offline"><i class="fas fa-download"></i></button>
       <button class="btn btn-secondary btn-icon" id="fullscreen-btn" title="Fullscreen Mode"><i class="fas fa-expand"></i></button>
     </div>
   </header>
@@ -42,6 +46,7 @@
     </div>
   </div>
 
+  <div id="reader-tools-panel" class="reader-tools-panel" hidden></div>
   <div class="reader-navigation-footer" id="reader-nav-footer"></div>
 
   <div class="page-counter-pill" id="page-pill">Page 1</div>

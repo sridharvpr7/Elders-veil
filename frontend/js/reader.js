@@ -17,10 +17,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentChapter = null;
   let allChapters = [];
   let currentPageIndex = 1;
+  let readerPrefs = { reading_mode:'vertical', fit_mode:'width', image_quality:'high', auto_scroll:false, auto_scroll_speed:2 };
 
   try {
     const res = await API.get(`/chapters/${encodeURIComponent(chapterId)}`);
     currentChapter = res.chapter;
+    if (Auth.isLoggedIn()) { API.get('/platform/reader/preferences').then(x=>{ readerPrefs=x.preferences||readerPrefs; applyReaderPrefs(); }).catch(()=>{}); }
     allChapters = res.allChapters || [];
 
     // Count one comic view per browser session when the reader is actually opened.
@@ -69,6 +71,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
+    function applyReaderPrefs(){
+      const mode=document.getElementById('reader-mode'); const fit=document.getElementById('reader-fit');
+      if(mode) mode.value=readerPrefs.reading_mode||'vertical'; if(fit) fit.value=readerPrefs.fit_mode||'width';
+      readerContainer.classList.toggle('reader-horizontal',(readerPrefs.reading_mode||'vertical')==='horizontal');
+      readerContainer.classList.toggle('reader-single',(readerPrefs.reading_mode||'vertical')==='single');
+      document.querySelectorAll('.reader-image').forEach((img,i)=>{img.classList.toggle('fit-contain',readerPrefs.fit_mode==='contain');img.classList.toggle('fit-original',readerPrefs.fit_mode==='original');if(readerPrefs.reading_mode==='single')img.parentElement.classList.toggle('active',i===currentPageIndex-1);});
+    }
     // Render Pages
     const pages = currentChapter.pages || [];
     if (pages.length === 0) {
@@ -85,8 +94,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       `).join('');
     }
 
+    applyReaderPrefs();
     // Resume exact page when Continue Reading supplies a saved page.
     currentPageIndex = Math.min(requestedPage, Math.max(1, pages.length));
+    applyReaderPrefs();
     if (pagePill) pagePill.textContent = `Page ${currentPageIndex} / ${pages.length}`;
     if (requestedPage > 1) { setTimeout(() => document.getElementById(`page-${currentPageIndex}`)?.scrollIntoView({ behavior: 'auto', block: 'start' }), 150); }
     // Save only when a page was explicitly requested (Continue Reading) or after scrolling.
@@ -157,6 +168,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
+
+    const modeEl=document.getElementById('reader-mode'), fitEl=document.getElementById('reader-fit');
+    if(modeEl) modeEl.onchange=async()=>{readerPrefs.reading_mode=modeEl.value;applyReaderPrefs();if(Auth.isLoggedIn())API.put('/platform/reader/preferences',{readingMode:readerPrefs.reading_mode,fitMode:readerPrefs.fit_mode,imageQuality:readerPrefs.image_quality,autoScroll:readerPrefs.auto_scroll}).catch(()=>{});};
+    if(fitEl) fitEl.onchange=async()=>{readerPrefs.fit_mode=fitEl.value;applyReaderPrefs();if(Auth.isLoggedIn())API.put('/platform/reader/preferences',{readingMode:readerPrefs.reading_mode,fitMode:readerPrefs.fit_mode,imageQuality:readerPrefs.image_quality,autoScroll:readerPrefs.auto_scroll}).catch(()=>{});};
+    const tools=document.getElementById('reader-tools-panel');
+    async function loadMediaAndRecap(){
+      if(!tools)return; tools.hidden=false; tools.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Loading reader extras...';
+      const [rec,media,interactive]=await Promise.all([API.get(`/platform/chapters/${currentChapter.id}/recap`).catch(()=>({})),API.get(`/platform/chapters/${currentChapter.id}/media`).catch(()=>({})),API.get(`/platform/chapters/${currentChapter.id}/interactive`).catch(()=>({}))]);
+      tools.innerHTML=`${rec.recap?.recap?`<details open><summary><strong>🧠 Chapter Recap</strong></summary><p style="margin-top:.6rem;line-height:1.7">${rec.recap.recap}</p></details>`:''}${media.audio?.audio_url?`<div style="margin-top:.8rem"><strong>🎧 Audio Mode</strong><audio controls preload="none" src="${media.audio.audio_url}" style="width:100%;margin-top:.4rem"></audio></div>`:''}${media.motion?.manifest?`<details style="margin-top:.8rem"><summary><strong>🎬 Motion Comic</strong></summary><pre style="white-space:pre-wrap">${JSON.stringify(media.motion.manifest,null,2)}</pre></details>`:''}${interactive.story?`<div style="margin-top:.8rem"><strong>🔀 ${interactive.story.title}</strong><p>${interactive.story.intro||''}</p><div style="display:flex;flex-wrap:wrap;gap:.5rem">${(interactive.story.choices||[]).map(c=>`<button class="btn btn-secondary btn-sm interactive-choice" data-next="${c.next_chapter_id||''}">${c.label}</button>`).join('')}</div></div>`:''}`;
+      tools.querySelectorAll('.interactive-choice').forEach(b=>b.onclick=()=>{if(b.dataset.next)location.href='/reader.html?id='+encodeURIComponent(b.dataset.next);});
+    }
+    document.getElementById('recap-btn')?.addEventListener('click',loadMediaAndRecap);
+    document.getElementById('offline-btn')?.addEventListener('click',async()=>{if(!Auth.isLoggedIn()){alert('Sign in to save chapters offline.');return;}try{const r=await API.get(`/platform/offline/${currentChapter.id}`);const urls=r.manifest?.pages||[];if('caches' in window){const cache=await caches.open('elders-veil-offline-v1');await cache.addAll(urls);localStorage.setItem('offline:'+currentChapter.id,'1');showToast?.('Chapter saved for offline reading.','success');}else alert('Offline cache is not supported by this browser.');}catch(e){showToast?.(e.message,'error');}});
+    document.getElementById('reader-mode')?.addEventListener('change',()=>{if(readerPrefs.reading_mode==='single')document.querySelectorAll('.reader-image-wrap').forEach((el,i)=>el.classList.toggle('active',i===currentPageIndex-1));});
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {

@@ -5,6 +5,7 @@ const { generateToken } = require('../utils/jwt');
 const { isValidEmail, isValidUsername, isValidPassword } = require('../utils/validation');
 const NotificationService = require('./notificationService');
 const EmailService = require('./emailService');
+const PlatformService = require('./platformService');
 
 class AuthService {
   static generateSecureOTP() {
@@ -83,12 +84,17 @@ class AuthService {
     return { message: 'A new verification code has been sent to your email.' };
   }
 
-  static async login({ email, password }) {
+  static async login({ email, password, twoFactorCode = '' }) {
     if (!email || !password) throw { statusCode: 400, message: 'Email and password are required.' };
     const user = await User.findByEmail(email.trim().toLowerCase());
     if (!user || !(await User.verifyPassword(user, password))) throw { statusCode: 401, message: 'Invalid email or password.' };
     if (user.email_verified === false) throw { statusCode: 403, message: 'Please verify your email before signing in.', requireVerification: true, email: user.email };
     if (user.account_status && user.account_status !== 'active') throw { statusCode: 403, message: `Your account is ${user.account_status}.` };
+    if (user.role === 'admin' && user.two_factor_enabled) {
+      if (!twoFactorCode || !PlatformService.verifyTotp(user.two_factor_secret, twoFactorCode)) {
+        throw { statusCode: 401, message: 'Two-factor authentication code required.', twoFactorRequired: true };
+      }
+    }
     const token = generateToken({ userId: user.id, role: user.role });
     const { password_hash, otp_hash, reset_otp_hash, ...safeUser } = user;
     return { user: safeUser, token };

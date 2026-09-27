@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <h3>Community</h3>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
           <select id="rating-value" class="form-select" style="width:auto"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select>
-          <button class="btn btn-secondary" id="rate-btn">Rate Comic</button>
+          <button class="btn btn-secondary" id="rate-btn">Rate Comic</button><a class="btn btn-secondary" href="/community.html?id=${comic.id}"><i class="fas fa-comments"></i> Full Community</a>
         </div>
         <div id="comments-box" style="margin-top:1rem"><h4>Comments</h4><div id="comments-list">Loading...</div><textarea id="comment-text" class="form-textarea" maxlength="2000" placeholder="Write a comment..."></textarea><button class="btn btn-primary" id="comment-btn">Post Comment</button></div>
       </div>

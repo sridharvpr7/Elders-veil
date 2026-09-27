@@ -53,3 +53,42 @@ Set `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, upload settings, and all `EMAI
 - All transactional notifications use the centralized Nodemailer SMTP EmailService.
 - Render Free web services block outbound SMTP ports 25, 465 and 587. Use an SMTP provider that supports port 2525 (or move the Render service to a paid plan) for production SMTP delivery.
 - Never commit `.env` or SMTP credentials to GitHub.
+
+
+## Elder's Veil Platform Expansion
+
+This build includes the Phase 1-3 expansion plus advanced creator/story tooling:
+
+- Reading lists, reading streaks and achievements/badges
+- Creator follow/follower/following system
+- Synced reader preferences and reading progress
+- Offline chapter manifest/cache support
+- Advanced reader modes: vertical, horizontal and single-page
+- Community comments with replies, spoiler flags and comment likes
+- Notification/email preference controls
+- Personalized recommendations, trending and rising discovery
+- Accessibility preferences
+- Admin 2FA (TOTP), device/session management and audit logs
+- Reports and moderation controls
+- Creator analytics
+- Razorpay-ready Premium subscriptions
+- Razorpay-ready creator tips
+- Homepage banners and Editor's Picks
+- Chapter recap, audio and motion-comic metadata
+- Story Universe / characters / locations / events / relations
+- Interactive branching story metadata
+- Admin platform control center
+
+### Optional production environment variables
+
+```env
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+PREMIUM_PRICE_INR=499
+
+AI_API_URL=
+AI_API_KEY=
+AI_MODEL=default
+```
+
+Run the normal server start command. PostgreSQL migrations are executed automatically on startup.

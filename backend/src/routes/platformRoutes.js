@@ -1,0 +1,63 @@
+
+const express=require('express');
+const router=express.Router();
+const C=require('../controllers/platformController');
+const {authMiddleware,optionalAuthMiddleware}=require('../middleware/authMiddleware');
+const adminMiddleware=require('../middleware/adminMiddleware');
+
+router.get('/banners',C.banners);
+router.get('/discover/:type',optionalAuthMiddleware,C.discover);
+router.get('/universe/:comicId',C.universe);
+router.get('/chapters/:chapterId/recap',C.recap);
+router.get('/chapters/:chapterId/media',C.media);
+router.get('/chapters/:chapterId/interactive',C.interactive);
+
+router.use(authMiddleware);
+router.get('/lists',C.lists);
+router.post('/lists',C.createList);
+router.delete('/lists/:id',C.deleteList);
+router.get('/lists/:id/items',C.listItems);
+router.post('/lists/:id/items',C.addListItem);
+router.delete('/lists/:id/items/:comicId',C.removeListItem);
+router.post('/streak/checkin',C.streak);
+router.get('/achievements',C.achievements);
+router.get('/reader/preferences',C.prefs);
+router.put('/reader/preferences',C.prefs);
+router.post('/progress/sync',C.progress);
+router.get('/offline/:id',C.offline);
+router.get('/comics/:id/comments',C.comments);
+router.post('/comics/:id/comments',C.comment);
+router.post('/comments/:id/like',C.commentLike);
+router.post('/track',C.track);
+router.post('/reports',C.report);
+router.get('/creator/:id/analytics',C.creatorAnalytics);
+router.get('/creator/me/analytics',C.creatorAnalytics);
+router.post('/sessions',C.createSession);
+router.get('/sessions',C.sessions);
+router.delete('/sessions/:id',C.revokeSession);
+router.post('/2fa/setup',C.setup2fa);
+router.post('/2fa/verify',C.verify2fa);
+router.post('/2fa/disable',C.disable2fa);
+router.get('/notifications/preferences',C.notificationPreferences);
+router.put('/notifications/preferences',C.notificationPreferences);
+router.put('/settings',C.settings);
+router.post('/tips/order',C.tipOrder);
+router.post('/tips/verify',C.verifyTip);
+router.post('/payments/subscription/order',C.subscriptionOrder);
+router.post('/payments/subscription/verify',C.verifyPayment);
+
+router.use('/admin',adminMiddleware);
+router.get('/admin/analytics',C.analytics);
+router.post('/admin/comments/:id/moderate',C.moderateComment);
+router.get('/admin/reports',C.adminReports);
+router.patch('/admin/reports/:id',C.resolveReport);
+router.get('/admin/audit-logs',C.audit);
+router.post('/admin/banners',C.adminBanner);
+router.post('/admin/chapters/:chapterId/recap',C.adminRecap);
+router.post('/admin/chapters/:chapterId/audio',C.adminAudio);
+router.post('/admin/chapters/:chapterId/motion',C.adminMotion);
+router.post('/admin/universe',C.adminUniverse);
+router.post('/admin/interactive',C.adminInteractive);
+router.post('/admin/editor-picks',C.adminPick);
+
+module.exports=router;

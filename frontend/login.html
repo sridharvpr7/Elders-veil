@@ -66,7 +66,8 @@
         const password = document.getElementById('login-password').value;
 
         try {
-          const res = await API.post('/auth/login', { email, password });
+          const twoFactorCode = document.getElementById('login-2fa')?.value?.trim() || '';
+          const res = await API.post('/auth/login', { email, password, twoFactorCode });
           Auth.saveSession(res.user, res.token);
           showToast('Signed in successfully!', 'success');
           setTimeout(() => window.location.href = res.user.role === 'admin' ? '/admin/index.html' : '/dashboard.html', 800);
@@ -76,7 +77,15 @@
             window.location.href = '/verify-otp.html';
             return;
           }
-          if (err.message && /verify your email/i.test(err.message)) { sessionStorage.setItem('pendingVerificationEmail', email.trim().toLowerCase()); window.location.href = '/verify-otp.html'; return; }
+          if (err.twoFactorRequired || /two-factor authentication code required/i.test(err.message||'')) {
+            if (!document.getElementById('login-2fa')) {
+              const group=document.createElement('div');group.className='form-group';group.innerHTML='<label class="form-label">Authenticator Code</label><input id="login-2fa" class="form-input" inputmode="numeric" maxlength="6" placeholder="6-digit code" required>';
+              form.insertBefore(group,form.querySelector('button[type="submit"]'));
+              document.getElementById('login-2fa').focus();
+              showToast('Enter the 6-digit code from your authenticator app.','info');
+            }
+            return;
+          }
           showToast(err.message, 'error');
         }
       });

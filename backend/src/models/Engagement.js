@@ -27,6 +27,81 @@ class Engagement {
     if(db.isPgConnected()){const r=await db.query(`SELECT COUNT(*)::int AS count FROM ${table} WHERE comic_id=$1`,[comicId]);return r.rows[0].count;}
     return (db.fallbackStore[table]||[]).filter(x=>x.comic_id===comicId).length;
   }
+  static async toggleCreator(followerId, creatorId){
+    if(followerId===creatorId) throw new Error('You cannot follow yourself.');
+    if(db.isPgConnected()){
+      const check=await db.query(`SELECT 1 FROM creator_follows WHERE follower_id=$1 AND creator_id=$2`,[followerId,creatorId]);
+      if(check.rowCount){
+        await db.query(`DELETE FROM creator_follows WHERE follower_id=$1 AND creator_id=$2`,[followerId,creatorId]);
+        return false;
+      }
+      await db.query(
+        `INSERT INTO creator_follows(id,follower_id,creator_id) VALUES($1,$2,$3)`,
+        [`creator-follow-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,followerId,creatorId]
+      );
+      return true;
+    }
+    db.fallbackStore.creator_follows??=[];
+    const arr=db.fallbackStore.creator_follows;
+    const i=arr.findIndex(x=>x.follower_id===followerId&&x.creator_id===creatorId);
+    if(i>=0){arr.splice(i,1);db.saveFallbackStore();return false;}
+    arr.push({id:`creator-follow-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,follower_id:followerId,creator_id:creatorId,created_at:new Date()});
+    db.saveFallbackStore();
+    return true;
+  }
+
+  static async isFollowingCreator(followerId, creatorId){
+    if(db.isPgConnected()){
+      const r=await db.query(`SELECT 1 FROM creator_follows WHERE follower_id=$1 AND creator_id=$2 LIMIT 1`,[followerId,creatorId]);
+      return r.rowCount>0;
+    }
+    return (db.fallbackStore.creator_follows||[]).some(x=>x.follower_id===followerId&&x.creator_id===creatorId);
+  }
+
+  static async creatorFollowerCount(creatorId){
+    if(db.isPgConnected()){
+      const r=await db.query(`SELECT COUNT(*)::int AS count FROM creator_follows WHERE creator_id=$1`,[creatorId]);
+      return r.rows[0]?.count||0;
+    }
+    return (db.fallbackStore.creator_follows||[]).filter(x=>x.creator_id===creatorId).length;
+  }
+
+  static async userFollowingCount(userId){
+    if(db.isPgConnected()){
+      const r=await db.query(`SELECT COUNT(*)::int AS count FROM creator_follows WHERE follower_id=$1`,[userId]);
+      return r.rows[0]?.count||0;
+    }
+    return (db.fallbackStore.creator_follows||[]).filter(x=>x.follower_id===userId).length;
+  }
+
+  static async creatorFollowers(creatorId){
+    if(db.isPgConnected()){
+      const r=await db.query(
+        `SELECT u.id,u.username,u.avatar,u.role,cf.created_at AS followed_at
+         FROM creator_follows cf JOIN users u ON u.id=cf.follower_id
+         WHERE cf.creator_id=$1 ORDER BY cf.created_at DESC`,[creatorId]
+      );
+      return r.rows;
+    }
+    const ids=(db.fallbackStore.creator_follows||[]).filter(x=>x.creator_id===creatorId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    return ids.map(x=>db.fallbackStore.users.find(u=>u.id===x.follower_id)).filter(Boolean)
+      .map(u=>({id:u.id,username:u.username,avatar:u.avatar,role:u.role}));
+  }
+
+  static async userFollowingCreators(userId){
+    if(db.isPgConnected()){
+      const r=await db.query(
+        `SELECT u.id,u.username,u.avatar,u.role,cf.created_at AS followed_at
+         FROM creator_follows cf JOIN users u ON u.id=cf.creator_id
+         WHERE cf.follower_id=$1 ORDER BY cf.created_at DESC`,[userId]
+      );
+      return r.rows;
+    }
+    const ids=(db.fallbackStore.creator_follows||[]).filter(x=>x.follower_id===userId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    return ids.map(x=>db.fallbackStore.users.find(u=>u.id===x.creator_id)).filter(Boolean)
+      .map(u=>({id:u.id,username:u.username,avatar:u.avatar,role:u.role}));
+  }
+
   static async rate(userId,comicId,rating,review=''){
     if(rating<1||rating>5)throw new Error('Rating must be between 1 and 5.');
     if(db.isPgConnected()){

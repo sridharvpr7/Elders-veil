@@ -17,7 +17,7 @@ const fallbackStore = {
   bookmarks: [],
   favorites: [],
   reading_history: [],
-  refresh_tokens: [], notifications: [], notification_preferences: [], comic_likes: [], comic_follows: [], ratings: [], comments: [], premium_requests: []
+  refresh_tokens: [], notifications: [], notification_preferences: [], comic_likes: [], comic_follows: [], creator_follows: [], ratings: [], comments: [], premium_requests: [], reading_lists: [], reading_list_items: [], reading_streaks: [], achievements: [], user_achievements: [], reader_preferences: [], comment_likes: [], offline_downloads: [], analytics_events: [], audit_logs: [], reports: [], user_sessions: [], subscriptions: [], creator_tips: [], creator_earnings: [], homepage_banners: [], editor_picks: [], story_universes: [], story_characters: [], story_locations: [], story_events: [], story_relations: [], chapter_recaps: [], chapter_audio: [], chapter_motion: [], interactive_stories: [], interactive_choices: []
 };
 
 // Try loading saved fallback database if exists

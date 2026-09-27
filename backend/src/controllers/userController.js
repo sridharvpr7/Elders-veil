@@ -2,6 +2,8 @@ const User = require('../models/User');
 const Bookmark = require('../models/Bookmark');
 const Favorite = require('../models/Favorite');
 const ReadingHistory = require('../models/ReadingHistory');
+const Comic = require('../models/Comic');
+const Engagement = require('../models/Engagement');
 const EmailService = require('../services/emailService');
 const NotificationService = require('../services/notificationService');
 
@@ -26,6 +28,34 @@ class UserController {
       if (!user) return res.status(403).json({ error: 'Unable to activate creator mode for this account.' });
       res.json({ user, message: 'Creator mode activated.' });
     } catch (err) { next(err); }
+  }
+
+  static async getCreatorProfile(req, res, next) {
+    try {
+      const creator = await User.findById(req.params.id);
+      if (!creator || !['creator', 'admin'].includes(creator.role)) {
+        return res.status(404).json({ error: 'Creator not found.' });
+      }
+      const comics = await Comic.getAll({ creatorId: creator.id, limit: 100, offset: 0 });
+      const followersCount = await Engagement.creatorFollowerCount(creator.id);
+      const following = await Engagement.isFollowingCreator(req.user.id, creator.id);
+      const followingCount = await Engagement.userFollowingCount(creator.id);
+      res.json({
+        creator: {
+          id: creator.id,
+          username: creator.username,
+          avatar: creator.avatar,
+          role: creator.role,
+          createdAt: creator.created_at
+        },
+        followersCount,
+        followingCount,
+        following,
+        comics
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 
   static async changePassword(req, res, next) {

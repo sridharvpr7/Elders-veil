@@ -64,6 +64,7 @@
   <footer id="app-footer"></footer>
 
   <script src="/js/api.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/components.js"></script>
   <script>
@@ -146,11 +147,26 @@
               </p>
             `;
             actionContainer.innerHTML = `
-              <button class="btn btn-primary" id="request-premium-btn" style="font-size:1.05rem; padding:0.75rem 1.75rem;">
-                <i class="fas fa-crown"></i> Request Premium
-              </button>
+              <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+                <button class="btn btn-primary" id="pay-premium-btn" style="font-size:1.05rem; padding:0.75rem 1.75rem;">
+                  <i class="fas fa-credit-card"></i> Buy Premium
+                </button>
+                <button class="btn btn-secondary" id="request-premium-btn"><i class="fas fa-paper-plane"></i> Manual Admin Request</button>
+              </div>
             `;
             attachRequestEvent();
+            document.getElementById('pay-premium-btn')?.addEventListener('click', async()=>{
+              const btn=document.getElementById('pay-premium-btn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Preparing...';
+              try{
+                const order=await API.post('/platform/payments/subscription/order',{plan:'premium_monthly'});
+                if(!order.configured) throw new Error(order.error||'Online payment is not configured.');
+                const rz=new Razorpay({key:order.keyId,amount:order.order.amount,currency:order.order.currency,name:"Elder's Veil",description:"Premium Membership",order_id:order.order.id,prefill:{email:user.email,name:user.username},handler:async(resp)=>{
+                  const v=await API.post('/platform/payments/subscription/verify',{orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature,months:1});
+                  showToast('Premium payment verified successfully!','success');loadPremiumStatus();
+                }});
+                rz.open();
+              }catch(e){showToast(e.message,'error');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium';}
+            });
           }
         } catch (err) {
           statusCard.innerHTML = `<p style="color:var(--accent-red)">Error loading premium status: ${err.message}</p>`;

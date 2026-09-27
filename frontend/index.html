@@ -89,6 +89,10 @@
         </div>
       </section>
 
+      <section id="platform-discovery" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-star" style="color:var(--accent-gold);"></i><span>Editor's Picks</span></div><div id="editor-picks-grid"></div></section>
+      <section id="personalized-section" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-wand-magic-sparkles"></i><span>Recommended For You</span></div><div id="recommended-grid"></div></section>
+      <section id="rising-section" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-chart-line"></i><span>Rising Comics</span></div><div id="rising-grid"></div></section>
+
       <!-- Trending Section -->
       <section style="margin-bottom: 3.5rem;">
         <div class="section-title">
@@ -183,6 +187,14 @@
         if (trendingGrid) trendingGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
         if (popularGrid) popularGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
         if (latestGrid) latestGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
+        try {
+          const pf = await API.get('/platform/banners');
+          const picks = pf.picks || [];
+          if (picks.length) { document.getElementById('platform-discovery').style.display='block'; document.getElementById('editor-picks-grid').innerHTML='<div class="comic-grid">'+picks.slice(0,6).map(renderComicCard).join('')+'</div>'; }
+          const rising = await API.get('/platform/discover/rising');
+          if ((rising.items||[]).length) { document.getElementById('rising-section').style.display='block'; document.getElementById('rising-grid').innerHTML='<div class="comic-grid">'+rising.items.slice(0,6).map(renderComicCard).join('')+'</div>'; }
+          if (Auth.isLoggedIn()) { const rec=await API.get('/platform/discover/recommendations'); if((rec.items||[]).length){document.getElementById('personalized-section').style.display='block';document.getElementById('recommended-grid').innerHTML='<div class="comic-grid">'+rec.items.slice(0,6).map(renderComicCard).join('')+'</div>';}}
+        } catch(e) {}
 
       } catch (err) {
         console.error('Home load error:', err);

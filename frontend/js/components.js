@@ -61,6 +61,7 @@ function renderNavbar(activePage = 'home') {
                 <a href="/bookmarks.html" class="dropdown-item"><i class="fas fa-bookmark"></i> Bookmarks</a>
                 <a href="/favorites.html" class="dropdown-item"><i class="fas fa-heart"></i> Favorites</a>
                 <a href="/history.html" class="dropdown-item"><i class="fas fa-history"></i> Reading History</a>
+                <a href="/platform.html" class="dropdown-item"><i class="fas fa-layer-group"></i> Platform Center</a>
                 <a href="/profile.html" class="dropdown-item"><i class="fas fa-user-cog"></i> Profile Settings</a>
                 ${canCreate ? `<a href="/creator/dashboard.html" class="dropdown-item"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
                 ${canAdminUpload ? `<a href="/admin/upload.html" class="dropdown-item"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
@@ -136,6 +137,7 @@ function renderNavbar(activePage = 'home') {
             <a href="/bookmarks.html" class="mobile-nav-link"><i class="fas fa-bookmark"></i> Bookmarks</a>
             <a href="/favorites.html" class="mobile-nav-link"><i class="fas fa-heart"></i> Favorites</a>
             <a href="/history.html" class="mobile-nav-link"><i class="fas fa-history"></i> Reading History</a>
+            <a href="/platform.html" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Platform Center</a>
             <a href="/profile.html" class="mobile-nav-link"><i class="fas fa-user-cog"></i> Profile Settings</a>
             ${canCreate ? `<a href="/creator/dashboard.html" class="mobile-nav-link"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
             ${canAdminUpload ? `<a href="/admin/upload.html" class="mobile-nav-link"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}

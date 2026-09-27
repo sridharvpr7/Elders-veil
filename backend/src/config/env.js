@@ -17,5 +17,11 @@ module.exports = {
   EMAIL_USER: process.env.EMAIL_USER || '',
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD || '',
   EMAIL_FROM: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@eldersveil.com',
-  EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || "Elder's Veil"
+  EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || "Elder's Veil",
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || '',
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || '',
+  PREMIUM_PRICE_INR: parseInt(process.env.PREMIUM_PRICE_INR || '499',10),
+  AI_API_URL: process.env.AI_API_URL || '',
+  AI_API_KEY: process.env.AI_API_KEY || '',
+  AI_MODEL: process.env.AI_MODEL || 'default'
 };
