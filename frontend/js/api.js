@@ -1,4 +1,4 @@
-const API_BASE_URL = (document.querySelector('meta[name="api-base-url"]')?.content || 'https://elders-veil.onrender.com/api').replace(/\/$/, '');
+const API_BASE_URL = (document.querySelector('meta[name="api-base-url"]')?.content || 'https://elders-veil1.onrender.com/api').replace(/\/$/, '');
 
 class API {
   static getToken() {
