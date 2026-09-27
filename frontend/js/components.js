@@ -56,6 +56,9 @@ function renderNavbar(activePage = 'home') {
     ? user.avatar 
     : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
+  // Read cached unread notification count instantly for immediate UI display
+  const cachedUnread = localStorage.getItem('ev_notif_unread') || '0';
+
   const html = `
     <nav class="app-navbar">
       <div class="container navbar-container">
@@ -69,11 +72,8 @@ function renderNavbar(activePage = 'home') {
             <a href="/comics.html" class="nav-link ${activePage === 'comics' ? 'active' : ''}">Comics</a>
             <a href="/latest.html" class="nav-link ${activePage === 'latest' ? 'active' : ''}">Latest</a>
             <a href="/popular.html" class="nav-link ${activePage === 'popular' ? 'active' : ''}">Trending</a>
-            <a href="/premium-comics.html" class="nav-link premium-nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium</a>
+            <a href="/premium-comics.html" class="nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium</a>
             <a href="/community.html" class="nav-link ${activePage === 'creators' ? 'active' : ''}">Creators</a>
-            <a href="${getUserManualUrl()}" class="nav-link" target="_blank" rel="noopener noreferrer">
-              <i class="fas fa-book-open"></i> User Manual
-            </a>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ function renderNavbar(activePage = 'home') {
             <div class="nav-notifications" id="nav-notif-dropdown-container">
               <button class="nav-icon-btn" id="nav-notif-btn" aria-label="Notifications">
                 <i class="fas fa-bell"></i>
-                <span class="notif-badge" id="nav-notif-count" style="display:none;">0</span>
+                <span class="notif-badge" id="nav-notif-count" style="${parseInt(cachedUnread, 10) > 0 ? 'display:inline-block;' : 'display:none;'}">${cachedUnread}</span>
               </button>
               <div class="notif-dropdown-menu" id="nav-notif-dropdown">
                 <div class="notif-header">
@@ -101,12 +101,12 @@ function renderNavbar(activePage = 'home') {
               </div>
             </div>
 
-            <a href="/library.html" class="nav-link ${activePage === 'library' ? 'active' : ''}" style="font-weight:600;"><i class="fas fa-bookmark"></i> Library</a>
+            <a href="/library.html" class="nav-link ${activePage === 'library' ? 'active' : ''}"><i class="fas fa-bookmark"></i> Library</a>
 
             <div class="user-menu">
               <button class="user-avatar-btn" id="user-menu-btn" aria-label="Account Menu">
                 <img src="${userAvatar}" class="avatar-img" alt="User" />
-                <span class="user-username-label" style="font-weight:600; font-size:0.9rem;">${user ? user.username : 'Account'}</span>
+                <span class="user-username-label">${user ? user.username : 'Account'}</span>
                 <i class="fas fa-chevron-down" style="font-size:0.75rem; color:var(--muted-text);"></i>
               </button>
               <div class="dropdown-menu" id="user-dropdown-menu">
@@ -114,6 +114,7 @@ function renderNavbar(activePage = 'home') {
                 <a href="/library.html" class="dropdown-item"><i class="fas fa-bookmark"></i> My Library</a>
                 <a href="/connections.html" class="dropdown-item"><i class="fas fa-users"></i> Following & Followers</a>
                 <a href="/notifications.html" class="dropdown-item"><i class="fas fa-bell"></i> Notification Center</a>
+                <a href="${getUserManualUrl()}" class="dropdown-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> User Manual</a>
                 <a href="/platform.html" class="dropdown-item"><i class="fas fa-layer-group"></i> Platform Features</a>
                 ${isCreator ? `<a href="/creator/dashboard.html" class="dropdown-item" style="color:var(--creator-accent);"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : `<a href="/profile.html?tab=settings" class="dropdown-item"><i class="fas fa-feather"></i> Become Creator</a>`}
                 ${canAdminUpload ? `<a href="/admin/upload.html" class="dropdown-item"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
@@ -123,7 +124,7 @@ function renderNavbar(activePage = 'home') {
               </div>
             </div>
           ` : `
-            <a href="/library.html" class="nav-link" style="font-weight:600;"><i class="fas fa-bookmark"></i> Library</a>
+            <a href="/library.html" class="nav-link"><i class="fas fa-bookmark"></i> Library</a>
             <div class="nav-auth-buttons" style="display:flex; gap:0.75rem;">
               <a href="/login.html" class="btn btn-secondary btn-sm">Sign In</a>
               <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
@@ -225,7 +226,7 @@ function renderNavbar(activePage = 'home') {
       document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
     }
 
-    // Bind Notifications Dropdown Toggle & Data Fetching
+    // Bind Notifications Dropdown Toggle & Data Fetching asynchronously
     if (isLoggedIn) {
       const notifBtn = document.getElementById('nav-notif-btn');
       const notifDropdown = document.getElementById('nav-notif-dropdown');
@@ -233,10 +234,15 @@ function renderNavbar(activePage = 'home') {
       const notifList = document.getElementById('nav-notif-list');
 
       const fetchNotifications = async () => {
+        if (document.visibilityState === 'hidden') return;
         try {
-          const res = await API.get('/notifications');
+          const res = (typeof API.getCached === 'function') 
+            ? await API.getCached('/notifications', 30000) 
+            : await API.get('/notifications');
           const notifications = res.notifications || [];
           const unreadCount = notifications.filter(n => !n.read).length;
+          
+          localStorage.setItem('ev_notif_unread', String(unreadCount));
           if (notifCount) {
             if (unreadCount > 0) {
               notifCount.textContent = unreadCount > 99 ? '99+' : unreadCount;
@@ -263,7 +269,8 @@ function renderNavbar(activePage = 'home') {
         }
       };
 
-      fetchNotifications();
+      // Non-blocking asynchronous notification fetch
+      setTimeout(fetchNotifications, 50);
 
       if (notifBtn && notifDropdown) {
         notifBtn.addEventListener('click', (e) => {

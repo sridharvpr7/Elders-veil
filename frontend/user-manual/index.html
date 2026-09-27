@@ -313,6 +313,21 @@ const DOCS = [
    {p:"On a comic's details page, tap Bookmark to save it to your Bookmarks list, or tap again to remove it."},
    {h:"Favoriting a comic"},
    {p:"Tap Favorite to add a comic to your Favorites — a quick way to flag the titles you love most, separate from your reading queue."}
+  ]},
+ {id:"reading-lists",title:"Custom Reading Lists",time:"2 min",desc:"Organize comics into your own named lists.",
+  content:[
+   {h:"Creating a list"},
+   {steps:[["Open Library","Find the Reading Lists section."],["Tap New List","Give it a name (e.g. \"Weekend Reading\") and an optional description."],["Save","Your new list appears in Library, ready for comics."]]},
+   {h:"Adding a comic to a list"},
+   {steps:[["Open a comic's details page","Tap Add to List.","Create a list first from Library if you don't have one yet."],["Choose the list","Select which of your lists the comic should join."]]},
+   {box:"tip",t:"Tip",d:"Use separate lists to group comics by mood, genre or reading priority — e.g. \"Completed Comics\" or \"Fantasy Collection\"."}
+  ]},
+ {id:"achievements-streaks",title:"Reading Streaks & Achievements",time:"2 min",desc:"Track your reading habit and unlock badges.",
+  content:[
+   {h:"Reading streak"},
+   {p:"Your Platform Features page shows your current reading streak. Use Mark Today Read to check in for the day."},
+   {h:"Achievements"},
+   {p:"Badges unlock automatically as you read — for example, completing your first chapter, reaching a 3-day or 7-day streak, reading 10 chapters, or following 5 creators."}
   ]}
 ]},
 
@@ -337,14 +352,18 @@ const DOCS = [
  {id:"premium-overview",title:"What Is Premium?",time:"2 min",desc:"Unlock exclusive comics and early chapter access.",
   content:[
    {p:"Premium membership unlocks comics and chapters marked Premium in the library, and displays a Premium badge on your profile."},
-   {box:"warn",t:"Important",d:"Premium payments are currently unavailable. Premium access is activated manually by the administrator after you submit a request."}
+   {h:"Two ways to activate Premium"},
+   {ul:["Activate online — pay securely through the built-in checkout to unlock Premium immediately","Request manual activation — submit a request for an administrator to approve"]},
+   {box:"tip",t:"Note",d:"Online activation depends on the payment gateway being configured on the server. If it isn't available for any reason, use the manual activation request instead."}
   ]},
  {id:"premium-library",title:"Premium Comics",time:"2 min",desc:"Browse exclusive Premium comics and manage Premium access.",
   content:[
-   {h:"Requesting access"},
-   {steps:[["Open Premium Comics","Browse the exclusive Premium library."],["Choose a title","Open a Premium comic to view its chapters."],["Unlock access","Use the available Premium membership option when you want to read locked chapters."],["Start reading","Premium members can read Premium chapters immediately."]]},
+   {h:"Activating online"},
+   {steps:[["Open Premium or Premium Comics","From the navbar, or your profile."],["Choose Activate Online","Starts a secure checkout for the Premium plan."],["Complete payment","Follow the checkout prompts to pay."],["Access unlocks immediately","Your account is upgraded as soon as payment is verified."]]},
+   {h:"Requesting manual activation"},
+   {steps:[["Open Premium","From the navbar or your profile."],["Choose the manual request option","Submit a request for administrator approval instead of paying online."],["Wait for review","An admin reviews and approves or declines the request."],["Start reading","Once approved, Premium chapters unlock automatically."]]},
    {h:"Status meanings"},
-   {ul:["Not Premium — you can browse the Premium Comics library and view available access options","Premium access — active Premium membership unlocks Premium chapters","Approved / Active — Premium is unlocked on your account","Use the Premium Comics page to view exclusive titles and access options"]}
+   {ul:["Standard Free Account — you can browse the Premium Comics library and choose how to unlock access","Pending — a manual request has been submitted and is awaiting admin review","Premium / Active — Premium is unlocked on your account, whether activated online or approved by an admin"]}
   ]}
 ]},
 

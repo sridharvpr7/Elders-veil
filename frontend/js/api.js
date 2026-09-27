@@ -50,6 +50,33 @@ class API {
     }
   }
 
+  static _cache = new Map();
+
+  static clearCache(pattern = null) {
+    if (!pattern) {
+      this._cache.clear();
+      return;
+    }
+    const regex = typeof pattern === 'string' ? new RegExp(pattern, 'i') : pattern;
+    for (const key of this._cache.keys()) {
+      if (regex.test(key)) {
+        this._cache.delete(key);
+      }
+    }
+  }
+
+  static async getCached(endpoint, ttlMs = 30000) {
+    const key = `${this.getToken()}::${endpoint}`;
+    const cached = this._cache.get(key);
+    const now = Date.now();
+    if (cached && (now - cached.timestamp < ttlMs)) {
+      return cached.data;
+    }
+    const data = await this.get(endpoint);
+    this._cache.set(key, { data, timestamp: now });
+    return data;
+  }
+
   static async get(endpoint) {
     return this.request(endpoint, {
       method: 'GET',
@@ -58,6 +85,7 @@ class API {
   }
 
   static async post(endpoint, body) {
+    this.clearCache();
     return this.request(endpoint, {
       method: 'POST',
       headers: this.getHeaders(true),
@@ -66,6 +94,7 @@ class API {
   }
 
   static async put(endpoint, body) {
+    this.clearCache();
     return this.request(endpoint, {
       method: 'PUT',
       headers: this.getHeaders(true),
@@ -74,6 +103,7 @@ class API {
   }
 
   static async delete(endpoint) {
+    this.clearCache();
     return this.request(endpoint, {
       method: 'DELETE',
       headers: this.getHeaders(true)
@@ -81,6 +111,7 @@ class API {
   }
 
   static async upload(endpoint, formData) {
+    this.clearCache();
     return this.request(endpoint, {
       method: 'POST',
       headers: this.getHeaders(false), // Let browser set multipart boundary

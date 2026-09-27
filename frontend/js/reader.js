@@ -148,37 +148,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Reader Progress Sync & Scroll Tracking
+    let progressTimer = null;
     const saveReadingProgress = (pNum) => {
       if (!Auth.isLoggedIn()) return;
-      API.post('/platform/progress/sync', {
-        comicId: currentChapter.comicId,
-        chapterId: currentChapter.id,
-        pageNumber: pNum
-      }).catch(() => {});
+      clearTimeout(progressTimer);
+      progressTimer = setTimeout(() => {
+        API.post('/platform/progress/sync', {
+          comicId: currentChapter.comicId,
+          chapterId: currentChapter.id,
+          pageNumber: pNum
+        }).catch(() => {});
+      }, 500);
     };
 
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-
-      if (progressBar) progressBar.style.width = `${Math.min(100, Math.max(0, scrollPercent))}%`;
-
-      // Active visible page detection
-      const wraps = document.querySelectorAll('.reader-image-wrap');
-      wraps.forEach(el => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-          const pNum = parseInt(el.getAttribute('data-page'), 10);
-          if (pNum && pNum !== currentPageIndex) {
-            currentPageIndex = pNum;
-            if (pagePill) pagePill.textContent = `Page ${currentPageIndex} / ${pages.length}`;
-            preloadNextPages(currentPageIndex);
-            saveReadingProgress(currentPageIndex);
+    // Use IntersectionObserver for zero-layout-thrashing page tracking
+    if ('IntersectionObserver' in window) {
+      const pageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const pNum = parseInt(entry.target.getAttribute('data-page'), 10);
+            if (pNum && pNum !== currentPageIndex) {
+              currentPageIndex = pNum;
+              if (pagePill) pagePill.textContent = `Page ${currentPageIndex} / ${pages.length}`;
+              preloadNextPages(currentPageIndex);
+              saveReadingProgress(currentPageIndex);
+            }
           }
-        }
-      });
-    });
+        });
+      }, { threshold: 0.4 });
+
+      document.querySelectorAll('.reader-image-wrap').forEach(el => pageObserver.observe(el));
+    }
+
+    // Throttled scrollbar indicator update
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollTop = window.scrollY;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+          if (progressBar) progressBar.style.width = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
 
     // Control selectors
     const modeEl = document.getElementById('reader-mode');
