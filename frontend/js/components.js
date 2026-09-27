@@ -325,7 +325,7 @@ function renderFooter() {
   }
 }
 function renderComicCard(comic) {
-  const coverUrl = comic.coverImage || '/uploads/covers/default.jpg';
+  const coverUrl = API.assetUrl(comic.coverImage) || API.assetUrl('/assets/icon.png');
   const slug = comic.slug || comic.id;
   const rating = comic.rating ? Number(comic.rating).toFixed(1) : '4.5';
   const type = comic.type || 'manga';
@@ -339,7 +339,7 @@ function renderComicCard(comic) {
         ${premBadge}
         <div class="card-rating"><i class="fas fa-star"></i> ${rating}</div>
         <a href="/comic.html?slug=${slug}">
-          <img src="${coverUrl}" alt="${comic.title}" loading="lazy" />
+          <img src="${coverUrl}" alt="${comic.title}" onerror="this.onerror=null;this.src='/assets/icon.png'" loading="lazy" />
         </a>
       </div>
       <div class="card-content">

@@ -17,3 +17,5 @@
 
 .premium-purchase-actions .btn-primary{min-width:190px;box-shadow:0 8px 24px rgba(124,58,237,.22)}
 .premium-purchase-actions .btn-premium{min-width:205px}
+
+.premium-hero-actions{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}.premium-hero-actions .btn{min-width:180px}.premium-purchase-actions{display:flex;justify-content:center;gap:.65rem;flex-wrap:wrap}.premium-purchase-actions .btn{min-width:190px}

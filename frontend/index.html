@@ -176,7 +176,8 @@
           document.getElementById('hero-type').textContent = (top.type || 'manga').toUpperCase();
           document.getElementById('hero-status').textContent = (top.status || 'ongoing').toUpperCase();
           document.getElementById('hero-rating').textContent = Number(top.rating).toFixed(1);
-          document.getElementById('hero-bg-img').src = top.bannerImage || top.coverImage;
+          document.getElementById('hero-bg-img').src = API.assetUrl(top.bannerImage || top.coverImage) || API.assetUrl('/assets/icon.png');
+          document.getElementById('hero-bg-img').onerror = function(){ this.onerror=null; this.src=API.assetUrl('/assets/icon.png'); };
           document.getElementById('hero-read-btn').href = `/comic.html?slug=${top.slug}`;
         }
 

@@ -11,6 +11,7 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5000',
   UPLOAD_BASE_URL: process.env.UPLOAD_BASE_URL || '',
+  UPLOAD_DIR: process.env.UPLOAD_DIR || path.join(__dirname, '../../../uploads'),
   EMAIL_HOST: process.env.EMAIL_HOST || '',
   EMAIL_PORT: parseInt(process.env.EMAIL_PORT || '587', 10),
   EMAIL_SECURE: String(process.env.EMAIL_SECURE || 'false').toLowerCase() === 'true',
