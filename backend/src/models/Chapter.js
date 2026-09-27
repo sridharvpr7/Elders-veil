@@ -97,7 +97,40 @@ class Chapter {
     const idx=db.fallbackStore.chapters.findIndex(c=>c.id===id); if(idx!==-1){db.fallbackStore.chapters.splice(idx,1);db.fallbackStore.chapter_pages=db.fallbackStore.chapter_pages.filter(p=>p.chapter_id!==id);db.saveFallbackStore();return true;} return false;
   }
 
-  static async incrementViews(id){if(db.isPgConnected()){await db.query('UPDATE chapters SET views=views+1 WHERE id=$1',[id]);return;} const ch=db.fallbackStore.chapters.find(c=>c.id===id);if(ch){ch.views=(ch.views||0)+1;db.saveFallbackStore();}}
+  static async getLatest(limit = 10) {
+    if (db.isPgConnected()) {
+      const res = await db.query(`
+        SELECT ch.*, c.title AS comic_title, c.slug AS comic_slug, c.cover_image, u.username AS creator_username
+        FROM chapters ch
+        JOIN comics c ON c.id = ch.comic_id
+        LEFT JOIN users u ON u.id = c.creator_id
+        WHERE ch.publish_status = 'published' AND c.publish_status = 'published'
+        ORDER BY ch.created_at DESC LIMIT $1
+      `, [limit]);
+      return res.rows.map(row => ({
+        ...this.formatChapter(row),
+        comicTitle: row.comic_title,
+        comicSlug: row.comic_slug,
+        comicCover: row.cover_image,
+        creatorUsername: row.creator_username || 'Elder\'s Veil Creator'
+      }));
+    }
+    return db.fallbackStore.chapters
+      .filter(ch => (ch.publish_status || 'published') === 'published')
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .slice(0, limit)
+      .map(ch => {
+        const comic = db.fallbackStore.comics.find(c => c.id === ch.comic_id) || {};
+        const creator = db.fallbackStore.users.find(u => u.id === (comic.creator_id || comic.creatorId));
+        return {
+          ...this.formatChapter(ch),
+          comicTitle: comic.title,
+          comicSlug: comic.slug,
+          comicCover: comic.cover_image || comic.coverImage,
+          creatorUsername: creator ? creator.username : 'Elder\'s Veil Creator'
+        };
+      });
+  }
 
   static formatChapter(row){if(!row)return null;return {id:row.id,comicId:row.comic_id||row.comicId,chapterNumber:parseFloat(row.chapter_number||row.chapterNumber||1),title:row.title,pages:Array.isArray(row.pages)?row.pages:[],pageCount:parseInt(row.page_count||row.pageCount||(Array.isArray(row.pages)?row.pages.length:0),10),releaseDate:row.release_date||row.releaseDate||new Date().toISOString().split('T')[0],views:parseInt(row.views||0,10),publishStatus:row.publish_status||row.publishStatus||'published',reviewNote:row.review_note||row.reviewNote||null,createdAt:row.created_at};}
 }

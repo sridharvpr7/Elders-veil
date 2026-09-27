@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elder's Veil — Commercial Comic & Manga Reading Platform</title>
+  <title>Elder's Veil — Premium Comic & Manga Platform</title>
   <meta name="description"
-    content="Discover, read, and track high-definition manga, manhwa, and manhua comics with a premium dark reading experience." />
+    content="Discover, read, and track high-definition manga, manhwa, and webcomics with a modern dark reading experience." />
 
   <link rel="stylesheet" href="/css/reset.css" />
   <link rel="stylesheet" href="/css/variables.css" />
@@ -17,20 +17,19 @@
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
 
-  <meta name="theme-color" content="#0b0b0f" />
+  <meta name="theme-color" content="#0b0d14" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <link rel="manifest" href="./manifest.json?v=4" />
-
+  <link rel="manifest" href="./manifest.json?v=5" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="/js/theme.js"></script>
 </head>
 
 <body>
 
-  <!-- Dynamic Glass Navbar -->
+  <!-- Dynamic Header -->
   <header id="app-header"></header>
 
   <main>
@@ -38,44 +37,37 @@
 
       <!-- Hero Spotlight Banner -->
       <section class="hero-banner" id="hero-banner">
-        <img
-          src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='450'><rect width='1200' height='450' fill='%230f172a'/></svg>"
-          class="hero-bg" id="hero-bg-img" alt="Featured" />
+        <img src="/assets/icon.png" class="hero-bg" id="hero-bg-img" alt="Featured Comic" />
         <div class="hero-overlay"></div>
         <div class="hero-content">
           <div class="hero-meta">
-            <span class="badge badge-purple" id="hero-type">CATALOG</span>
-            <span class="badge badge-cyan" id="hero-status">READY</span>
-            <span style="color:var(--accent-gold); font-weight:700;"><i class="fas fa-book-open"></i> <span
-                id="hero-rating">NEW</span></span>
+            <span class="badge badge-purple" id="hero-type">FEATURED</span>
+            <span class="badge badge-cyan" id="hero-status">ONGOING</span>
+            <span style="color:var(--premium-gold); font-weight:700;"><i class="fas fa-star"></i> <span id="hero-rating">4.9</span></span>
+            <span style="color:var(--muted-text); font-size:0.85rem;"><i class="fas fa-eye"></i> <span id="hero-views">0</span></span>
           </div>
-          <h1 class="hero-title" id="hero-title">Your Comic Library</h1>
+          <h1 class="hero-title" id="hero-title">Elder's Veil Comics</h1>
           <p class="hero-desc" id="hero-desc">
-            Discover published comics, or sign in to manage your reading and creator account.
+            Immerse yourself in world-class digital manga and original webcomics.
           </p>
           <div class="hero-actions">
-
             <a href="/comics.html" class="btn btn-primary" id="hero-read-btn">
-              <i class="fas fa-compass"></i> Explore Comics
+              <i class="fas fa-play"></i> READ NOW
             </a>
-
-            <a href="/comics.html" class="btn btn-secondary">
-              <i class="fas fa-compass"></i> Explore Catalog
-            </a>
-
-            <button id="install-app-btn" class="btn btn-primary" style="display:inline-flex;">
-              <i class="fas fa-cloud-download-alt"></i>
-              Install App
+            <button class="btn btn-secondary" id="hero-library-btn">
+              <i class="fas fa-plus"></i> ADD TO LIBRARY
             </button>
-
+            <button id="install-app-btn" class="btn btn-secondary" style="display:none;">
+              <i class="fas fa-download"></i> Install App
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- Continue Reading Widget -->
+      <!-- Continue Reading Widget (Renders ONLY if reading history exists) -->
       <div id="continue-reading-container"></div>
 
-      <!-- Categories Pills -->
+      <!-- Genre Pills -->
       <section>
         <div class="section-title"><i class="fas fa-tags"></i> <span>Popular Genres</span></div>
         <div class="genre-pills">
@@ -85,45 +77,74 @@
           <a href="/comics.html?genre=Sci-Fi" class="genre-pill">Sci-Fi</a>
           <a href="/comics.html?genre=Cyberpunk" class="genre-pill">Cyberpunk</a>
           <a href="/comics.html?genre=Mystery" class="genre-pill">Mystery</a>
+          <a href="/comics.html?genre=Romance" class="genre-pill">Romance</a>
           <a href="/comics.html?genre=Supernatural" class="genre-pill">Supernatural</a>
         </div>
       </section>
 
-      <section id="platform-discovery" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-star" style="color:var(--accent-gold);"></i><span>Editor's Picks</span></div><div id="editor-picks-grid"></div></section>
-      <section id="personalized-section" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-wand-magic-sparkles"></i><span>Recommended For You</span></div><div id="recommended-grid"></div></section>
-      <section id="rising-section" style="margin-bottom:3.5rem;display:none"><div class="section-title"><i class="fas fa-chart-line"></i><span>Rising Comics</span></div><div id="rising-grid"></div></section>
+      <!-- Creators You Follow (Renders ONLY if user follows creators) -->
+      <section id="followed-creators-section" style="margin-bottom:3.5rem; display:none;">
+        <div class="section-title"><i class="fas fa-user-check" style="color:var(--creator-accent);"></i> <span>Creators You Follow</span></div>
+        <div class="creator-cards-grid" id="followed-creators-grid"></div>
+      </section>
 
-      <!-- Trending Section -->
-      <section style="margin-bottom: 3.5rem;">
+      <!-- Recommended For You (Backend Scoring) -->
+      <section id="personalized-section" style="margin-bottom:3.5rem; display:none;">
+        <div class="section-title"><i class="fas fa-wand-magic-sparkles" style="color:var(--secondary);"></i> <span>Recommended for You</span></div>
+        <div id="recommended-grid"></div>
+      </section>
+
+      <!-- Trending Comics -->
+      <section style="margin-bottom:3.5rem;">
         <div class="section-title">
-          <i class="fas fa-fire" style="color:var(--accent-pink);"></i>
-          <span>Trending Releases</span>
+          <i class="fas fa-fire" style="color:var(--accent);"></i>
+          <span>Trending Comics</span>
         </div>
         <div id="trending-comics-grid"></div>
       </section>
 
-      <!-- Popular Comics Section -->
-      <section style="margin-bottom: 3.5rem;">
+      <!-- Latest Chapters -->
+      <section style="margin-bottom:3.5rem;">
         <div class="section-title">
-          <i class="fas fa-crown" style="color:var(--accent-gold);"></i>
-          <span>Most Popular</span>
+          <i class="fas fa-clock" style="color:var(--secondary);"></i>
+          <span>Latest Chapters</span>
         </div>
-        <div id="popular-comics-grid"></div>
+        <div id="latest-chapters-grid" class="latest-chapters-grid"></div>
       </section>
 
-      <!-- Recently Updated Section -->
-      <section>
+      <!-- Rising Comics -->
+      <section id="rising-section" style="margin-bottom:3.5rem;">
         <div class="section-title">
-          <i class="fas fa-clock" style="color:var(--accent-cyan-light);"></i>
-          <span>Latest Updates</span>
+          <i class="fas fa-chart-line" style="color:#10b981;"></i>
+          <span>Rising Comics</span>
         </div>
-        <div id="latest-comics-grid"></div>
+        <div id="rising-comics-grid"></div>
+      </section>
+
+      <!-- Premium Comics (Dedicated subtle golden identity) -->
+      <section class="premium-section-banner" id="premium-section">
+        <div class="section-title" style="margin-bottom:1rem;">
+          <i class="fas fa-crown" style="color:var(--premium-gold);"></i>
+          <span style="color:#fef08a;">Exclusive Premium Comics</span>
+        </div>
+        <p style="color:var(--muted-text); font-size:0.9rem; margin-bottom:1.5rem; max-width:600px;">
+          Unlock full access to top-tier exclusive series, early chapter releases, and ad-free reading.
+        </p>
+        <div id="premium-comics-grid"></div>
+      </section>
+
+      <!-- Top Rated Comics -->
+      <section style="margin-bottom:3.5rem;">
+        <div class="section-title">
+          <i class="fas fa-star" style="color:var(--premium-gold);"></i>
+          <span>Top Rated</span>
+        </div>
+        <div id="top-rated-grid"></div>
       </section>
 
     </div>
   </main>
 
-  <!-- App Footer -->
   <footer id="app-footer"></footer>
 
   <script src="/js/api.js"></script>
@@ -134,76 +155,172 @@
       renderNavbar('home');
       renderFooter();
 
-      // Check user reading history for continue reading widget
+      let heroComicId = null;
+
+      // 1. Continue Reading (Show ONLY if reading history exists)
       if (Auth.isLoggedIn()) {
         try {
           const histRes = await API.get('/users/me/history');
-          if (histRes.history && histRes.history.length > 0) {
-            const latest = histRes.history[0];
-            const widget = document.getElementById('continue-reading-container');
-            if (widget) {
-              widget.innerHTML = `
+          const history = histRes.history || [];
+          if (history.length > 0) {
+            const latest = history[0];
+            const pageNum = latest.pageNumber || latest.page_number || 1;
+            const chNum = latest.chapterNumber || latest.chapter_number || 1;
+            const container = document.getElementById('continue-reading-container');
+            if (container) {
+              container.innerHTML = `
                 <section class="continue-reading-section">
                   <div class="section-title" style="font-size:1.2rem; margin-bottom:1rem;">
-                    <i class="fas fa-play-circle" style="color:var(--accent-cyan);"></i> Continue Reading
+                    <i class="fas fa-play-circle" style="color:var(--secondary);"></i> Continue Reading
                   </div>
                   <div class="continue-card">
-                    <img src="${latest.comicCover || '/uploads/covers/default.jpg'}" class="continue-cover" alt="Cover" />
+                    <img src="${API.assetUrl(latest.comicCover || latest.cover_image) || '/assets/icon.png'}" class="continue-cover" alt="Cover" onerror="this.onerror=null;this.src='/assets/icon.png'" />
                     <div class="continue-info">
                       <h4>${latest.comicTitle || 'Comic'}</h4>
-                      <p>Chapter ${latest.chapterNumber || 1}: ${latest.chapterTitle || ''} • Page ${latest.pageNumber || 1}</p>
+                      <p>Chapter ${chNum} • Page ${pageNum}</p>
+                      <div class="continue-progress-bar">
+                        <div class="continue-progress-fill" style="width: ${Math.min(100, Math.max(10, pageNum * 5))}%;"></div>
+                      </div>
                     </div>
-                    <a href="/reader.html?id=${latest.chapterId}&page=${latest.pageNumber}" class="btn btn-primary btn-sm">
-                      Resume <i class="fas fa-arrow-right"></i>
+                    <a href="/reader.html?id=${latest.chapterId}&page=${pageNum}" class="btn btn-primary btn-sm">
+                      <i class="fas fa-play"></i> CONTINUE
                     </a>
                   </div>
                 </section>
               `;
             }
           }
-        } catch (e) { }
+        } catch (e) {}
+
+        // 2. Creators You Follow (Show ONLY if user follows creators)
+        try {
+          const followRes = await API.get('/engagement/me/following');
+          const following = followRes.creators || followRes.following || [];
+          if (following.length > 0) {
+            const sec = document.getElementById('followed-creators-section');
+            const grid = document.getElementById('followed-creators-grid');
+            sec.style.display = 'block';
+            grid.innerHTML = following.slice(0, 6).map(c => `
+              <div class="creator-card-item" onclick="window.location.href='/creator.html?id=${c.id || c.creator_id}'" style="cursor:pointer;">
+                <img src="${API.assetUrl(c.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="creator-card-avatar" alt="${c.username}" />
+                <div class="creator-card-name">${c.username}</div>
+                <div class="creator-card-followers">${c.follower_count || c.followers || 0} Followers</div>
+                <span class="btn btn-secondary btn-sm" style="width:100%;">View Profile</span>
+              </div>
+            `).join('');
+          }
+        } catch (e) {}
+
+        // 3. Recommended For You
+        try {
+          const recRes = await API.get('/platform/discover/recommendations');
+          const recs = recRes.items || [];
+          if (recs.length > 0) {
+            const sec = document.getElementById('personalized-section');
+            const grid = document.getElementById('recommended-grid');
+            sec.style.display = 'block';
+            grid.innerHTML = `<div class="comic-grid">${recs.slice(0, 6).map(renderComicCard).join('')}</div>`;
+          }
+        } catch (e) {}
       }
 
-      // Load Featured / Hero
+      // 4. Load Main Catalog / Featured Hero
       try {
-        const res = await API.get('/comics?limit=12');
+        const res = await API.get('/comics?limit=24');
         const comics = res.comics || [];
 
         if (comics.length > 0) {
           const top = comics[0];
+          heroComicId = top.id;
           document.getElementById('hero-title').textContent = top.title;
-          document.getElementById('hero-desc').textContent = top.description || '';
+          document.getElementById('hero-desc').textContent = top.description || 'Step into an epic adventure.';
           document.getElementById('hero-type').textContent = (top.type || 'manga').toUpperCase();
           document.getElementById('hero-status').textContent = (top.status || 'ongoing').toUpperCase();
-          document.getElementById('hero-rating').textContent = Number(top.rating).toFixed(1);
-          document.getElementById('hero-bg-img').src = API.assetUrl(top.bannerImage || top.coverImage) || API.assetUrl('/assets/icon.png');
-          document.getElementById('hero-bg-img').onerror = function(){ this.onerror=null; this.src=API.assetUrl('/assets/icon.png'); };
-          document.getElementById('hero-read-btn').href = `/comic.html?slug=${top.slug}`;
+          document.getElementById('hero-rating').textContent = Number(top.rating || 4.8).toFixed(1);
+          document.getElementById('hero-views').textContent = (top.views || 0).toLocaleString();
+          
+          const bgImg = document.getElementById('hero-bg-img');
+          bgImg.src = API.assetUrl(top.bannerImage || top.coverImage) || API.assetUrl('/assets/icon.png');
+          bgImg.onerror = function() { this.onerror=null; this.src = '/assets/icon.png'; };
+          
+          const readBtn = document.getElementById('hero-read-btn');
+          readBtn.href = `/comic.html?slug=${encodeURIComponent(top.slug || top.id)}`;
+
+          const libBtn = document.getElementById('hero-library-btn');
+          libBtn.onclick = async () => {
+            if (!Auth.isLoggedIn()) return window.location.href = '/login.html';
+            try {
+              await API.post('/users/me/favorites', { comicId: top.id });
+              showToast('Added to your Library!', 'success');
+            } catch (e) {
+              showToast(e.message || 'Already in Library', 'info');
+            }
+          };
         }
 
+        // Trending Comics
         const trendingGrid = document.getElementById('trending-comics-grid');
-        const popularGrid = document.getElementById('popular-comics-grid');
-        const latestGrid = document.getElementById('latest-comics-grid');
+        if (trendingGrid) {
+          const trendingComics = [...comics].sort((a,b) => (b.views || 0) - (a.views || 0)).slice(0, 6);
+          trendingGrid.innerHTML = `<div class="comic-grid">${trendingComics.map(renderComicCard).join('')}</div>`;
+        }
 
-        if (trendingGrid) trendingGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-        if (popularGrid) popularGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-        if (latestGrid) latestGrid.innerHTML = `<div class="comic-grid">${comics.slice(0, 6).map(renderComicCard).join('')}</div>`;
-        try {
-          const pf = await API.get('/platform/banners');
-          const picks = pf.picks || [];
-          if (picks.length) { document.getElementById('platform-discovery').style.display='block'; document.getElementById('editor-picks-grid').innerHTML='<div class="comic-grid">'+picks.slice(0,6).map(renderComicCard).join('')+'</div>'; }
-          const rising = await API.get('/platform/discover/rising');
-          if ((rising.items||[]).length) { document.getElementById('rising-section').style.display='block'; document.getElementById('rising-grid').innerHTML='<div class="comic-grid">'+rising.items.slice(0,6).map(renderComicCard).join('')+'</div>'; }
-          if (Auth.isLoggedIn()) { const rec=await API.get('/platform/discover/recommendations'); if((rec.items||[]).length){document.getElementById('personalized-section').style.display='block';document.getElementById('recommended-grid').innerHTML='<div class="comic-grid">'+rec.items.slice(0,6).map(renderComicCard).join('')+'</div>';}}
-        } catch(e) {}
+        // Top Rated Comics
+        const topRatedGrid = document.getElementById('top-rated-grid');
+        if (topRatedGrid) {
+          const topRatedComics = [...comics].sort((a,b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6);
+          topRatedGrid.innerHTML = `<div class="comic-grid">${topRatedComics.map(renderComicCard).join('')}</div>`;
+        }
+
+        // Rising Comics
+        const risingGrid = document.getElementById('rising-comics-grid');
+        if (risingGrid) {
+          try {
+            const risingRes = await API.get('/platform/discover/rising');
+            const risingItems = risingRes.items || comics.slice(6, 12);
+            risingGrid.innerHTML = `<div class="comic-grid">${risingItems.slice(0, 6).map(renderComicCard).join('')}</div>`;
+          } catch(e) {
+            risingGrid.innerHTML = `<div class="comic-grid">${comics.slice(6, 12).map(renderComicCard).join('')}</div>`;
+          }
+        }
+
+        // Premium Comics
+        const premiumGrid = document.getElementById('premium-comics-grid');
+        if (premiumGrid) {
+          const premComics = comics.filter(c => c.isPremium || c.is_premium);
+          const displayPrem = premComics.length > 0 ? premComics.slice(0, 6) : comics.slice(0, 6).map(c => ({...c, is_premium: true}));
+          premiumGrid.innerHTML = `<div class="comic-grid">${displayPrem.map(renderComicCard).join('')}</div>`;
+        }
 
       } catch (err) {
         console.error('Home load error:', err);
       }
+
+      // 5. Latest Chapters
+      try {
+        const chRes = await API.get('/chapters/latest/all?limit=6');
+        const chapters = chRes.chapters || [];
+        const latestGrid = document.getElementById('latest-chapters-grid');
+        if (latestGrid) {
+          if (chapters.length === 0) {
+            latestGrid.innerHTML = '<div style="color:var(--muted-text); grid-column: 1/-1;">No chapters updated recently.</div>';
+          } else {
+            latestGrid.innerHTML = chapters.map(ch => `
+              <div class="latest-chapter-card" onclick="window.location.href='/reader.html?id=${ch.id}'" style="cursor:pointer;">
+                <img src="${API.assetUrl(ch.comicCover) || '/assets/icon.png'}" class="latest-chapter-thumb" alt="${ch.comicTitle || 'Comic'}" onerror="this.onerror=null;this.src='/assets/icon.png'" />
+                <div class="latest-chapter-info">
+                  <div class="latest-chapter-comic">${ch.comicTitle || 'Comic Title'}</div>
+                  <div class="latest-chapter-title">Chapter ${ch.chapterNumber || 1}${ch.title ? `: ${ch.title}` : ''}</div>
+                  <div class="latest-chapter-meta"><i class="fas fa-feather"></i> ${ch.creatorUsername || 'Creator'} • ${new Date(ch.createdAt || ch.releaseDate || Date.now()).toLocaleDateString()}</div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (e) {}
+
     });
   </script>
-  <script>document.addEventListener('DOMContentLoaded', () => {const u = Auth.getUser(); const b = document.getElementById('hero-read-btn'); if (u && u.role === 'admin') {b.href = '/admin/upload.html'; b.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Comic';} });</script>
-
   <script src="./js/pwa.js"></script>
 
 </body>

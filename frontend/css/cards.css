@@ -137,3 +137,19 @@
 .card-cover-link img {
   display: block;
 }
+
+/* Dedicated Premium Card Accent */
+.premium-comic-card {
+  border-color: rgba(234, 179, 8, 0.35);
+}
+.premium-comic-card:hover {
+  border-color: var(--premium-gold);
+  box-shadow: 0 6px 20px rgba(234, 179, 8, 0.2);
+}
+.premium-gold-badge {
+  background: rgba(234, 179, 8, 0.15) !important;
+  color: #fef08a !important;
+  border: 1px solid rgba(234, 179, 8, 0.4) !important;
+  backdrop-filter: blur(8px);
+}
+

@@ -1,48 +1,78 @@
 :root {
-  /* Dark Color System */
-  --bg-primary: #0b0d14;
-  --bg-secondary: #131722;
-  --bg-tertiary: #1a202c;
-  --bg-card: rgba(26, 32, 44, 0.7);
-  --bg-card-hover: rgba(35, 43, 59, 0.9);
+  /* Core Design System Tokens */
+  --bg: #0b0d14;
+  --surface: #131722;
+  --surface-elevated: #1a202c;
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+  --secondary: #06b6d4;
+  --secondary-hover: #0891b2;
+  --accent: #f43f5e;
+  --text: #f8fafc;
+  --muted-text: #94a3b8;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(124, 58, 237, 0.4);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --premium-gold: #eab308;
+  --creator-accent: #8b5cf6;
+
+  /* Backward Compatibility Aliases */
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--surface);
+  --bg-tertiary: var(--surface-elevated);
+  --bg-card: rgba(26, 32, 44, 0.75);
+  --bg-card-hover: rgba(35, 43, 59, 0.95);
   
-  /* Glassmorphism */
   --glass-bg: rgba(19, 23, 34, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(124, 58, 237, 0.4);
+  --glass-border: var(--border);
+  --glass-border-hover: var(--border-hover);
   --glass-blur: blur(16px);
 
-  /* Primary Brand Accents */
-  --accent-purple: #7c3aed;
+  --accent-purple: var(--primary);
   --accent-purple-light: #a855f7;
-  --accent-cyan: #06b6d4;
+  --accent-cyan: var(--secondary);
   --accent-cyan-light: #38bdf8;
-  --accent-pink: #f43f5e;
-  --accent-gold: #eab308;
+  --accent-pink: var(--accent);
+  --accent-gold: var(--premium-gold);
 
-  /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: var(--text);
+  --text-secondary: var(--muted-text);
   --text-muted: #64748b;
 
-  /* Gradients */
-  --grad-primary: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
-  --grad-pink: linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%);
+  --grad-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  --grad-pink: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
   --grad-dark: linear-gradient(180deg, rgba(11, 13, 20, 0) 0%, rgba(11, 13, 20, 0.95) 100%);
+  --grad-gold: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 
   /* Typography */
   --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-title: 'Outfit', sans-serif;
 
-  /* UI Tokens */
-  --radius-sm: 6px;
+  /* Border Radius Tokens */
+  --radius-sm: 8px;
+  --radius-card: 14px;
+  --radius-section: 20px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.35);
+  /* Subtle Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 16px rgba(124, 58, 237, 0.25);
 
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);

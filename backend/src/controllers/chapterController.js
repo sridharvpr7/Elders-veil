@@ -184,6 +184,14 @@ class ChapterController {
       res.json({ chapter: updated, message: 'Chapter resubmitted for administrator review.' });
     } catch (err) { next(err); }
   }
+
+  static async getLatestChapters(req, res, next) {
+    try {
+      const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 12));
+      const chapters = await Chapter.getLatest(limit);
+      res.json({ chapters });
+    } catch (err) { next(err); }
+  }
 }
 
 module.exports = ChapterController;

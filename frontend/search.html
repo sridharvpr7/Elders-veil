@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Search — Elder's Veil</title>
+  <title>Search & Discovery — Elder's Veil</title>
+  <meta name="description" content="Search published comics by title, author, genre, tags, status, and premium catalog." />
+
   <link rel="stylesheet" href="/css/reset.css" />
   <link rel="stylesheet" href="/css/variables.css" />
   <link rel="stylesheet" href="/css/theme.css" />
@@ -13,20 +15,116 @@
   <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="/js/theme.js"></script>
+
+  <style>
+    .search-filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .recent-searches {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+    .recent-chip {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--muted-text);
+      font-size: 0.8rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all var(--transition-fast);
+    }
+    .recent-chip:hover {
+      color: var(--text);
+      border-color: var(--primary);
+    }
+  </style>
 </head>
 <body>
   <header id="app-header"></header>
 
   <main>
-    <div class="container">
-      <div class="section-title"><i class="fas fa-search text-gradient"></i> <span>Comic Search Engine</span></div>
+    <div class="container" style="padding-top:2rem;">
+      <div style="margin-bottom:1.5rem;">
+        <h1 style="font-size:2rem; font-weight:900;"><i class="fas fa-search text-gradient"></i> Search Catalog</h1>
+        <p style="color:var(--muted-text); font-size:0.92rem;">Filter by title, creator, genre, tags, status, or premium access.</p>
+      </div>
 
-      <div style="max-width:600px; margin:0 auto 3rem;">
-        <div class="form-group">
-          <input type="text" id="search-input" class="form-input" style="padding:1rem 1.25rem; font-size:1.1rem; border-radius:var(--radius-full);" placeholder="Type title, author, artist, or genre..." />
+      <!-- Main Search Input Box -->
+      <div style="margin-bottom:1.5rem; position:relative;">
+        <div style="position:relative;">
+          <input type="text" id="search-input" class="form-input" style="padding:0.9rem 1rem 0.9rem 2.8rem; font-size:1.05rem; border-radius:var(--radius-md);" placeholder="Search title, creator, genre, tags..." />
+          <i class="fas fa-search" style="position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--muted-text);"></i>
+          <button id="clear-search-btn" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted-text); cursor:pointer; display:none;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- Recent Searches List -->
+        <div class="recent-searches" id="recent-searches-box">
+          <span style="font-size:0.8rem; color:var(--muted-text); font-weight:600;"><i class="fas fa-history"></i> Recent:</span>
+          <div id="recent-chips-container" style="display:inline-flex; gap:0.4rem; flex-wrap:wrap;"></div>
         </div>
       </div>
 
+      <!-- Advanced Filter Controls -->
+      <div class="search-filter-bar">
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Genre</label>
+          <select id="filter-genre" class="form-select" style="min-height:38px; font-size:0.85rem;">
+            <option value="">All Genres</option>
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+            <option value="Mystery">Mystery</option>
+            <option value="Romance">Romance</option>
+            <option value="Supernatural">Supernatural</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Status</label>
+          <select id="filter-status" class="form-select" style="min-height:38px; font-size:0.85rem;">
+            <option value="">All Statuses</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Access</label>
+          <select id="filter-premium" class="form-select" style="min-height:38px; font-size:0.85rem;">
+            <option value="">All Comics</option>
+            <option value="free">Free Only</option>
+            <option value="premium">Premium Only</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size:0.8rem;">Sort By</label>
+          <select id="filter-sort" class="form-select" style="min-height:38px; font-size:0.85rem;">
+            <option value="popular">Most Popular</option>
+            <option value="latest">Latest Updates</option>
+            <option value="rating">Top Rated</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Search Results Grid -->
       <div id="search-results"></div>
     </div>
   </main>

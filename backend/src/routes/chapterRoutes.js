@@ -8,6 +8,7 @@ const creatorMiddleware = (req, res, next) => { if (!req.user || !['admin','crea
 // Get chapters for a comic
 router.get('/comic/:comicId', ChapterController.getComicChapters);
 router.get('/mine', authMiddleware, ChapterController.getMyChapters);
+router.get('/latest/all', optionalAuthMiddleware, ChapterController.getLatestChapters);
 router.get('/:id', optionalAuthMiddleware, ChapterController.getChapterById);
 
 // Admin-only endpoints

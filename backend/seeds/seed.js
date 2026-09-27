@@ -21,7 +21,6 @@ function generateSvgComicPage(title, chapterNum, pageNum, bgGradient) {
     <rect width="800" height="1200" fill="url(#bg)"/>
     <rect x="40" y="40" width="720" height="1120" rx="16" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
     
-    <!-- Manga Frame Panels -->
     <rect x="60" y="80" width="680" height="320" rx="12" fill="url(#cardBg)" stroke="rgba(124,58,237,0.4)" stroke-width="2"/>
     <text x="400" y="240" font-family="Arial, sans-serif" font-weight="900" font-size="28" fill="#e2e8f0" text-anchor="middle" letter-spacing="2">
       ${title.toUpperCase()}
@@ -30,21 +29,18 @@ function generateSvgComicPage(title, chapterNum, pageNum, bgGradient) {
       CHAPTER ${chapterNum} — PANEL 1
     </text>
     
-    <!-- Panel 2 Left -->
     <rect x="60" y="420" width="330" height="420" rx="12" fill="url(#cardBg)" stroke="rgba(6,182,212,0.4)" stroke-width="2"/>
     <circle cx="225" cy="600" r="70" fill="#7c3aed" opacity="0.3"/>
     <text x="225" y="610" font-family="Arial, sans-serif" font-weight="bold" font-size="22" fill="#38bdf8" text-anchor="middle">
       PAGE ${pageNum}
     </text>
 
-    <!-- Panel 2 Right -->
     <rect x="410" y="420" width="330" height="420" rx="12" fill="url(#cardBg)" stroke="rgba(244,63,94,0.4)" stroke-width="2"/>
     <polygon points="575,520 630,640 520,640" fill="#f43f5e" opacity="0.4"/>
     <text x="575" y="670" font-family="Arial, sans-serif" font-size="16" fill="#f1f5f9" text-anchor="middle">
       "The veil breaks now..."
     </text>
 
-    <!-- Panel 3 Bottom Climax -->
     <rect x="60" y="860" width="680" height="260" rx="12" fill="url(#cardBg)" stroke="rgba(168,85,247,0.5)" stroke-width="2"/>
     <text x="400" y="980" font-family="Arial, sans-serif" font-weight="bold" font-size="24" fill="#a855f7" text-anchor="middle">
       TO BE CONTINUED...
@@ -68,17 +64,14 @@ function generateSvgCover(title, type, accentColor) {
     <rect width="400" height="600" fill="url(#coverBg)"/>
     <rect x="20" y="20" width="360" height="560" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" rx="12"/>
     
-    <!-- Title Emblem -->
     <circle cx="200" cy="240" r="90" fill="none" stroke="${accentColor}" stroke-width="4" opacity="0.6"/>
     <polygon points="200,160 230,220 300,240 240,280 260,350 200,310 140,350 160,280 100,240 170,220" fill="${accentColor}" opacity="0.8"/>
 
-    <!-- Badge -->
     <rect x="30" y="30" width="80" height="28" rx="6" fill="#7c3aed"/>
     <text x="70" y="49" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#ffffff" text-anchor="middle">
       ${type.toUpperCase()}
     </text>
 
-    <!-- Title Text -->
     <rect x="20" y="440" width="360" height="140" fill="rgba(15,23,42,0.85)"/>
     <text x="200" y="490" font-family="Arial, sans-serif" font-weight="900" font-size="22" fill="#ffffff" text-anchor="middle">
       ${title.toUpperCase()}
@@ -116,9 +109,9 @@ async function seedInitialData() {
     console.log('[Seed] Seeding initial database data...');
 
     // Seed Admin & Default User
-    const adminExists = await User.findByEmail('admin@comicverse.com');
-    if (!adminExists) {
-      await User.create({
+    let admin = await User.findByEmail('admin@comicverse.com');
+    if (!admin) {
+      admin = await User.create({
         id: 'user-admin-01',
         username: 'AdminVerse',
         email: 'admin@comicverse.com',
@@ -148,15 +141,105 @@ async function seedInitialData() {
       await Genre.create({ id: `genre-${name.toLowerCase()}`, name });
     }
 
-    // Remove bundled sample comics from previous deployments.
-    // User/admin uploaded comics are never touched.
-    const sampleComicIds = ['comic-001', 'comic-002', 'comic-003', 'comic-004'];
-    for (const sampleId of sampleComicIds) {
-      const removed = await Comic.delete(sampleId);
-      if (removed) console.log(`[Seed] Removed bundled sample comic: ${sampleId}`);
+    // Seed default starter comics if catalog is empty
+    const existingComics = await Comic.getAll({ limit: 10, includeDrafts: true });
+    if (!existingComics || existingComics.length === 0) {
+      console.log('[Seed] Catalog empty. Seeding starter comics...');
+
+      const starters = [
+        {
+          id: 'starter-01',
+          title: 'Dark Moon',
+          slug: 'dark-moon',
+          description: 'A hunter awakens an ancient celestial power beneath the blood moon to battle shadow monsters invading Earth.',
+          author: 'Ren Shadows',
+          artist: 'Kuro Art',
+          status: 'ongoing',
+          type: 'manhwa',
+          coverImage: generateSvgCover('Dark Moon', 'manhwa', '#7c3aed'),
+          bannerImage: generateSvgBanner('Dark Moon', '#7c3aed'),
+          rating: 4.9,
+          views: 14250,
+          isPremium: false,
+          creatorId: admin.id,
+          genres: ['Action', 'Fantasy', 'Supernatural']
+        },
+        {
+          id: 'starter-02',
+          title: 'Cyber Veil 2099',
+          slug: 'cyber-veil-2099',
+          description: 'In a dystopian mega-city ruled by artificial intelligences, a rogue netrunner discovers the secret of the elder veil.',
+          author: 'Vektor Kai',
+          artist: 'Neon Vex',
+          status: 'ongoing',
+          type: 'manga',
+          coverImage: generateSvgCover('Cyber Veil 2099', 'manga', '#06b6d4'),
+          bannerImage: generateSvgBanner('Cyber Veil 2099', '#06b6d4'),
+          rating: 4.8,
+          views: 18900,
+          isPremium: true,
+          creatorId: admin.id,
+          genres: ['Sci-Fi', 'Cyberpunk', 'Action']
+        },
+        {
+          id: 'starter-03',
+          title: 'Solo Eclipse',
+          slug: 'solo-eclipse',
+          description: 'Trapped inside a S-rank dungeon, a lone swordsman levels up infinitely beyond human limits.',
+          author: 'Han Jin',
+          artist: 'Studio Eclipse',
+          status: 'ongoing',
+          type: 'manhwa',
+          coverImage: generateSvgCover('Solo Eclipse', 'manhwa', '#f43f5e'),
+          bannerImage: generateSvgBanner('Solo Eclipse', '#f43f5e'),
+          rating: 4.95,
+          views: 28400,
+          isPremium: false,
+          creatorId: admin.id,
+          genres: ['Action', 'Adventure', 'Fantasy']
+        },
+        {
+          id: 'starter-04',
+          title: 'Celestial Odyssey',
+          slug: 'celestial-odyssey',
+          description: 'A young astronomer unlocks a star forge and embarks on a journey across interstellar realms.',
+          author: 'Elena Star',
+          artist: 'Astra Studio',
+          status: 'ongoing',
+          type: 'manhua',
+          coverImage: generateSvgCover('Celestial Odyssey', 'manhua', '#eab308'),
+          bannerImage: generateSvgBanner('Celestial Odyssey', '#eab308'),
+          rating: 4.75,
+          views: 9200,
+          isPremium: true,
+          creatorId: admin.id,
+          genres: ['Sci-Fi', 'Adventure', 'Fantasy']
+        }
+      ];
+
+      for (const s of starters) {
+        const c = await Comic.create(s);
+        // Create 3 sample chapters for each comic
+        for (let chNum = 1; chNum <= 3; chNum++) {
+          const pages = [
+            generateSvgComicPage(s.title, chNum, 1, ['#1e1b4b', '#0f172a']),
+            generateSvgComicPage(s.title, chNum, 2, ['#0f172a', '#31104b']),
+            generateSvgComicPage(s.title, chNum, 3, ['#2e1065', '#090d16'])
+          ];
+          await Chapter.create({
+            id: `ch-${s.id}-${chNum}`,
+            comicId: c.id,
+            chapterNumber: chNum,
+            title: `Chapter ${chNum}: Awakening`,
+            pages,
+            publishStatus: 'published'
+          });
+        }
+        console.log(`[Seed] Created starter comic: ${s.title}`);
+      }
     }
 
-    // Save standard JSON backup file in frontend/data/comics.json as required by prompt
+    // Save backup JSON in frontend/data/comics.json
     const backupComics = await Comic.getAll({ limit: 100 });
     const fullBackup = [];
     for (const c of backupComics) {

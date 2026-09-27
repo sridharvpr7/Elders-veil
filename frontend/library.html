@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Library — Elder's Veil</title>
+  <meta name="description" content="Manage your reading progress, favorites, bookmarks, custom lists, and followed creators." />
+
+  <link rel="stylesheet" href="/css/reset.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/cards.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="/js/theme.js"></script>
+
+  <style>
+    .library-tabs {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .library-tab {
+      padding: 0.65rem 1.25rem;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--muted-text);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .library-tab:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .library-tab.active {
+      color: var(--text);
+      background: var(--surface-elevated);
+      border-bottom: 3px solid var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header id="app-header"></header>
+
+  <main>
+    <div class="container" style="padding-top: 2rem;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div>
+          <h1 style="font-size:2rem; font-weight:900;"><i class="fas fa-bookmark text-gradient"></i> My Library</h1>
+          <p style="color:var(--muted-text); font-size:0.92rem; margin-top:0.25rem;">
+            Track your reading journey, manage custom collections, and follow favorite creators.
+          </p>
+        </div>
+
+        <button class="btn btn-primary" id="create-list-btn">
+          <i class="fas fa-plus"></i> Create Custom List
+        </button>
+      </div>
+
+      <!-- Library Tabs Navigation -->
+      <div class="library-tabs" id="library-tabs">
+        <button class="library-tab active" data-tab="history"><i class="fas fa-history"></i> Continue Reading</button>
+        <button class="library-tab" data-tab="favorites"><i class="fas fa-heart" style="color:var(--accent);"></i> Favorites</button>
+        <button class="library-tab" data-tab="bookmarks"><i class="fas fa-bookmark"></i> Read Later</button>
+        <button class="library-tab" data-tab="custom-lists"><i class="fas fa-folder"></i> My Lists</button>
+        <button class="library-tab" data-tab="following"><i class="fas fa-users" style="color:var(--creator-accent);"></i> Following</button>
+      </div>
+
+      <!-- Tab Contents Container -->
+      <div id="library-tab-content">
+        <div style="text-align:center; padding:4rem 1rem;">
+          <i class="fas fa-circle-notch fa-spin" style="font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+          <p style="color:var(--muted-text);">Loading library data...</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderNavbar('library');
+      renderFooter();
+
+      if (!Auth.isLoggedIn()) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      let activeTab = urlParams.get('tab') || 'history';
+
+      const tabBtns = document.querySelectorAll('.library-tab');
+      const contentEl = document.getElementById('library-tab-content');
+
+      const setTabActive = (tabName) => {
+        activeTab = tabName;
+        tabBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+        });
+        loadTabContent(tabName);
+      };
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => setTabActive(btn.getAttribute('data-tab')));
+      });
+
+      const loadTabContent = async (tab) => {
+        contentEl.innerHTML = '<div style="text-align:center; padding:3rem 1rem;"><i class="fas fa-circle-notch fa-spin" style="font-size:2rem; color:var(--primary);"></i></div>';
+
+        if (tab === 'history') {
+          try {
+            const res = await API.get('/users/me/history');
+            const history = res.history || [];
+            if (history.length === 0) {
+              contentEl.innerHTML = renderEmptyState('fa-history', 'No Reading History Yet', 'Your reading journey starts here. Explore published comics to start reading!', '<a href="/comics.html" class="btn btn-primary"><i class="fas fa-compass"></i> Explore Comics</a>');
+              return;
+            }
+            contentEl.innerHTML = `
+              <div class="comic-grid">
+                ${history.map(item => `
+                  <article class="comic-card">
+                    <div class="card-thumb" style="position:relative;">
+                      <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber || 1}">
+                        <img src="${API.assetUrl(item.comicCover) || '/assets/icon.png'}" alt="${item.comicTitle}" onerror="this.onerror=null;this.src='/assets/icon.png';" loading="lazy" />
+                      </a>
+                    </div>
+                    <div class="card-content">
+                      <h3 class="card-title"><a href="/comic.html?id=${item.comicId}">${item.comicTitle}</a></h3>
+                      <div class="card-meta">
+                        <span>Ch. ${item.chapterNumber || 1} • Pg. ${item.pageNumber || 1}</span>
+                      </div>
+                      <a href="/reader.html?id=${item.chapterId}&page=${item.pageNumber || 1}" class="btn btn-primary btn-sm" style="margin-top:0.75rem; width:100%;">
+                        <i class="fas fa-play"></i> Continue
+                      </a>
+                    </div>
+                  </article>
+                `).join('')}
+              </div>
+            `;
+          } catch (e) {
+            contentEl.innerHTML = renderEmptyState('fa-exclamation-circle', 'Error Loading History', e.message);
+          }
+        } else if (tab === 'favorites') {
+          try {
+            const res = await API.get('/users/me/favorites');
+            const favorites = res.favorites || [];
+            if (favorites.length === 0) {
+              contentEl.innerHTML = renderEmptyState('fa-heart', 'No Favorites Yet', 'Start building your collection by adding comics you love to your favorites.', '<a href="/comics.html" class="btn btn-primary"><i class="fas fa-heart"></i> Discover Comics</a>');
+              return;
+            }
+            contentEl.innerHTML = `<div class="comic-grid">${favorites.map(renderComicCard).join('')}</div>`;
+          } catch (e) {
+            contentEl.innerHTML = renderEmptyState('fa-exclamation-circle', 'Error Loading Favorites', e.message);
+          }
+        } else if (tab === 'bookmarks') {
+          try {
+            const res = await API.get('/users/me/bookmarks');
+            const bookmarks = res.bookmarks || [];
+            if (bookmarks.length === 0) {
+              contentEl.innerHTML = renderEmptyState('fa-bookmark', 'No Read Later Bookmarks', 'Bookmark comics you plan to read later so you never lose track of them.', '<a href="/comics.html" class="btn btn-primary"><i class="fas fa-compass"></i> Browse Catalog</a>');
+              return;
+            }
+            contentEl.innerHTML = `<div class="comic-grid">${bookmarks.map(renderComicCard).join('')}</div>`;
+          } catch (e) {
+            contentEl.innerHTML = renderEmptyState('fa-exclamation-circle', 'Error Loading Bookmarks', e.message);
+          }
+        } else if (tab === 'custom-lists') {
+          try {
+            const res = await API.get('/platform/lists');
+            const lists = res.lists || [];
+            if (lists.length === 0) {
+              contentEl.innerHTML = renderEmptyState('fa-folder-open', 'No Custom Reading Lists', 'Create custom reading lists (e.g. Weekend Reading, Top Anime Adaptations) to organize your comics.', '<button class="btn btn-primary" id="empty-create-list-btn"><i class="fas fa-plus"></i> Create First List</button>');
+              document.getElementById('empty-create-list-btn')?.addEventListener('click', createCustomList);
+              return;
+            }
+            contentEl.innerHTML = `
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">
+                ${lists.map(l => `
+                  <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+                        <h3 style="font-size:1.1rem; font-weight:700;">${l.name}</h3>
+                        <button class="btn btn-secondary btn-sm delete-list-btn" data-id="${l.id}" style="color:var(--error); padding:0.2rem 0.5rem;"><i class="fas fa-trash"></i></button>
+                      </div>
+                      <p style="font-size:0.85rem; color:var(--muted-text); margin-bottom:1rem;">${l.description || 'Custom user collection.'}</p>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--muted-text); border-top:1px solid var(--border); padding-top:0.75rem;">
+                      <span><i class="fas fa-book"></i> ${l.item_count || 0} Comics</span>
+                      <button class="btn btn-secondary btn-sm view-list-btn" data-id="${l.id}">View Items</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+            document.querySelectorAll('.delete-list-btn').forEach(btn => {
+              btn.onclick = async () => {
+                const listId = btn.getAttribute('data-id');
+                if (confirm('Delete this custom list?')) {
+                  try {
+                    await API.delete(`/platform/lists/${listId}`);
+                    showToast('List deleted.', 'info');
+                    loadTabContent('custom-lists');
+                  } catch (e) { showToast(e.message, 'error'); }
+                }
+              };
+            });
+            document.querySelectorAll('.view-list-btn').forEach(btn => {
+              btn.onclick = async () => {
+                const listId = btn.getAttribute('data-id');
+                try {
+                  const itemsRes = await API.get(`/platform/lists/${listId}/items`);
+                  const items = itemsRes.items || [];
+                  if (items.length === 0) {
+                    showToast('This reading list is currently empty.', 'info');
+                  } else {
+                    contentEl.innerHTML = `
+                      <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:1rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.reload()"><i class="fas fa-arrow-left"></i> Back to Lists</button>
+                        <h3 style="margin:0;">List Items (${items.length})</h3>
+                      </div>
+                      <div class="comic-grid">${items.map(renderComicCard).join('')}</div>
+                    `;
+                  }
+                } catch (e) { showToast(e.message, 'error'); }
+              };
+            });
+          } catch (e) {
+            contentEl.innerHTML = renderEmptyState('fa-exclamation-circle', 'Error Loading Custom Lists', e.message);
+          }
+        } else if (tab === 'following') {
+          try {
+            const res = await API.get('/engagement/me/following');
+            const creators = res.creators || res.following || [];
+            if (creators.length === 0) {
+              contentEl.innerHTML = renderEmptyState('fa-user-plus', 'No Followed Creators', 'Follow creators to get instant updates on their latest chapter releases and works.', '<a href="/community.html" class="btn btn-primary"><i class="fas fa-users"></i> Discover Creators</a>');
+              return;
+            }
+            contentEl.innerHTML = `
+              <div class="creator-cards-grid">
+                ${creators.map(c => `
+                  <div class="creator-card-item" onclick="window.location.href='/creator.html?id=${c.id || c.creator_id}'" style="cursor:pointer;">
+                    <img src="${API.assetUrl(c.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="creator-card-avatar" alt="${c.username}" />
+                    <div class="creator-card-name">${c.username}</div>
+                    <div class="creator-card-followers">${c.follower_count || c.followers || 0} Followers</div>
+                    <span class="btn btn-secondary btn-sm" style="width:100%;">View Creator</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } catch (e) {
+            contentEl.innerHTML = renderEmptyState('fa-exclamation-circle', 'Error Loading Followed Creators', e.message);
+          }
+        }
+      };
+
+      const createCustomList = async () => {
+        const name = prompt('Enter a name for your custom reading list (e.g. Favorite Webtoons):');
+        if (!name || !name.trim()) return;
+        const desc = prompt('Enter an optional description:') || '';
+        try {
+          await API.post('/platform/lists', { name: name.trim(), description: desc.trim() });
+          showToast(`Created custom list "${name.trim()}"!`, 'success');
+          setTabActive('custom-lists');
+        } catch (e) { showToast(e.message, 'error'); }
+      };
+
+      document.getElementById('create-list-btn')?.addEventListener('click', createCustomList);
+
+      setTabActive(activeTab);
+    });
+  </script>
+
+</body>
+
+</html>

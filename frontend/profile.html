@@ -1,76 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Account Settings — Elder's Veil</title>
+  <title>User Profile — Elder's Veil</title>
+  <meta name="description" content="View user statistics, reading streak, unlocked achievements, custom lists, and account settings." />
+
   <link rel="stylesheet" href="/css/reset.css" />
   <link rel="stylesheet" href="/css/variables.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/global.css" />
   <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/cards.css" />
   <link rel="stylesheet" href="/css/profile.css" />
   <link rel="stylesheet" href="/css/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="/js/theme.js"></script>
+
+  <style>
+    .profile-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-section);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+    }
+    .profile-avatar-large {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary);
+    }
+    .profile-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .profile-stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .profile-stat-number {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--text);
+      font-family: var(--font-title);
+    }
+    .profile-stat-label {
+      font-size: 0.8rem;
+      color: var(--muted-text);
+      margin-top: 0.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .achievement-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      opacity: 0.5;
+      transition: all var(--transition-fast);
+    }
+    .achievement-card.earned {
+      opacity: 1;
+      border-color: var(--primary);
+      background: var(--surface-elevated);
+    }
+    .achievement-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(124, 58, 237, 0.15);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .achievement-card.earned .achievement-icon {
+      background: var(--grad-primary);
+      color: #fff;
+    }
+  </style>
 </head>
+
 <body>
+
   <header id="app-header"></header>
 
   <main>
-    <div class="container">
-      
-      <div class="profile-grid-tabs">
-        <a href="/dashboard.html" class="tab-btn"><i class="fas fa-th-large"></i> Dashboard Overview</a>
-        <a href="/bookmarks.html" class="tab-btn"><i class="fas fa-bookmark"></i> Bookmarks</a>
-        <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
-        <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
-        <a href="/profile.html" class="tab-btn active"><i class="fas fa-user-cog"></i> Account Settings</a>
-      </div>
+    <div class="container" style="padding-top: 2rem;">
 
-      <div class="profile-social-card" style="margin-bottom:2rem;background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:1.25rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
-          <div><h3 style="margin:0 0 .25rem;"><i class="fas fa-users text-gradient"></i> Creator Connections</h3>
-          <p style="color:var(--text-muted);margin:0;">Follow creators and see who you follow.</p></div>
-          <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
-            <a class="btn btn-secondary" id="following-link" href="/connections.html?type=following"><i class="fas fa-user-plus"></i> Following <strong id="following-count">0</strong></a>
-            <a class="btn btn-secondary" id="followers-link" href="/connections.html?type=followers" style="display:none;"><i class="fas fa-users"></i> Followers <strong id="followers-count">0</strong></a>
+      <!-- Profile Header Hero -->
+      <div class="profile-hero">
+        <img id="prof-hero-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="profile-avatar-large" alt="Avatar" />
+        <div style="flex:1; min-width:240px;">
+          <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+            <h1 id="prof-hero-name" style="font-size:1.8rem; font-weight:900; margin:0;">User</h1>
+            <span id="prof-hero-badge" class="badge badge-purple">READER</span>
+          </div>
+          <p id="prof-hero-email" style="color:var(--muted-text); font-size:0.9rem; margin-top:0.25rem;"></p>
+          <div style="display:flex; gap:1.25rem; margin-top:0.75rem; font-size:0.85rem; color:var(--muted-text);">
+            <span><i class="fas fa-fire" style="color:var(--warning);"></i> Streak: <strong id="prof-streak-days" style="color:var(--text);">0</strong> Days</span>
+            <span><i class="fas fa-award" style="color:var(--primary);"></i> Achievements: <strong id="prof-earned-count" style="color:var(--text);">0</strong></span>
           </div>
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
-        <!-- Edit Profile Form -->
-        <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
-          <h3 style="margin-bottom:1.5rem;"><i class="fas fa-user-edit text-gradient"></i> Edit Profile Info</h3>
-          <form id="edit-profile-form">
-            <div class="form-group">
-              <label class="form-label">Username</label>
-              <input type="text" id="prof-username" class="form-input" required />
-            </div>
-            <div class="form-group"><label class="form-label">Profile Picture <span style="color:var(--text-muted)">(max 50 KB)</span></label><input type="file" id="prof-avatar-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" /><img id="prof-avatar-preview" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:none;margin-top:.5rem" alt="Profile preview"></div><div class="form-group"><label class="form-label">Theme</label><select id="theme-select" class="form-select"><option value="dark">Dark</option><option value="light">Light</option></select></div>
-            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">
-              <i class="fas fa-save"></i> Save Profile
-            </button>
-          </form>
+      <!-- Quick Statistics -->
+      <div class="profile-stats-grid">
+        <div class="profile-stat-card">
+          <div class="profile-stat-number" id="stat-read-count">0</div>
+          <div class="profile-stat-label">Comics Read</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-number" id="stat-favorites-count">0</div>
+          <div class="profile-stat-label">Favorites</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-number" id="stat-following-count">0</div>
+          <div class="profile-stat-label">Following</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-number" id="stat-streak-count">0</div>
+          <div class="profile-stat-label">Reading Streak</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="library-tabs" id="profile-tabs" style="display:flex; gap:0.75rem; border-bottom:1px solid var(--border); margin-bottom:2rem;">
+        <button class="library-tab active" data-tab="overview"><i class="fas fa-th-large"></i> Overview & Achievements</button>
+        <button class="library-tab" data-tab="settings"><i class="fas fa-user-cog"></i> Account Settings</button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div id="profile-tab-content">
+        <!-- Overview & Achievements Tab -->
+        <div id="tab-overview-view">
+          <div style="margin-bottom:1.5rem;">
+            <h3><i class="fas fa-award text-gradient"></i> Unlocked Badges & Achievements</h3>
+            <p style="color:var(--muted-text); font-size:0.88rem;">Earn badges by reading consistently, building your library, and following creators.</p>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;" id="achievements-grid">
+            <div style="text-align:center; padding:2rem; color:var(--muted-text); grid-column:1/-1;">Loading achievements...</div>
+          </div>
         </div>
 
-        <!-- Change Password Form -->
-        <div style="background:var(--bg-secondary); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:2rem;">
-          <h3 style="margin-bottom:1.5rem;"><i class="fas fa-key text-gradient"></i> Change Password</h3>
-          <form id="change-pass-form">
-            <div class="form-group">
-              <label class="form-label">Current Password</label>
-              <input type="password" id="pass-current" class="form-input" required />
+        <!-- Account Settings Tab -->
+        <div id="tab-settings-view" style="display:none;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:2rem;">
+            <!-- Edit Profile Form -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem;">
+              <h3 style="margin-bottom:1.5rem;"><i class="fas fa-user-edit text-gradient"></i> Edit Profile Info</h3>
+              <form id="edit-profile-form">
+                <div class="form-group">
+                  <label class="form-label">Username</label>
+                  <input type="text" id="prof-username" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Profile Picture <span style="color:var(--muted-text)">(max 50 KB)</span></label>
+                  <input type="file" id="prof-avatar-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" />
+                  <img id="prof-avatar-preview" style="width:72px; height:72px; border-radius:50%; object-fit:cover; display:none; margin-top:0.5rem;" alt="Profile preview" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Theme Preference</label>
+                  <select id="theme-select" class="form-select">
+                    <option value="dark">Dark Theme</option>
+                    <option value="light">Light Theme</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:1rem;">
+                  <i class="fas fa-save"></i> Save Profile
+                </button>
+              </form>
             </div>
-            <div class="form-group">
-              <label class="form-label">New Password</label>
-              <input type="password" id="pass-new" class="form-input" required />
+
+            <!-- Change Password Form -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:2rem;">
+              <h3 style="margin-bottom:1.5rem;"><i class="fas fa-key text-gradient"></i> Change Password</h3>
+              <form id="change-pass-form">
+                <div class="form-group">
+                  <label class="form-label">Current Password</label>
+                  <input type="password" id="pass-current" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Password</label>
+                  <input type="password" id="pass-new" class="form-input" required />
+                </div>
+                <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">
+                  <i class="fas fa-shield-alt"></i> Update Password
+                </button>
+              </form>
             </div>
-            <button type="submit" class="btn btn-secondary" style="margin-top:1rem;">
-              <i class="fas fa-shield-alt"></i> Update Password
-            </button>
-          </form>
+          </div>
         </div>
       </div>
 
@@ -83,8 +219,8 @@
   <script src="/js/auth.js"></script>
   <script src="/js/components.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      renderNavbar('');
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderNavbar('profile');
       renderFooter();
 
       if (!Auth.isLoggedIn()) {
@@ -93,41 +229,144 @@
       }
 
       const user = Auth.getUser();
+      const heroAvatar = document.getElementById('prof-hero-avatar');
+      const heroName = document.getElementById('prof-hero-name');
+      const heroBadge = document.getElementById('prof-hero-badge');
+      const heroEmail = document.getElementById('prof-hero-email');
+
       if (user) {
+        if (heroName) heroName.textContent = user.username || 'User';
+        if (heroEmail) heroEmail.textContent = user.email || '';
+        if (heroAvatar) heroAvatar.src = API.assetUrl(user.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+        if (heroBadge) {
+          const isPrem = !!(user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()));
+          if (isPrem) {
+            heroBadge.className = 'badge premium-gold-badge';
+            heroBadge.innerHTML = '<i class="fas fa-crown"></i> PREMIUM MEMBER';
+          } else if (user.role === 'admin') {
+            heroBadge.className = 'badge badge-purple';
+            heroBadge.textContent = 'ADMINISTRATOR';
+          } else if (user.role === 'creator') {
+            heroBadge.className = 'badge badge-cyan';
+            heroBadge.textContent = 'CREATOR';
+          } else {
+            heroBadge.className = 'badge badge-purple';
+            heroBadge.textContent = 'READER';
+          }
+        }
         document.getElementById('prof-username').value = user.username || '';
-        document.getElementById('prof-avatar-preview').src=API.assetUrl(user.avatar)||'';document.getElementById('prof-avatar-preview').style.display=user.avatar?'block':'none';document.getElementById('theme-select').value=localStorage.getItem('elder-veil-theme')||'dark';
+        document.getElementById('theme-select').value = localStorage.getItem('elder-veil-theme') || 'dark';
       }
 
-      // Load creator follow statistics
-      (async () => {
-        try {
-          const following = await API.get('/engagement/me/following');
-          document.getElementById('following-count').textContent = Number(following.followingCount || 0).toLocaleString();
-          if (user && ['creator','admin'].includes(user.role)) {
-            const followers = await API.get('/engagement/me/followers');
-            document.getElementById('followers-link').style.display = '';
-            document.getElementById('followers-count').textContent = Number(followers.followersCount || 0).toLocaleString();
-          }
-        } catch (e) { console.warn('Follow stats unavailable:', e.message); }
-      })();
+      // Tab switching
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialTab = urlParams.get('tab') || 'overview';
 
-      // Profile Edit Form Submit
+      const tabBtns = document.querySelectorAll('#profile-tabs .library-tab');
+      const overviewView = document.getElementById('tab-overview-view');
+      const settingsView = document.getElementById('tab-settings-view');
+
+      const setTab = (tabName) => {
+        tabBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName));
+        if (tabName === 'settings') {
+          overviewView.style.display = 'none';
+          settingsView.style.display = 'block';
+        } else {
+          overviewView.style.display = 'block';
+          settingsView.style.display = 'none';
+        }
+      };
+
+      tabBtns.forEach(btn => btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab'))));
+      setTab(initialTab);
+
+      // Load Statistics & Achievements
+      try {
+        const [streakRes, achRes, favRes, histRes, folRes] = await Promise.all([
+          API.post('/platform/streak/checkin', {}).catch(() => ({ streak: { current_streak: 0 } })),
+          API.get('/platform/achievements').catch(() => ({ achievements: [] })),
+          API.get('/users/me/favorites').catch(() => ({ favorites: [] })),
+          API.get('/users/me/history').catch(() => ({ history: [] })),
+          API.get('/engagement/me/following').catch(() => ({ creators: [] }))
+        ]);
+
+        const streak = streakRes.streak?.current_streak || 0;
+        const achievements = achRes.achievements || [];
+        const earnedCount = achievements.filter(a => a.earned_at).length;
+
+        document.getElementById('prof-streak-days').textContent = streak;
+        document.getElementById('stat-streak-count').textContent = streak;
+        document.getElementById('prof-earned-count').textContent = `${earnedCount} / ${achievements.length}`;
+
+        document.getElementById('stat-read-count').textContent = (histRes.history || []).length;
+        document.getElementById('stat-favorites-count').textContent = (favRes.favorites || []).length;
+        document.getElementById('stat-following-count').textContent = (folRes.creators || folRes.following || []).length;
+
+        const achGrid = document.getElementById('achievements-grid');
+        if (achGrid) {
+          if (achievements.length === 0) {
+            achGrid.innerHTML = renderEmptyState('fa-award', 'No Achievements', 'No achievements available at the moment.');
+          } else {
+            achGrid.innerHTML = achievements.map(a => {
+              const isEarned = !!a.earned_at;
+              return `
+                <div class="achievement-card ${isEarned ? 'earned' : ''}">
+                  <div class="achievement-icon">
+                    <i class="fas ${a.icon || 'fa-award'}"></i>
+                  </div>
+                  <div>
+                    <div style="font-weight:700; font-size:0.95rem; color:var(--text);">${a.name} ${isEarned ? '<i class="fas fa-check-circle" style="color:var(--success); font-size:0.8rem;"></i>' : ''}</div>
+                    <div style="font-size:0.82rem; color:var(--muted-text); margin-top:0.15rem;">${a.description}</div>
+                    ${isEarned ? `<div style="font-size:0.72rem; color:var(--primary); margin-top:0.35rem;"><i class="far fa-calendar-check"></i> Unlocked ${new Date(a.earned_at).toLocaleDateString()}</div>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      } catch (e) {
+        console.warn('Profile statistics load error:', e);
+      }
+
+      // Profile Edit Form Submit (50 KB max avatar check)
       document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('prof-username').value;
-        const avatarFile=document.getElementById('prof-avatar-file').files[0];
+        const avatarFile = document.getElementById('prof-avatar-file').files[0];
 
         try {
-          let avatar=user.avatar||'';if(avatarFile){if(avatarFile.size>50*1024)throw new Error('Profile picture must be 50 KB or smaller.');const fd=new FormData();fd.append('avatar',avatarFile);const ar=await API.upload('/uploads/avatar',fd);avatar=ar.url;}const res=await API.put('/users/me',{username,avatar});
+          let avatar = user.avatar || '';
+          if (avatarFile) {
+            if (avatarFile.size > 50 * 1024) throw new Error('Profile picture must be 50 KB or smaller.');
+            const fd = new FormData();
+            fd.append('avatar', avatarFile);
+            const ar = await API.upload('/uploads/avatar', fd);
+            avatar = ar.url;
+          }
+          const res = await API.put('/users/me', { username, avatar });
           localStorage.setItem('user', JSON.stringify(res.user));
           showToast('Profile updated successfully!', 'success');
-          localStorage.setItem('elder-veil-theme',document.getElementById('theme-select').value);document.documentElement.setAttribute('data-theme',document.getElementById('theme-select').value);setTimeout(()=>location.reload(),600);
+          const selTheme = document.getElementById('theme-select').value;
+          localStorage.setItem('elder-veil-theme', selTheme);
+          document.documentElement.setAttribute('data-theme', selTheme);
+          setTimeout(() => location.reload(), 600);
         } catch (err) {
           showToast(err.message, 'error');
         }
       });
 
-      document.getElementById('prof-avatar-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(f.size>50*1024){showToast('Profile picture must be 50 KB or smaller.','error');e.target.value='';return;}const p=document.getElementById('prof-avatar-preview');p.src=URL.createObjectURL(f);p.style.display='block';});document.getElementById('theme-select').addEventListener('change',e=>{localStorage.setItem('elder-veil-theme',e.target.value);document.documentElement.setAttribute('data-theme',e.target.value);});
+      document.getElementById('prof-avatar-file').addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        if (f.size > 50 * 1024) {
+          showToast('Profile picture must be 50 KB or smaller.', 'error');
+          e.target.value = '';
+          return;
+        }
+        const p = document.getElementById('prof-avatar-preview');
+        p.src = URL.createObjectURL(f);
+        p.style.display = 'block';
+      });
 
       // Change Password Form Submit
       document.getElementById('change-pass-form').addEventListener('submit', async (e) => {
@@ -146,4 +385,5 @@
     });
   </script>
 </body>
+
 </html>

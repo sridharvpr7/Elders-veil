@@ -42,9 +42,9 @@
 }
 
 .hero-title {
-  font-size: 2.75rem;
+  font-size: 2.5rem;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.15;
   margin-bottom: 1rem;
   color: var(--text-primary);
 }
@@ -64,47 +64,69 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 /* Continue Reading Section */
 .continue-reading-section {
   margin-bottom: 3.5rem;
   padding: 1.5rem;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-section);
 }
 
 .continue-card {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: var(--bg-secondary);
-  padding: 1rem 1.25rem;
+  background: var(--surface-elevated);
+  padding: 1.25rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
 }
 
 .continue-cover {
-  width: 60px;
-  height: 80px;
+  width: 64px;
+  height: 90px;
   border-radius: var(--radius-sm);
   object-fit: cover;
 }
 
 .continue-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .continue-info h4 {
   font-size: 1.1rem;
-  margin-bottom: 0.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
 }
 
 .continue-info p {
-  color: var(--text-muted);
+  color: var(--muted-text);
   font-size: 0.85rem;
+  margin: 0;
+}
+
+.continue-progress-bar {
+  width: 100%;
+  max-width: 280px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 0.4rem;
+}
+
+.continue-progress-fill {
+  height: 100%;
+  background: var(--grad-primary);
+  border-radius: var(--radius-full);
 }
 
 /* Genre Pills */
@@ -131,4 +153,137 @@
   color: #ffffff;
   border-color: transparent;
   box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+/* Compact Latest Chapter Cards */
+.latest-chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.latest-chapter-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.latest-chapter-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  background: var(--surface-elevated);
+}
+
+.latest-chapter-thumb {
+  width: 56px;
+  height: 76px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.latest-chapter-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.latest-chapter-comic {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.latest-chapter-title {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  font-weight: 600;
+}
+
+.latest-chapter-meta {
+  font-size: 0.78rem;
+  color: var(--muted-text);
+}
+
+/* Dedicated Premium Section Identity */
+.premium-section-banner {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(19, 23, 34, 0.95) 100%);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: var(--radius-section);
+  padding: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+/* Creators You Follow Carousel / Grid */
+.creator-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.creator-card-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.creator-card-item:hover {
+  border-color: var(--creator-accent);
+  transform: translateY(-3px);
+}
+
+.creator-card-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--creator-accent);
+  margin-bottom: 0.75rem;
+}
+
+.creator-card-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.creator-card-followers {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .hero-banner {
+    min-height: 340px;
+  }
+  .hero-content {
+    padding: 1.5rem;
+  }
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  .continue-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .continue-progress-bar {
+    max-width: 100%;
+  }
 }

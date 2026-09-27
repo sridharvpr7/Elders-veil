@@ -404,3 +404,113 @@
   margin-top: 1rem;
 }
 
+/* Notification Bell Dropdown in Header */
+.nav-notifications {
+  position: relative;
+}
+
+.nav-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-icon-btn:hover {
+  border-color: var(--primary);
+  background: var(--surface-elevated);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.15rem 0.38rem;
+  border-radius: var(--radius-full);
+  line-height: 1;
+  border: 2px solid var(--surface);
+}
+
+.notif-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: -60px;
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 0.75rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1010;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.notif-dropdown-menu.show {
+  display: flex;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.notif-item {
+  padding: 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.notif-item:hover {
+  background: var(--border-hover);
+}
+
+.notif-item.unread {
+  border-left: 3px solid var(--primary);
+}
+
+.notif-item-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.notif-item-message {
+  color: var(--muted-text);
+  font-size: 0.8rem;
+}
+
+.notif-item-time {
+  font-size: 0.72rem;
+  color: var(--muted-text);
+  align-self: flex-end;
+}
+
+

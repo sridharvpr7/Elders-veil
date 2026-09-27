@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Premium Membership — Elder's Veil</title>
+  <meta name="description" content="Unlock exclusive premium comics, early chapter access, and unlimited reading on Elder's Veil." />
+
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/theme.css">
@@ -12,7 +14,6 @@
   <link rel="stylesheet" href="/css/cards.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/premium.css">
-  <meta name="api-base-url" content="https://elders-veil1.onrender.com/api">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="/js/theme.js"></script>
 </head>
@@ -20,47 +21,65 @@
   <header id="app-header"></header>
 
   <main>
-    <div class="container">
-      <div class="auth-card" style="max-width:780px; margin:2rem auto; text-align:center;">
-        <div style="font-size:2.5rem; color:var(--accent-purple-light); margin-bottom:0.5rem;">
+    <div class="container" style="padding-top:2rem;">
+      <div style="max-width:840px; margin:0 auto; text-align:center;">
+        <div style="font-size:3rem; color:var(--premium-gold); margin-bottom:0.5rem;">
           <i class="fas fa-crown"></i>
         </div>
-        <h1 style="font-size:2rem; font-weight:700; margin-bottom:0.5rem;">Elder's Veil Premium</h1>
-        <p style="color:var(--text-secondary); max-width:550px; margin:0 auto 1.5rem auto;">
-          Unlock exclusive premium comics, early chapter access, and support your favorite creators.
+        <h1 style="font-size:2.2rem; font-weight:900; margin-bottom:0.5rem; color:var(--text);">Elder's Veil Premium</h1>
+        <p style="color:var(--muted-text); max-width:600px; margin:0 auto 1.5rem auto; font-size:1rem; line-height:1.6;">
+          Unlock exclusive premium comics, early chapter releases, custom reader themes, and support top creators.
         </p>
 
-        <!-- Premium Status Card -->
-        <div id="premium-status-card" style="background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); border-radius:12px; padding:1.5rem; margin:1.5rem 0;">
-          <p style="color:var(--text-muted); font-size:0.9rem;">Checking status...</p>
+        <!-- Current Status Banner -->
+        <div id="premium-status-card" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.5rem; margin:1.5rem 0;">
+          <p style="color:var(--muted-text); font-size:0.9rem;">Checking membership status...</p>
         </div>
 
-        <div class="premium-plan-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; text-align:left; margin-bottom:1.5rem;">
-          <div class="stat-card">
-            <strong><i class="fas fa-star" style="color:#eab308"></i> Exclusive Access</strong>
-            <span style="font-size:0.85rem; color:var(--text-secondary)">Read Premium-marked comics</span>
+        <!-- Premium Benefits Grid -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; text-align:left; margin-bottom:2rem;">
+          <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);">
+            <div style="color:var(--premium-gold); font-weight:700; margin-bottom:0.3rem;"><i class="fas fa-star"></i> Exclusive Access</div>
+            <div style="font-size:0.85rem; color:var(--muted-text);">Read all Premium-marked series & chapters.</div>
           </div>
-          <div class="stat-card">
-            <strong><i class="fas fa-crown" style="color:#a855f7"></i> Member Badge</strong>
-            <span style="font-size:0.85rem; color:var(--text-secondary)">Displays Premium status</span>
+          <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);">
+            <div style="color:var(--primary); font-weight:700; margin-bottom:0.3rem;"><i class="fas fa-crown"></i> Crown Badge</div>
+            <div style="font-size:0.85rem; color:var(--muted-text);">Exclusive profile & navbar badge identity.</div>
           </div>
-          <div class="stat-card">
-            <strong><i class="fas fa-bolt" style="color:#06b6d4"></i> Early Chapters</strong>
-            <span style="font-size:0.85rem; color:var(--text-secondary)">Read new releases first</span>
+          <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);">
+            <div style="color:var(--secondary); font-weight:700; margin-bottom:0.3rem;"><i class="fas fa-bolt"></i> Early Releases</div>
+            <div style="font-size:0.85rem; color:var(--muted-text);">Read newly published chapters before anyone else.</div>
           </div>
-          <div class="stat-card">
-            <strong><i class="fas fa-shield-alt" style="color:#22c55e"></i> Direct Admin Review</strong>
-            <span style="font-size:0.85rem; color:var(--text-secondary)">Fast status activation</span>
+          <div style="padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);">
+            <div style="color:var(--success); font-weight:700; margin-bottom:0.3rem;"><i class="fas fa-user-shield"></i> Admin Activation</div>
+            <div style="font-size:0.85rem; color:var(--muted-text);">Manual admin activation request supported.</div>
           </div>
         </div>
 
-        <div id="premium-action-container" class="premium-purchase-actions">
-          <a href="/premium-comics.html" class="btn btn-premium"><i class="fas fa-crown"></i> Browse Premium Comics</a>
-          <button type="button" class="btn btn-primary" id="pay-premium-btn"><i class="fas fa-credit-card"></i> Buy Premium</button>
+        <!-- Primary Actions -->
+        <div id="premium-action-container" style="display:flex; gap:1rem; justify-content:center; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+          <button type="button" class="btn btn-primary" id="pay-premium-btn" style="background:var(--grad-gold); color:#000; font-weight:800; padding:0.85rem 2rem;">
+            <i class="fas fa-credit-card"></i> Activate Premium
+          </button>
+          <button type="button" class="btn btn-secondary" id="request-manual-btn">
+            <i class="fas fa-paper-plane"></i> Request Admin Activation
+          </button>
         </div>
 
-        <p id="premium-note" style="color:var(--text-muted); font-size:0.85rem; margin-top:1rem;">Secure payment via Razorpay. Your Premium activates after successful payment verification.</p>
+        <p id="premium-note" style="color:var(--muted-text); font-size:0.85rem; margin-top:0.5rem;">
+          Payments processed securely. If payment gateway is unconfigured, use Request Admin Activation for manual approval.
+        </p>
       </div>
+
+      <!-- Exclusive Premium Catalog Section -->
+      <section style="margin-top:4rem;">
+        <div class="section-title">
+          <i class="fas fa-crown" style="color:var(--premium-gold);"></i>
+          <span>Featured Premium Comics</span>
+        </div>
+        <div id="premium-comics-catalog"></div>
+      </section>
+
     </div>
   </main>
 
@@ -72,32 +91,68 @@
   <script src="/js/components.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      renderNavbar('');
+      renderNavbar('premium');
       renderFooter();
+
       const user = Auth.getUser();
       const statusCard = document.getElementById('premium-status-card');
       const actionContainer = document.getElementById('premium-action-container');
       const noteEl = document.getElementById('premium-note');
+
+      // Load Catalog
+      try {
+        const catalogRes = await API.get('/comics?limit=24');
+        const comics = catalogRes.comics || [];
+        const premComics = comics.filter(c => c.isPremium || c.is_premium);
+        const displayComics = premComics.length > 0 ? premComics : comics.slice(0, 8).map(c => ({...c, is_premium: true}));
+        const catContainer = document.getElementById('premium-comics-catalog');
+        if (catContainer) {
+          catContainer.innerHTML = `<div class="comic-grid">${displayComics.map(renderComicCard).join('')}</div>`;
+        }
+      } catch (e) {}
+
       if (!user) {
-        statusCard.innerHTML = '<p style="color:var(--text-secondary)">Please sign in to view your Premium status.</p>';
-        actionContainer.innerHTML = '<a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</a>';
+        statusCard.innerHTML = '<p style="color:var(--muted-text)">Please sign in to view your Premium status and activate membership.</p>';
+        actionContainer.innerHTML = '<a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In to Upgrade</a>';
         return;
       }
-      function attachBuyButton(buttonId = 'pay-premium-btn') {
-        const btn = document.getElementById(buttonId);
-        if (!btn || btn.dataset.bound === '1') return;
-        btn.dataset.bound = '1';
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing payment...';
+
+      // Check user premium status
+      try {
+        const res = await API.get('/users/premium-status');
+        const active = !!(res.isPremium || res.is_premium || user.is_premium || res.premiumStatus === 'approved' || res.premiumStatus === 'active');
+
+        if (user.role === 'admin') {
+          statusCard.innerHTML = '<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem;"><i class="fas fa-crown"></i> Administrator Access</span><h3 style="margin-top:0.75rem; color:var(--text);">Permanent Premium Status</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Administrator accounts have full permanent access to all Premium comics and features.</p>';
+          actionContainer.innerHTML = '<a class="btn btn-primary" href="/premium-comics.html" style="background:var(--grad-gold); color:#000; font-weight:800;"><i class="fas fa-crown"></i> Browse Premium Catalog</a>';
+          noteEl.textContent = 'Administrator Premium access is active.';
+          return;
+        }
+
+        if (active) {
+          statusCard.innerHTML = `<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem;"><i class="fas fa-crown"></i> Premium Active</span><h3 style="margin-top:0.75rem; color:var(--text);">You are a Premium Member!</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Expires: ${user.premium_expires_at ? new Date(user.premium_expires_at).toLocaleDateString() : 'Active Access'}</p>`;
+          noteEl.textContent = 'Your Premium access is active.';
+        } else {
+          statusCard.innerHTML = `<span class="badge badge-purple" style="font-size:0.85rem; padding:0.4rem 1rem;">Status: Standard Free Account</span><h3 style="margin-top:0.75rem; color:var(--text);">Upgrade to Premium</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Activate online or submit a manual activation request for administrator approval.</p>`;
+        }
+      } catch (e) {}
+
+      // Bind Online Payment Button
+      const payBtn = document.getElementById('pay-premium-btn');
+      if (payBtn) {
+        payBtn.addEventListener('click', async () => {
+          payBtn.disabled = true;
+          payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
           try {
             const order = await API.post('/platform/payments/subscription/order', { plan: 'premium_monthly' });
             if (!order.configured) {
-              throw new Error(order.error || 'Online payment is not configured yet. Please contact the administrator.');
+              showToast('Online payment is not configured. Redirecting to manual request...', 'info');
+              document.getElementById('request-manual-btn')?.click();
+              payBtn.disabled = false;
+              payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
+              return;
             }
-            if (!window.Razorpay) {
-              throw new Error('Payment gateway could not be loaded. Please refresh the page and try again.');
-            }
+            if (!window.Razorpay) throw new Error('Payment gateway error. Please refresh the page.');
             const rz = new Razorpay({
               key: order.keyId,
               amount: order.order.amount,
@@ -106,7 +161,7 @@
               description: 'Premium Membership',
               order_id: order.order.id,
               prefill: { email: user.email || '', name: user.username || '' },
-              theme: { color: '#facc15' },
+              theme: { color: '#eab308' },
               handler: async (resp) => {
                 try {
                   await API.post('/platform/payments/subscription/verify', {
@@ -115,69 +170,45 @@
                     signature: resp.razorpay_signature,
                     months: 1
                   });
-                  showToast('Premium payment verified successfully!', 'success');
-                  await loadPremiumStatus();
-                } catch (verifyErr) {
-                  showToast(verifyErr.message || 'Payment verification failed.', 'error');
-                  btn.disabled = false;
-                  btn.innerHTML = '<i class="fas fa-credit-card"></i> Buy Premium';
+                  showToast('Premium membership activated!', 'success');
+                  setTimeout(() => location.reload(), 1000);
+                } catch (e) {
+                  showToast(e.message || 'Payment verification failed.', 'error');
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
                 }
               },
               modal: {
                 ondismiss: () => {
-                  btn.disabled = false;
-                  btn.innerHTML = '<i class="fas fa-credit-card"></i> Buy Premium';
+                  payBtn.disabled = false;
+                  payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
                 }
               }
             });
             rz.open();
-          } catch (e) {
-            showToast(e.message || 'Unable to start Premium payment.', 'error');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-credit-card"></i> Buy Premium';
+          } catch (err) {
+            showToast(err.message || 'Payment failed.', 'error');
+            payBtn.disabled = false;
+            payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
           }
         });
       }
 
-      async function loadPremiumStatus() {
-        // Admins are permanently Premium and do not need a purchase action.
-        if (user.role === 'admin') {
-          statusCard.innerHTML = '<span class="badge premium-gold-badge" style="font-size:1rem;padding:.4rem 1rem"><i class="fas fa-crown"></i> Admin Premium</span><h3 style="margin-top:.75rem;color:var(--text-primary)">Permanent Premium Access</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">Administrator Premium access is permanent.</p>';
-          actionContainer.innerHTML = '<a class="btn btn-premium" href="/premium-comics.html"><i class="fas fa-crown"></i> Open Premium Comics</a>';
-          noteEl.textContent = 'Administrator Premium access is permanent.';
-          return;
-        }
-
-        // Always render the purchase action for normal users first.
-        // This prevents a temporary premium-status API failure from hiding the Buy button.
-        actionContainer.innerHTML = '<div class="premium-purchase-actions" style="display:flex;gap:.65rem;justify-content:center;align-items:center;flex-wrap:wrap"><a class="btn btn-premium" href="/premium-comics.html"><i class="fas fa-crown"></i> Browse Premium Comics</a><button type="button" class="btn btn-primary" id="pay-premium-btn" style="font-size:1.05rem;padding:.75rem 1.75rem"><i class="fas fa-credit-card"></i> Buy Premium</button></div>';
-        attachBuyButton();
-
-        try {
-          const res = await API.get('/users/premium-status');
-          const active = !!(res.isPremium || res.is_premium || res.premiumStatus === 'approved' || res.premiumStatus === 'active' || res.premium_status === 'approved' || res.premium_status === 'active');
-
-          if (active) {
-            statusCard.innerHTML = `<span class="badge premium-gold-badge" style="font-size:1rem;padding:.4rem 1rem"><i class="fas fa-crown"></i> Premium Active</span><h3 style="margin-top:.75rem;color:var(--text-primary)">You are a Premium Member!</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">Enjoy unlimited access to all exclusive comics and chapters.</p>`;
-            const btn = document.getElementById('pay-premium-btn');
-            if (btn) {
-              btn.innerHTML = '<i class="fas fa-rotate"></i> Renew Premium';
-              btn.dataset.bound = '0';
-              btn.replaceWith(btn.cloneNode(true));
-              attachBuyButton();
-            }
-            noteEl.textContent = 'Your Premium access is active. You can renew it anytime.';
-          } else {
-            statusCard.innerHTML = `<span class="badge" style="background:rgba(255,255,255,.1);color:var(--text-secondary);font-size:.95rem;padding:.4rem 1rem">Status: Not Premium</span><h3 style="margin-top:.75rem;color:var(--text-primary)">Unlock Premium Comics</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">Get access to exclusive stories, early chapters, and Premium-only comics.</p>`;
-            noteEl.textContent = 'Secure payment via Razorpay. Premium activates after successful payment verification.';
+      // Bind Manual Activation Request Button
+      const manualBtn = document.getElementById('request-manual-btn');
+      if (manualBtn) {
+        manualBtn.addEventListener('click', async () => {
+          const note = prompt('Optional note for Administrator (e.g., Requested manual activation):') || 'Manual activation requested.';
+          try {
+            await API.post('/users/premium-request', { note });
+            showToast('Manual Premium activation request submitted to Administrators!', 'success');
+            statusCard.innerHTML = '<span class="badge badge-cyan" style="font-size:0.85rem; padding:0.4rem 1rem;">Status: Pending Admin Review</span><h3 style="margin-top:0.75rem; color:var(--text);">Request Submitted</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">An administrator will review and activate your Premium status shortly.</p>';
+          } catch (e) {
+            showToast(e.message || 'Failed to submit request.', 'error');
           }
-        } catch (err) {
-          // Keep the Buy button visible even when the status endpoint is unavailable.
-          statusCard.innerHTML = '<span class="badge" style="background:rgba(255,255,255,.1);color:var(--text-secondary);font-size:.95rem;padding:.4rem 1rem">Status temporarily unavailable</span><h3 style="margin-top:.75rem;color:var(--text-primary)">Premium Membership</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">You can still purchase Premium. Your membership status will update after payment verification.</p>';
-          noteEl.textContent = 'Premium status could not be checked, but the Buy Premium option remains available.';
-        }
+        });
       }
-      loadPremiumStatus();
+
     });
   </script>
 </body>
