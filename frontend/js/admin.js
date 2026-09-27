@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <tr>
             <td>
               <div style="display:flex; align-items:center; gap:0.75rem;">
-                <img src="${c.coverImage || '/uploads/covers/default.jpg'}" style="width:36px; height:48px; border-radius:4px; object-fit:cover;" alt="Cover" />
+                <img src="${API.assetUrl(c.coverImage) || API.assetUrl('/assets/icon.png')}" style="width:36px; height:48px; border-radius:4px; object-fit:cover;" alt="Cover" />
                 <strong>${c.title}</strong>
               </div>
             </td>

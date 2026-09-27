@@ -1,7 +1,8 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const uploadsDir = path.join(__dirname, '../../../uploads');
+const env = require('../config/env');
+const uploadsDir = env.UPLOAD_DIR;
 const dirs = { covers:path.join(uploadsDir,'covers'), banners:path.join(uploadsDir,'banners'), avatars:path.join(uploadsDir,'avatars'), comics:path.join(uploadsDir,'comics') };
 [uploadsDir,...Object.values(dirs)].forEach(d=>{if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true});});
 const safeSegment=(v,f='temp')=>{const x=String(v||f).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,80);return x||f;};

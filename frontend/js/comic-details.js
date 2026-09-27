@@ -14,19 +14,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const res = await API.get(`/comics/slug/${encodeURIComponent(slug)}`);
-    const { comic, chapters, isBookmarked, isFavorite } = res;
+    const { comic, chapters, isBookmarked, isFavorite, requiresPremium, premiumChapterCount } = res;
 
     document.title = `${comic.title} — Elder's Veil`;
 
-    const bannerUrl = comic.bannerImage || comic.coverImage;
-    const coverUrl = comic.coverImage;
+    const bannerUrl = API.assetUrl(comic.bannerImage || comic.coverImage) || API.assetUrl('/assets/icon.png');
+    const coverUrl = API.assetUrl(comic.coverImage) || API.assetUrl('/assets/icon.png');
 
     detailContainer.innerHTML = `
       <div class="comic-detail-header">
         <img src="${bannerUrl}" class="comic-banner-img" alt="Banner" />
         <div class="comic-detail-content">
           <div class="comic-cover-wrap">
-            <img src="${coverUrl}" alt="${comic.title}" />
+            <img src="${coverUrl}" alt="${comic.title}" onerror="this.onerror=null;this.src='/assets/icon.png';" />
           </div>
           <div class="comic-info">
             <div style="display:flex; gap:0.5rem;">
@@ -80,19 +80,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       <div class="chapters-section">
         <div class="chapters-header">
-          <h3><i class="fas fa-list text-gradient"></i> Chapters (${chapters.length})</h3>
+          <h3><i class="fas fa-list text-gradient"></i> ${requiresPremium ? 'Premium Chapters' : `Chapters (${chapters.length})`}</h3>
         </div>
-        <div class="chapters-list">
-          ${chapters.map(ch => `
-            <a href="/reader.html?id=${ch.id}" class="chapter-item">
-              <div>
-                <div class="chapter-title">Chapter ${ch.chapterNumber}: ${ch.title || 'Untitled'}</div>
-                <div class="chapter-date"><i class="far fa-clock"></i> ${ch.releaseDate || ''}</div>
-              </div>
-              <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
-            </a>
-          `).join('')}
-        </div>
+        ${requiresPremium ? `
+          <div class="premium-access-panel" style="padding:2rem;text-align:center;border:1px solid rgba(234,179,8,.45);border-radius:14px;background:linear-gradient(135deg,rgba(234,179,8,.08),rgba(17,24,39,.45));">
+            <i class="fas fa-lock" style="font-size:2rem;color:#facc15;margin-bottom:.7rem"></i>
+            <h3 style="color:var(--text-primary);margin-bottom:.4rem">Premium Access Required</h3>
+            <p style="color:var(--text-secondary);margin-bottom:1rem">This comic is available to Premium members. Unlock it to read all ${premiumChapterCount || 'exclusive'} chapters.</p>
+            <a href="/premium-comics.html" class="btn btn-premium"><i class="fas fa-crown"></i> Get Premium</a>
+          </div>` : `
+          <div class="chapters-list">
+            ${chapters.map(ch => `
+              <a href="/reader.html?id=${ch.id}" class="chapter-item">
+                <div>
+                  <div class="chapter-title">Chapter ${ch.chapterNumber}: ${ch.title || 'Untitled'}</div>
+                  <div class="chapter-date"><i class="far fa-clock"></i> ${ch.releaseDate || ''}</div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:var(--text-muted);"></i>
+              </a>
+            `).join('')}
+          </div>`}
       </div>
     `;
 

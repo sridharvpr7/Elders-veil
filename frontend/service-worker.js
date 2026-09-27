@@ -1,4 +1,4 @@
-const CACHE='elders-veil-v6-platform';
+const CACHE='elders-veil-v7-premium-fix';
 const BASE=new URL('./',self.location.href);
 const CORE=['index.html','comics.html','manifest.json','assets/icon-192.png','assets/icon-512.png','css/global.css','css/theme.css','js/api.js','js/auth.js','js/i18n.js','js/components.js'].map(x=>new URL(x,BASE).toString());
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));

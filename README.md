@@ -92,3 +92,10 @@ AI_MODEL=default
 ```
 
 Run the normal server start command. PostgreSQL migrations are executed automatically on startup.
+
+
+## Render uploads / cover images
+Uploaded covers, banners, avatars and chapter pages are stored on disk. Render web services use ephemeral filesystems unless a persistent disk is attached. For production, attach a Render persistent disk (for example mounted at `/var/data`) and set `UPLOAD_DIR=/var/data/uploads`. Set `UPLOAD_BASE_URL=https://elders-veil1.onrender.com` so image URLs also work when the frontend is hosted on GitHub Pages. Existing images that disappeared after a redeploy must be re-uploaded unless they were stored on persistent storage.
+
+## Premium purchase
+The Premium Comics page now shows Buy Premium directly for signed-in non-admin users. `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `PREMIUM_PRICE_INR` are required for an actual Razorpay transaction; environment variables only configure payment and are not required for the button to be visible.

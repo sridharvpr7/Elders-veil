@@ -8,10 +8,15 @@ class UploadService {
     }
     // Format relative path for public serving
     const normalized = filePath.replace(/\\/g, '/');
-    const relative = normalized.includes('/uploads/') 
-      ? '/uploads/' + normalized.split('/uploads/')[1] 
-      : normalized;
+    const relative = normalized.includes('/uploads/')
+      ? '/uploads/' + normalized.split('/uploads/')[1]
+      : normalized.startsWith('/') ? normalized : '/' + normalized;
 
+    // When the frontend is hosted separately (for example GitHub Pages),
+    // return an absolute backend asset URL so uploaded images still resolve.
+    if (env.UPLOAD_BASE_URL) {
+      return env.UPLOAD_BASE_URL.replace(/\/$/, '') + relative;
+    }
     return relative;
   }
 
