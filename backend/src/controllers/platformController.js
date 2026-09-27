@@ -66,7 +66,14 @@ class PlatformController {
      const auth=Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
      const rr=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{Authorization:`Basic ${auth}`,'Content-Type':'application/json'},body:JSON.stringify({amount,currency:'INR',receipt:`ev-${Date.now()}`,notes:{userId:req.user.id,plan:req.body.plan||'premium_monthly'}})});
      const data=await rr.json();if(!rr.ok)throw new Error(data.error?.description||'Unable to create payment order.');
-     if(db.isPgConnected())await db.query(`INSERT INTO subscriptions(id,user_id,plan,status,provider,provider_order_id,amount_paise,currency) VALUES($1,$2,$3,'created','razorpay',$4,$5,'INR')`,[`sub-${Date.now()}`,req.user.id,req.body.plan||'premium_monthly',data.id,amount]);
+     const subscriptionId=`sub-${Date.now()}`;
+     if(db.isPgConnected()){
+       await db.query(`INSERT INTO subscriptions(id,user_id,plan,status,provider,provider_order_id,amount_paise,currency) VALUES($1,$2,$3,'created','razorpay',$4,$5,'INR')`,[subscriptionId,req.user.id,req.body.plan||'premium_monthly',data.id,amount]);
+     } else {
+       db.fallbackStore.subscriptions=db.fallbackStore.subscriptions||[];
+       db.fallbackStore.subscriptions.push({id:subscriptionId,user_id:req.user.id,plan:req.body.plan||'premium_monthly',status:'created',provider:'razorpay',provider_order_id:data.id,amount_paise:amount,currency:'INR',created_at:new Date().toISOString()});
+       db.saveFallbackStore();
+     }
      res.json({configured:true,keyId:env.RAZORPAY_KEY_ID,order:data});
    }catch(e){next(e)}
  }
@@ -78,8 +85,16 @@ class PlatformController {
      if(!env.RAZORPAY_KEY_SECRET||expected!==signature)return res.status(400).json({error:'Payment signature verification failed.'});
      const months=Math.max(1,Number(req.body.months)||1);
      const user=await User.findById(req.user.id);const expiry=new Date(Math.max(Date.now(),new Date(user?.premium_expires_at||0).getTime()));expiry.setMonth(expiry.getMonth()+months);
-     if(db.isPgConnected())await db.query(`UPDATE users SET is_premium=true,premium_status='active',premium_approved_at=CURRENT_TIMESTAMP,premium_expires_at=$1 WHERE id=$2`,[expiry,req.user.id]);
-     if(db.isPgConnected())await db.query(`UPDATE subscriptions SET status='paid',provider_payment_id=$1,started_at=CURRENT_TIMESTAMP,expires_at=$2 WHERE user_id=$3 AND provider_order_id=$4`,[paymentId,expiry,req.user.id,orderId]);
+     if(db.isPgConnected()){
+       await db.query(`UPDATE users SET is_premium=true,premium_status='active',premium_approved_at=CURRENT_TIMESTAMP,premium_expires_at=$1 WHERE id=$2`,[expiry,req.user.id]);
+       await db.query(`UPDATE subscriptions SET status='paid',provider_payment_id=$1,started_at=CURRENT_TIMESTAMP,expires_at=$2 WHERE user_id=$3 AND provider_order_id=$4`,[paymentId,expiry,req.user.id,orderId]);
+     } else {
+       const u=(db.fallbackStore.users||[]).find(x=>x.id===req.user.id);
+       if(u){u.is_premium=true;u.premium_status='active';u.premium_approved_at=new Date().toISOString();u.premium_expires_at=expiry.toISOString();}
+       const sub=(db.fallbackStore.subscriptions||[]).find(x=>x.user_id===req.user.id && x.provider_order_id===orderId);
+       if(sub){sub.status='paid';sub.provider_payment_id=paymentId;sub.started_at=new Date().toISOString();sub.expires_at=expiry.toISOString();}
+       db.saveFallbackStore();
+     }
      await Platform.audit({actorId:req.user.id,action:'premium_payment_verified',targetType:'subscription',targetId:orderId,metadata:{paymentId,months},ip:req.ip});
      res.json({verified:true,premiumExpiresAt:expiry});
    }catch(e){next(e)}
