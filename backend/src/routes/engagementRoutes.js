@@ -16,4 +16,4 @@ router.get('/me/following',authMiddleware,C.myFollowing);
 router.get('/users/:id/following',authMiddleware,C.userFollowing);
 router.get('/me/followers',authMiddleware,C.myFollowers);
 
-module.exports=r;
+module.exports=router;
