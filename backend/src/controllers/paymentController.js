@@ -20,7 +20,12 @@ class PaymentController {
         body: JSON.stringify({ amount, currency: 'INR', receipt, notes: { userId: req.user.id, plan: 'premium_monthly' } })
       });
       const b = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(b.error?.description || 'Could not create payment order.');
+      if (!r.ok) {
+        if (r.status === 401) {
+          throw new Error('Razorpay authentication failed. Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Render, and make sure both keys belong to the same Razorpay account/mode.');
+        }
+        throw new Error(b.error?.description || 'Could not create payment order.');
+      }
       const id = Feature.id('pay');
       if (db.isPgConnected()) {
         await db.query(

@@ -325,33 +325,40 @@ function renderFooter() {
   }
 }
 function renderComicCard(comic) {
-  const coverUrl = API.assetUrl(comic.coverImage) || API.assetUrl('/assets/icon.png');
+  // PostgreSQL responses use coverImage; older/fallback data may use cover_image.
+  const coverValue = comic.coverImage || comic.cover_image || comic.coverUrl || comic.cover_url;
+  const coverUrl = API.assetUrl(coverValue) || API.assetUrl('/assets/icon.png');
   const slug = comic.slug || comic.id;
+  const detailUrl = `/comic.html?slug=${encodeURIComponent(slug)}`;
   const rating = comic.rating ? Number(comic.rating).toFixed(1) : '4.5';
   const type = comic.type || 'manga';
   const isPrem = !!(comic.is_premium || comic.isPremium);
   const premBadge = isPrem ? '<span class="badge premium-gold-badge" style="position:absolute; top:8px; right:8px; z-index:2; font-size:0.75rem; padding:0.28rem 0.55rem;"><i class="fas fa-crown"></i> Premium</span>' : '';
 
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"]/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;'
+  }[ch]));
+
   return `
-    <div class="comic-card ${isPrem ? 'premium-comic-card' : ''}">
+    <article class="comic-card ${isPrem ? 'premium-comic-card' : ''}">
       <div class="card-thumb" style="position:relative;">
-        <span class="badge badge-purple card-badge">${type}</span>
+        <span class="badge badge-purple card-badge">${escapeHtml(type)}</span>
         ${premBadge}
         <div class="card-rating"><i class="fas fa-star"></i> ${rating}</div>
-        <a href="/comic.html?slug=${slug}">
-          <img src="${coverUrl}" alt="${comic.title}" onerror="this.onerror=null;this.src='/assets/icon.png'" loading="lazy" />
+        <a href="${detailUrl}" aria-label="Open ${escapeHtml(comic.title)}">
+          <img src="${coverUrl}" alt="${escapeHtml(comic.title)}" onerror="this.onerror=null;this.src='/assets/icon.png'" loading="lazy" />
         </a>
       </div>
       <div class="card-content">
         <h3 class="card-title">
-          <a href="/comic.html?slug=${slug}">${comic.title}</a>
+          <a href="${detailUrl}">${escapeHtml(comic.title)}</a>
         </h3>
         <div class="card-meta">
-          <span class="card-chapters">${comic.chapterCount || '3'} Chapters</span>
+          <span class="card-chapters">${comic.chapterCount ?? comic.chapter_count ?? 0} Chapters</span>
           <span><i class="fas fa-eye"></i> ${comic.views ? Number(comic.views).toLocaleString() : '0'}</span>
         </div>
       </div>
-    </div>
+    </article>
   `;
 }
 

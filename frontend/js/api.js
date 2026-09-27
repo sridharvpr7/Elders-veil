@@ -35,7 +35,8 @@ class API {
       if (!response.ok) {
         const error = data.error || data.message || `Request failed with status ${response.status}`;
         if (response.status === 401 && !endpoint.includes('/auth/login')) {
-          // Token expired or invalid
+          // Token expired or invalid. Clear stale credentials so the next
+          // protected action cannot keep retrying a dead session.
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         }

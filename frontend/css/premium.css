@@ -19,3 +19,14 @@
 .premium-purchase-actions .btn-premium{min-width:205px}
 
 .premium-hero-actions{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}.premium-hero-actions .btn{min-width:180px}.premium-purchase-actions{display:flex;justify-content:center;gap:.65rem;flex-wrap:wrap}.premium-purchase-actions .btn{min-width:190px}
+
+.premium-comic-card .card-content { min-width: 0; }
+.premium-comic-card .card-title,
+.premium-comic-card .card-title a,
+.premium-comic-card .premium-card-description,
+.premium-comic-card .card-meta { overflow-wrap: anywhere; word-break: break-word; }
+@media(max-width:480px){
+  .premium-comic-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+  .premium-comic-card .card-title{font-size:.88rem}
+  .premium-comic-card .card-meta{font-size:.72rem}
+}

@@ -65,7 +65,11 @@ class PlatformController {
      if(!env.RAZORPAY_KEY_ID||!env.RAZORPAY_KEY_SECRET)return res.status(503).json({configured:false,error:'Razorpay is not configured. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET.'});
      const auth=Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString('base64');
      const rr=await fetch('https://api.razorpay.com/v1/orders',{method:'POST',headers:{Authorization:`Basic ${auth}`,'Content-Type':'application/json'},body:JSON.stringify({amount,currency:'INR',receipt:`ev-${Date.now()}`,notes:{userId:req.user.id,plan:req.body.plan||'premium_monthly'}})});
-     const data=await rr.json();if(!rr.ok)throw new Error(data.error?.description||'Unable to create payment order.');
+     const data=await rr.json();
+     if(!rr.ok){
+       if(rr.status===401) throw new Error('Razorpay authentication failed. Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Render, and make sure both keys belong to the same Razorpay account/mode.');
+       throw new Error(data.error?.description||'Unable to create payment order.');
+     }
      const subscriptionId=`sub-${Date.now()}`;
      if(db.isPgConnected()){
        await db.query(`INSERT INTO subscriptions(id,user_id,plan,status,provider,provider_order_id,amount_paise,currency) VALUES($1,$2,$3,'created','razorpay',$4,$5,'INR')`,[subscriptionId,req.user.id,req.body.plan||'premium_monthly',data.id,amount]);

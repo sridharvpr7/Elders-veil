@@ -101,3 +101,39 @@
   color: var(--accent-cyan-light);
   font-weight: 600;
 }
+
+/* Production text/image stability */
+.comic-card,
+.card-content,
+.card-title,
+.card-meta,
+.card-meta > span {
+  min-width: 0;
+}
+.card-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.card-title a {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.card-meta {
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+.card-meta > span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.card-cover-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.card-cover-link img {
+  display: block;
+}

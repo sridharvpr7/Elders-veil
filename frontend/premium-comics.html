@@ -91,10 +91,10 @@ document.addEventListener('DOMContentLoaded',()=>{
       const comics=res.comics||[]; count.textContent=comics.length+' exclusive title'+(comics.length===1?'':'s');
       if(!comics.length){grid.innerHTML='<div class="premium-empty-card"><i class="fas fa-crown"></i><strong>No Premium Comics Yet</strong><span>Exclusive titles will appear here when published.</span></div>';return;}
       grid.innerHTML=comics.map(c=>{
-        const cover=API.assetUrl(c.coverImage||c.cover_image)||API.assetUrl('/assets/icon.png'), slug=c.slug||c.id;
+        const cover=API.assetUrl(c.coverImage||c.cover_image||c.coverUrl||c.cover_url)||API.assetUrl('/assets/icon.png'), slug=c.slug||c.id, detailUrl='/comic.html?slug='+encodeURIComponent(slug);
         return `<article class="comic-card premium-comic-card ${premiumActive?'premium-unlocked':'premium-locked'}">
-          <div class="card-thumb"><img src="${cover}" alt="${esc(c.title)}" loading="lazy" onerror="this.onerror=null;this.src='/assets/icon.png'"><span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>${premiumActive?'<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>':'<span class="premium-lock"><i class="fas fa-lock"></i></span>'}</div>
-          <div class="card-content"><h3 class="card-title"><a href="/comic.html?slug=${encodeURIComponent(slug)}">${esc(c.title)}</a></h3><p class="premium-card-description">${esc(c.description || "Exclusive Elders Veil story.")}</p><div class="card-meta"><span>${esc(c.author||'Creator')}</span><span class="card-chapters">${c.chapterCount||c.chapter_count||0} Chapters</span></div></div>
+          <div class="card-thumb"><a href="${detailUrl}" class="card-cover-link" aria-label="Open ${esc(c.title)}"><img src="${cover}" alt="${esc(c.title)}" loading="lazy" onerror="this.onerror=null;this.src='/assets/icon.png'"></a><span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>${premiumActive?'<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>':'<span class="premium-lock"><i class="fas fa-lock"></i></span>'}</div>
+          <div class="card-content"><h3 class="card-title"><a href="${detailUrl}">${esc(c.title)}</a></h3><p class="premium-card-description">${esc(c.description || "Exclusive Elders Veil story.")}</p><div class="card-meta"><span>${esc(c.author||'Creator')}</span><span class="card-chapters">${c.chapterCount||c.chapter_count||0} Chapters</span></div></div>
         </article>`;
       }).join('');
     }catch(e){count.textContent='';grid.innerHTML='<div class="premium-empty-card"><i class="fas fa-triangle-exclamation"></i><strong>Could not load Premium Comics</strong><span>'+esc(e.message)+'</span></div>';}
