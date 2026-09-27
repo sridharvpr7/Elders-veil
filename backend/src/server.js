@@ -9,6 +9,15 @@ async function startServer() {
     await initDatabase();
     await seedInitialData();
 
+    // Admin accounts always have full Premium access. Safe to run on every deploy.
+    const db = require('./config/database');
+    if (db.isPgConnected()) {
+      await db.query(`UPDATE users SET is_premium = TRUE, premium_status = 'active', premium_expires_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE role = 'admin'`);
+    } else {
+      db.fallbackStore.users = (db.fallbackStore.users || []).map(u => u.role === 'admin' ? { ...u, is_premium: true, premium_status: 'active', premium_expires_at: null } : u);
+      db.saveFallbackStore();
+    }
+
     const server = app.listen(env.PORT, () => {
       console.log(`=======================================================`);
       console.log(`🚀 Server running on port ${env.PORT}`);

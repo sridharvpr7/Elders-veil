@@ -217,8 +217,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             This comic is available exclusively to Premium members.
           </p>
           <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
-            <a href="/premium.html" class="btn btn-primary" style="padding:0.75rem 1.75rem;">
-              <i class="fas fa-crown"></i> Request Premium
+            <a href="/premium-comics.html" class="btn btn-primary" style="padding:0.75rem 1.75rem;">
+              <i class="fas fa-crown"></i> Browse Premium Comics
             </a>
             <a href="/comics.html" class="btn btn-secondary" style="padding:0.75rem 1.5rem;">
               Return to Catalog

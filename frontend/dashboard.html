@@ -41,27 +41,21 @@
         <a href="/favorites.html" class="tab-btn"><i class="fas fa-heart"></i> Favorites</a>
         <a href="/history.html" class="tab-btn"><i class="fas fa-history"></i> History</a>
         <a href="/notifications.html" class="tab-btn"><i class="fas fa-bell"></i> Notifications</a>
-        <a href="/premium.html" class="tab-btn"><i class="fas fa-crown"></i> Premium Status</a>
+        <a href="/premium-comics.html" class="tab-btn premium-tab"><i class="fas fa-crown"></i> Premium Comics</a>
         <a href="/profile.html" class="tab-btn"><i class="fas fa-user-cog"></i> Account Settings</a>
       </div>
 
-      <!-- Premium Status Section -->
-      <section style="margin-bottom:2.5rem;">
-        <div class="auth-card" id="dash-premium-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border:1px solid rgba(124,58,237,0.3); background:rgba(124,58,237,0.06);">
+      <!-- Premium Comics Spotlight -->
+      <section class="premium-comics-spotlight" style="margin-bottom:2.5rem;">
+        <div class="premium-section-head">
           <div>
-            <h3 style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-              <i class="fas fa-crown" style="color:var(--accent-purple-light)"></i> Premium Membership
-            </h3>
-            <p style="color:var(--text-secondary); font-size:0.9rem;" id="dash-premium-desc">
-              Unlock premium comics and exclusive chapters.
-            </p>
-            <div style="margin-top:0.5rem;" id="dash-premium-status-badge">
-              <span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary);">Status: Loading...</span>
-            </div>
+            <div class="section-title" style="margin-bottom:.35rem;"><i class="fas fa-crown"></i> <span>Premium Comics</span></div>
+            <p class="premium-section-subtitle">Exclusive stories, gold-tier chapters and creator specials.</p>
           </div>
-          <div id="dash-premium-action">
-            <!-- Dynamic button -->
-          </div>
+          <a href="/premium-comics.html" class="btn btn-premium btn-sm"><i class="fas fa-gem"></i> Explore All</a>
+        </div>
+        <div id="dash-premium-comics-grid" class="comic-grid premium-comic-grid">
+          <div class="premium-loading-card"><i class="fas fa-spinner fa-spin"></i> Loading Premium Comics...</div>
         </div>
       </section>
 
@@ -104,60 +98,40 @@
         if (user.avatar) document.getElementById('dash-avatar').src = user.avatar;
       }
 
-      // Load Premium Status
-      async function updateDashboardPremiumUI() {
-        const badgeEl = document.getElementById('dash-premium-status-badge');
-        const actionEl = document.getElementById('dash-premium-action');
-        const descEl = document.getElementById('dash-premium-desc');
-        if (!badgeEl || !actionEl) return;
-
+      // Load Premium Comics
+      async function loadDashboardPremiumComics() {
+        const grid = document.getElementById('dash-premium-comics-grid');
+        if (!grid) return;
         try {
-          const res = await API.get('/users/premium-status');
-          const status = res.premium_status || (res.is_premium ? 'approved' : 'none');
-
-          if (status === 'approved' || res.is_premium) {
-            badgeEl.innerHTML = '<span class="badge" style="background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff;"><i class="fas fa-crown"></i> Premium Active</span>';
-            descEl.textContent = 'Premium Member — You have unlimited access to exclusive comics.';
-            actionEl.innerHTML = '<a href="/premium.html" class="btn btn-secondary btn-sm"><i class="fas fa-crown"></i> View Premium Details</a>';
-          } else if (status === 'pending') {
-            badgeEl.innerHTML = '<span class="badge" style="background:#eab308; color:#000;"><i class="fas fa-clock"></i> Premium Request Pending</span>';
-            descEl.textContent = 'Your Premium request has been submitted. Please wait for admin approval.';
-            actionEl.innerHTML = '<button class="btn btn-secondary btn-sm" disabled style="opacity:0.7"><i class="fas fa-hourglass-half"></i> Pending Review</button>';
-          } else if (status === 'rejected') {
-            badgeEl.innerHTML = '<span class="badge" style="background:#ef4444; color:#fff;"><i class="fas fa-times-circle"></i> Request Rejected</span>';
-            descEl.textContent = 'Your previous request was not approved. You can submit a new request.';
-            actionEl.innerHTML = '<button class="btn btn-primary btn-sm" id="dash-req-prem-btn"><i class="fas fa-paper-plane"></i> Request Premium</button>';
-            attachDashReqHandler();
-          } else {
-            badgeEl.innerHTML = '<span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary);">Status: Not Premium</span>';
-            descEl.textContent = 'Unlock premium comics and exclusive chapters.';
-            actionEl.innerHTML = '<button class="btn btn-primary btn-sm" id="dash-req-prem-btn"><i class="fas fa-crown"></i> Request Premium</button>';
-            attachDashReqHandler();
+          const res = await API.get('/comics?premium=true&limit=6&sortBy=latest');
+          const comics = res.comics || [];
+          if (!comics.length) {
+            grid.innerHTML = '<div class="premium-empty-card"><i class="fas fa-crown"></i><strong>Premium vault is waiting</strong><span>Premium comics will appear here once they are published.</span></div>';
+            return;
           }
+          const premiumActive = !!(user && (user.role === 'admin' || (user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()))));
+          grid.innerHTML = comics.map(comic => {
+            const cover = comic.coverImage || comic.cover_image || '/uploads/covers/default.jpg';
+            const title = comic.title || 'Untitled Comic';
+            const slug = comic.slug || comic.id;
+            return `<article class="comic-card premium-comic-card ${premiumActive ? 'premium-unlocked' : 'premium-locked'}">
+              <div class="card-thumb">
+                <img src="${cover}" alt="${title.replace(/"/g,'&quot;')}" loading="lazy" />
+                <span class="premium-gold-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+                ${!premiumActive ? '<span class="premium-lock"><i class="fas fa-lock"></i></span>' : '<span class="premium-access-badge"><i class="fas fa-unlock"></i> ACCESS</span>'}
+              </div>
+              <div class="card-content">
+                <h3 class="card-title"><a href="/comic.html?slug=${encodeURIComponent(slug)}">${title}</a></h3>
+                <div class="card-meta"><span>${comic.author || "Elder's Veil Creator"}</span><span class="card-chapters">${comic.chapterCount || comic.chapter_count || 0} Chapters</span></div>
+              </div>
+            </article>`;
+          }).join('');
         } catch (err) {
-          badgeEl.innerHTML = '<span class="badge badge-pink">Status Error</span>';
+          grid.innerHTML = '<div class="premium-empty-card"><i class="fas fa-circle-exclamation"></i><strong>Premium Comics unavailable</strong><span>Please try again in a moment.</span></div>';
         }
       }
 
-      function attachDashReqHandler() {
-        const btn = document.getElementById('dash-req-prem-btn');
-        if (!btn) return;
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-          try {
-            const res = await API.post('/users/premium-request', {});
-            showToast(res.message || 'Your Premium request has been submitted. Please wait for admin approval.', 'success');
-            updateDashboardPremiumUI();
-          } catch (err) {
-            showToast(err.message || 'Failed to submit premium request.', 'error');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-crown"></i> Request Premium';
-          }
-        });
-      }
-
-      updateDashboardPremiumUI();
+      loadDashboardPremiumComics();
 
       // Load Recent Reading Progress
       try {

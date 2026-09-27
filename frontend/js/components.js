@@ -33,6 +33,7 @@ function renderNavbar(activePage = 'home') {
             <a href="/categories.html" class="nav-link ${activePage === 'categories' ? 'active' : ''}">Genres</a>
             <a href="/popular.html" class="nav-link ${activePage === 'popular' ? 'active' : ''}">Popular</a>
             <a href="/latest.html" class="nav-link ${activePage === 'latest' ? 'active' : ''}">Latest</a>
+            <a href="/premium-comics.html" class="nav-link premium-nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium</a>
             <a href="${getUserManualUrl()}"
    class="nav-link"
    target="_blank"
@@ -124,6 +125,7 @@ function renderNavbar(activePage = 'home') {
           <a href="/categories.html" class="mobile-nav-link ${activePage === 'categories' ? 'active' : ''}"><i class="fas fa-tags"></i> Genres</a>
           <a href="/popular.html" class="mobile-nav-link ${activePage === 'popular' ? 'active' : ''}"><i class="fas fa-fire"></i> Popular</a>
           <a href="/latest.html" class="mobile-nav-link ${activePage === 'latest' ? 'active' : ''}"><i class="fas fa-clock"></i> Latest</a>
+          <a href="/premium-comics.html" class="mobile-nav-link premium-nav-link"><i class="fas fa-crown"></i> Premium Comics</a>
           <a href="${getUserManualUrl()}"
    class="mobile-nav-link"
    target="_blank"
@@ -328,10 +330,10 @@ function renderComicCard(comic) {
   const rating = comic.rating ? Number(comic.rating).toFixed(1) : '4.5';
   const type = comic.type || 'manga';
   const isPrem = !!(comic.is_premium || comic.isPremium);
-  const premBadge = isPrem ? '<span class="badge" style="position:absolute; top:8px; right:8px; background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; z-index:2; font-size:0.75rem; padding:0.25rem 0.5rem;"><i class="fas fa-crown"></i> Premium</span>' : '';
+  const premBadge = isPrem ? '<span class="badge premium-gold-badge" style="position:absolute; top:8px; right:8px; z-index:2; font-size:0.75rem; padding:0.28rem 0.55rem;"><i class="fas fa-crown"></i> Premium</span>' : '';
 
   return `
-    <div class="comic-card">
+    <div class="comic-card ${isPrem ? 'premium-comic-card' : ''}">
       <div class="card-thumb" style="position:relative;">
         <span class="badge badge-purple card-badge">${type}</span>
         ${premBadge}

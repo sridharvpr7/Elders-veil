@@ -20,7 +20,7 @@ class ChapterController {
       if (!comic) return res.status(404).json({ error: 'Comic not found.' });
 
       const isOwnerOrAdmin = !!(req.user && (req.user.role === 'admin' || (comic.creatorId && comic.creatorId === req.user.id)));
-      const isUserPremium = !!(req.user && req.user.is_premium);
+      const isUserPremium = !!(req.user && (req.user.role === 'admin' || req.user.is_premium));
 
       if (comic.isPremium && !isUserPremium && !isOwnerOrAdmin) {
         return res.status(403).json({
@@ -49,7 +49,7 @@ class ChapterController {
       if (chapter.publishStatus !== 'published' && !isOwnerOrAdmin) return res.status(404).json({ error: 'Chapter not found.' });
 
       // Server-side Premium Access Control
-      const isUserPremium = !!(req.user && req.user.is_premium);
+      const isUserPremium = !!(req.user && (req.user.role === 'admin' || req.user.is_premium));
       if (comic && comic.isPremium && !isUserPremium && !isOwnerOrAdmin) {
         return res.status(403).json({
           error: 'This comic is available exclusively to Premium members.',

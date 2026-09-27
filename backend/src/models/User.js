@@ -29,6 +29,7 @@ class User {
       );
       if (!res.rows[0]) return null;
       const user = res.rows[0];
+      if (user.role === 'admin') { user.is_premium = true; user.premium_status = 'active'; user.premium_expires_at = null; }
       if (user.email_verified === null || user.email_verified === undefined) user.email_verified = true;
       user.mobile_number = user.mobile_number || user.phone || null;
       return user;
@@ -36,6 +37,7 @@ class User {
 
     const user = db.fallbackStore.users.find(u => u.email.toLowerCase() === String(email).toLowerCase()) || null;
     if (user) {
+      if (user.role === 'admin') { user.is_premium = true; user.premium_status = 'active'; user.premium_expires_at = null; }
       if (user.email_verified === undefined) user.email_verified = true;
       user.mobile_number = user.mobile_number || user.phone || null;
       if (user.is_premium && user.premium_expires_at && new Date(user.premium_expires_at) <= new Date()) {
@@ -52,6 +54,7 @@ class User {
       const res = await db.query('SELECT * FROM users WHERE username = $1', [username]);
       if (!res.rows[0]) return null;
       const user = res.rows[0];
+      if (user.role === 'admin') { user.is_premium = true; user.premium_status = 'active'; user.premium_expires_at = null; }
       if (user.email_verified === null || user.email_verified === undefined) user.email_verified = true;
       user.mobile_number = user.mobile_number || user.phone || null;
       return user;
@@ -96,7 +99,7 @@ class User {
     if (db.isPgConnected()) {
       const res = await db.query(
         `SELECT id, username, email, role, phone, mobile_number, 
-                CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN FALSE ELSE is_premium END AS is_premium, 
+                CASE WHEN role = 'admin' THEN TRUE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN FALSE ELSE is_premium END AS is_premium, 
                 premium_expires_at, 
                 CASE WHEN is_premium = TRUE AND premium_expires_at IS NOT NULL AND premium_expires_at <= CURRENT_TIMESTAMP THEN TRUE ELSE FALSE END AS premium_expired, 
                 premium_status, premium_requested_at, premium_approved_at, premium_rejected_at, premium_request_note,
@@ -113,6 +116,7 @@ class User {
 
     const user = db.fallbackStore.users.find(u => u.id === id);
     if (!user) return null;
+    if (user.role === 'admin') { user.is_premium = true; user.premium_status = 'active'; user.premium_expires_at = null; }
     if (user.email_verified === undefined) user.email_verified = true;
     user.mobile_number = user.mobile_number || user.phone || null;
     if (user.is_premium && user.premium_expires_at && new Date(user.premium_expires_at) <= new Date()) {
@@ -136,7 +140,9 @@ class User {
          RETURNING id, username, email, role, phone, mobile_number, is_premium, premium_expires_at, premium_status, account_status, email_verified, avatar, created_at, updated_at`,
         [id, username, email, password_hash, role, finalPhone, finalPhone, avatar, email_verified, now, now]
       );
-      return res.rows[0];
+      const created = res.rows[0];
+      if (created.role === 'admin') { created.is_premium = true; created.premium_status = 'active'; created.premium_expires_at = null; }
+      return created;
     }
 
     const newUser = {
@@ -147,9 +153,9 @@ class User {
       role,
       phone: finalPhone,
       mobile_number: finalPhone,
-      is_premium: false,
+      is_premium: role === 'admin',
       premium_expires_at: null,
-      premium_status: 'none',
+      premium_status: role === 'admin' ? 'active' : 'none',
       premium_requested_at: null,
       premium_approved_at: null,
       premium_rejected_at: null,

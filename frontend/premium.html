@@ -71,126 +71,40 @@
     document.addEventListener('DOMContentLoaded', async () => {
       renderNavbar('');
       renderFooter();
-
       const user = Auth.getUser();
       const statusCard = document.getElementById('premium-status-card');
       const actionContainer = document.getElementById('premium-action-container');
       const noteEl = document.getElementById('premium-note');
-
       if (!user) {
         statusCard.innerHTML = '<p style="color:var(--text-secondary)">Please sign in to view your Premium status.</p>';
-        actionContainer.innerHTML = '<a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In to Request Premium</a>';
+        actionContainer.innerHTML = '<a href="/login.html" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Sign In</a>';
         return;
       }
-
       async function loadPremiumStatus() {
         try {
           const res = await API.get('/users/premium-status');
-          const status = res.premium_status || (res.is_premium ? 'approved' : 'none');
-
-          if (status === 'approved' || res.is_premium) {
-            statusCard.innerHTML = `
-              <span class="badge" style="background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; font-size:1rem; padding:0.4rem 1rem;">
-                <i class="fas fa-crown"></i> Premium Active
-              </span>
-              <h3 style="margin-top:0.75rem; color:var(--text-primary)">You are a Premium Member!</h3>
-              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
-                Enjoy unlimited access to all exclusive comics and chapters.
-              </p>
-            `;
-            actionContainer.innerHTML = `
-              <button class="btn btn-secondary" disabled style="opacity:0.8">
-                <i class="fas fa-check-circle"></i> Premium Active
-              </button>
-            `;
-            noteEl.textContent = 'Thank you for supporting Elder\'s Veil.';
-          } else if (status === 'pending') {
-            statusCard.innerHTML = `
-              <span class="badge" style="background:#eab308; color:#000; font-size:0.95rem; padding:0.4rem 1rem;">
-                <i class="fas fa-clock"></i> Request Pending
-              </span>
-              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Your Premium request has been submitted.</h3>
-              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
-                Please wait for admin approval. You will receive an email once reviewed.
-              </p>
-            `;
-            actionContainer.innerHTML = `
-              <button class="btn btn-secondary" disabled style="opacity:0.7">
-                <i class="fas fa-hourglass-half"></i> Request Pending Approval
-              </button>
-            `;
-            noteEl.textContent = 'Admin review in progress.';
-          } else if (status === 'rejected') {
-            statusCard.innerHTML = `
-              <span class="badge" style="background:#ef4444; color:#fff; font-size:0.95rem; padding:0.4rem 1rem;">
-                <i class="fas fa-times-circle"></i> Request Rejected
-              </span>
-              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Status: Request Rejected</h3>
-              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
-                Your previous request was not approved. You may submit a new request below.
-              </p>
-            `;
-            actionContainer.innerHTML = `
-              <button class="btn btn-primary" id="request-premium-btn">
-                <i class="fas fa-paper-plane"></i> Request Premium Again
-              </button>
-            `;
-            attachRequestEvent();
-          } else {
-            statusCard.innerHTML = `
-              <span class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-secondary); font-size:0.95rem; padding:0.4rem 1rem;">
-                Status: Not Premium
-              </span>
-              <h3 style="margin-top:0.75rem; color:var(--text-primary)">Unlock Premium Membership</h3>
-              <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.25rem;">
-                Request premium status to read all exclusive comics on Elder's Veil.
-              </p>
-            `;
-            actionContainer.innerHTML = `
-              <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
-                <button class="btn btn-primary" id="pay-premium-btn" style="font-size:1.05rem; padding:0.75rem 1.75rem;">
-                  <i class="fas fa-credit-card"></i> Buy Premium
-                </button>
-                <button class="btn btn-secondary" id="request-premium-btn"><i class="fas fa-paper-plane"></i> Manual Admin Request</button>
-              </div>
-            `;
-            attachRequestEvent();
-            document.getElementById('pay-premium-btn')?.addEventListener('click', async()=>{
-              const btn=document.getElementById('pay-premium-btn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Preparing...';
-              try{
-                const order=await API.post('/platform/payments/subscription/order',{plan:'premium_monthly'});
-                if(!order.configured) throw new Error(order.error||'Online payment is not configured.');
-                const rz=new Razorpay({key:order.keyId,amount:order.order.amount,currency:order.order.currency,name:"Elder's Veil",description:"Premium Membership",order_id:order.order.id,prefill:{email:user.email,name:user.username},handler:async(resp)=>{
-                  const v=await API.post('/platform/payments/subscription/verify',{orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature,months:1});
-                  showToast('Premium payment verified successfully!','success');loadPremiumStatus();
-                }});
-                rz.open();
-              }catch(e){showToast(e.message,'error');btn.disabled=false;btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium';}
-            });
+          const active = !!(user.role === 'admin' || res.is_premium || res.premium_status === 'approved' || res.premium_status === 'active');
+          if (active) {
+            statusCard.innerHTML = `<span class="badge premium-gold-badge" style="font-size:1rem;padding:.4rem 1rem"><i class="fas fa-crown"></i> Premium Active</span><h3 style="margin-top:.75rem;color:var(--text-primary)">You are a Premium Member!</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">Enjoy unlimited access to all exclusive comics and chapters.</p>`;
+            actionContainer.innerHTML = '<a class="btn btn-premium" href="/premium-comics.html"><i class="fas fa-crown"></i> Open Premium Comics</a>';
+            noteEl.textContent = user.role === 'admin' ? 'Administrator Premium access is permanent.' : 'Your Premium access is active.';
+            return;
           }
-        } catch (err) {
-          statusCard.innerHTML = `<p style="color:var(--accent-red)">Error loading premium status: ${err.message}</p>`;
-        }
+          statusCard.innerHTML = `<span class="badge" style="background:rgba(255,255,255,.1);color:var(--text-secondary);font-size:.95rem;padding:.4rem 1rem">Status: Not Premium</span><h3 style="margin-top:.75rem;color:var(--text-primary)">Unlock Premium Comics</h3><p style="color:var(--text-secondary);font-size:.9rem;margin-top:.25rem">Browse the Premium Comics library and unlock exclusive stories with Premium membership.</p>`;
+          actionContainer.innerHTML = `<div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><a class="btn btn-premium" href="/premium-comics.html"><i class="fas fa-crown"></i> Browse Premium Comics</a><button class="btn btn-primary" id="pay-premium-btn" style="font-size:1.05rem;padding:.75rem 1.75rem"><i class="fas fa-credit-card"></i> Buy Premium</button></div>`;
+          document.getElementById('pay-premium-btn')?.addEventListener('click', async () => {
+            const btn = document.getElementById('pay-premium-btn'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+            try {
+              const order = await API.post('/platform/payments/subscription/order', {plan:'premium_monthly'});
+              if (!order.configured) throw new Error(order.error || 'Online payment is not configured.');
+              const rz = new Razorpay({key:order.keyId,amount:order.order.amount,currency:order.order.currency,name:"Elder's Veil",description:'Premium Membership',order_id:order.order.id,prefill:{email:user.email,name:user.username},handler:async(resp)=>{
+                await API.post('/platform/payments/subscription/verify',{orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature,months:1});
+                showToast('Premium payment verified successfully!','success'); loadPremiumStatus();
+              }}); rz.open();
+            } catch(e) { showToast(e.message,'error'); btn.disabled=false; btn.innerHTML='<i class="fas fa-credit-card"></i> Buy Premium'; }
+          });
+        } catch (err) { statusCard.innerHTML = `<p style="color:var(--accent-red)">Error loading premium status: ${err.message}</p>`; }
       }
-
-      function attachRequestEvent() {
-        const btn = document.getElementById('request-premium-btn');
-        if (!btn) return;
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting Request...';
-          try {
-            const res = await API.post('/users/premium-request', {});
-            showToast(res.message || 'Your Premium request has been submitted. Please wait for admin approval.', 'success');
-            loadPremiumStatus();
-          } catch (err) {
-            showToast(err.message || 'Failed to submit premium request.', 'error');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-crown"></i> Request Premium';
-          }
-        });
-      }
-
       loadPremiumStatus();
     });
   </script>
