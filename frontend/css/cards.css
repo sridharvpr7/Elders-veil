@@ -147,6 +147,11 @@
   box-shadow: 0 6px 20px rgba(234, 179, 8, 0.2);
 }
 .premium-gold-badge {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: rgba(234, 179, 8, 0.15) !important;
   color: #fef08a !important;
   border: 1px solid rgba(234, 179, 8, 0.4) !important;

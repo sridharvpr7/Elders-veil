@@ -140,12 +140,20 @@
 .premium-gold-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
-  height: 32px;
-  padding: 0 0.65rem;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 32px;
+  padding: 0.35rem 0.65rem;
   font-size: 0.78rem;
   font-weight: 700;
+  line-height: 1.15;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-radius: var(--radius-full);
   background: var(--grad-gold);
   color: #000;
@@ -686,3 +694,9 @@
 .notification-icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:rgba(139,92,246,.13);color:var(--accent-purple);display:flex;align-items:center;justify-content:center}.notification-content{min-width:0}.notification-title-row{display:flex;align-items:center;gap:7px}.notification-title-row strong{font-size:.82rem;color:var(--text-primary);line-height:1.25}.notification-content p{margin:4px 0;font-size:.76rem;line-height:1.4;color:var(--text-secondary)}.notification-content time{font-size:.68rem;color:var(--text-muted)}.notification-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-purple);flex:0 0 6px}.notification-remove{position:absolute;top:10px;right:8px;width:27px;height:27px;border:0;border-radius:7px;background:transparent;color:var(--text-muted);cursor:pointer;opacity:.65}.notification-remove:hover,.notification-remove:focus-visible{opacity:1;background:rgba(244,63,94,.12);color:var(--accent-pink);outline:none}.notification-empty,.notification-loading{padding:32px 18px;text-align:center;color:var(--text-muted);display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.78rem}.notification-empty i{font-size:1.5rem;margin-bottom:3px}.notification-empty strong{color:var(--text-primary);font-size:.85rem}.notification-footer{border-top:1px solid var(--glass-border);border-bottom:0}.notification-footer>a{color:var(--text-primary);font-size:.76rem;font-weight:700;text-decoration:none}.notification-footer>a:hover{color:var(--accent-purple)}
 @media(max-width:900px){.notification-dropdown{right:-8px}}
 @media(max-width:560px){.notification-btn{width:38px;height:38px}.notification-dropdown{position:fixed;top:70px;right:12px;left:12px;width:auto;max-width:none}.notification-list{max-height:55vh}}
+
+/* Premium badge overflow guard */
+.profile-hero > div { min-width: 0; }
+.profile-hero h1 { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+#prof-hero-badge { flex: 0 1 auto; max-width: min(100%, 220px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 560px) { #prof-hero-badge { max-width: 100%; } }
