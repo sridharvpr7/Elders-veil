@@ -4,7 +4,7 @@
     en:{
       home:'Home',comics:'Comics',genres:'Genres',popular:'Popular',latest:'Latest',
       signIn:'Sign In',register:'Register',dashboard:'Dashboard',bookmarks:'Bookmarks',favorites:'Favorites',
-      history:'Reading History',notifications:'Notifications',profile:'Profile Settings',premium:'Premium',
+      history:'Reading History',profile:'Profile Settings',premium:'Premium',
       creatorStudio:'Creator Studio',uploadComic:'Upload Comic',adminPortal:'Admin Portal',logout:'Logout',
       searchPlaceholder:'Search title, author, genre...',support:'Support',privacy:'Privacy Policy',terms:'Terms of Service',
       discovery:'Discovery',account:'User Account',platform:'Platform',allComics:'All Comics',browseGenres:'Browse Genres',
@@ -15,15 +15,15 @@
       recommended:'Recommended For You',trending:'Trending Releases',continueReading:'Continue Reading',resume:'Resume',
       popularGenres:'Popular Genres',exploreCatalog:'Explore Catalog',noComics:'No comics match your criteria',
       adjustFilters:'Try adjusting your filters or search keywords.',comicSearch:'Comic Search Engine',
-      searchHelp:'Type title, author, artist, or genre...',noNotifications:'No notifications yet.',
+      searchHelp:'Type title, author, artist, or genre...',
       savePreferences:'Save Preferences',newComicEmail:'New comic email',newChapterEmail:'New chapter email',
-      inApp:'In-app notifications',premiumActive:'Premium active',notActive:'Not active',buyPremium:'Buy 1 Month Premium',
+      premiumActive:'Premium active',notActive:'Not active',buyPremium:'Buy 1 Month Premium',
       publish:'Publish',requestChanges:'Request Changes',reject:'Reject',approve:'Approve'
     },
     ta:{
       home:'முகப்பு',comics:'காமிக்ஸ்',genres:'வகைகள்',popular:'பிரபலமானவை',latest:'புதியவை',
       signIn:'உள்நுழை',register:'பதிவு செய்ய',dashboard:'டாஷ்போர்டு',bookmarks:'புக்மார்க்ஸ்',favorites:'விருப்பங்கள்',
-      history:'வாசிப்பு வரலாறு',notifications:'அறிவிப்புகள்',profile:'சுயவிவர அமைப்புகள்',premium:'பிரீமியம்',
+      history:'வாசிப்பு வரலாறு',profile:'சுயவிவர அமைப்புகள்',premium:'பிரீமியம்',
       creatorStudio:'கிரியேட்டர் ஸ்டூடியோ',uploadComic:'காமிக்ஸ் பதிவேற்றம்',adminPortal:'நிர்வாக போர்டல்',logout:'வெளியேறு',
       searchPlaceholder:'தலைப்பு, ஆசிரியர், வகை தேடவும்...',support:'ஆதரவு',privacy:'தனியுரிமை',terms:'விதிமுறைகள்',
       discovery:'தேடல்',account:'பயனர் கணக்கு',platform:'தளம்',allComics:'அனைத்து காமிக்ஸ்கள்',browseGenres:'வகைகளை பார்க்க',
@@ -34,7 +34,7 @@
       recommended:'உங்களுக்கான பரிந்துரைகள்',trending:'ட்ரெண்டிங் வெளியீடுகள்',continueReading:'தொடர்ந்து படிக்க',resume:'தொடர்',
       popularGenres:'பிரபலமான வகைகள்',exploreCatalog:'கேட்டலாக் பார்க்க',noComics:'உங்கள் தேடலுக்கு ஏற்ற காமிக்ஸ் இல்லை',
       adjustFilters:'வடிகட்டிகளை அல்லது தேடல் சொற்களை மாற்றிப் பாருங்கள்.',comicSearch:'காமிக்ஸ் தேடுபொறி',
-      searchHelp:'தலைப்பு, ஆசிரியர், ஆர்டிஸ்ட் அல்லது வகையை உள்ளிடவும்...',noNotifications:'இன்னும் அறிவிப்புகள் இல்லை.',
+      searchHelp:'தலைப்பு, ஆசிரியர், ஆர்டிஸ்ட் அல்லது வகையை உள்ளிடவும்...',
       savePreferences:'விருப்பங்களை சேமி',newComicEmail:'புதிய காமிக்ஸ் மின்னஞ்சல்',newChapterEmail:'புதிய அத்தியாயம் மின்னஞ்சல்',
       inApp:'உள்ளமை அறிவிப்புகள்',premiumActive:'பிரீமியம் செயலில் உள்ளது',notActive:'செயலில் இல்லை',buyPremium:'1 மாத பிரீமியம் வாங்க',
       publish:'வெளியிடு',requestChanges:'மாற்றங்கள் கோர்',reject:'நிராகரி',approve:'அனுமதி'
