@@ -137,18 +137,7 @@ function renderNavbar(activePage = 'home') {
                 </button>
               </div>
             </div>
-          ` : `
-            <div class="desktop-auth-actions" aria-label="Account actions">
-              <a href="/login.html" class="btn btn-secondary auth-nav-btn">
-                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
-                <span>Sign In</span>
-              </a>
-              <a href="/register.html" class="btn btn-primary auth-nav-btn">
-                <i class="fas fa-user-plus" aria-hidden="true"></i>
-                <span>Register</span>
-              </a>
-            </div>
-          `}
+          ` : ''}
 
           <button class="mobile-toggle" id="mobile-nav-toggle" type="button"
             aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav-drawer">
