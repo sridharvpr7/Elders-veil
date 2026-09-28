@@ -123,14 +123,14 @@
         const active = !!(res.isPremium || res.is_premium || user.is_premium || res.premiumStatus === 'approved' || res.premiumStatus === 'active');
 
         if (user.role === 'admin') {
-          statusCard.innerHTML = '<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem;"><i class="fas fa-crown"></i> Administrator Access</span><h3 style="margin-top:0.75rem; color:var(--text);">Permanent Premium Status</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Administrator accounts have full permanent access to all Premium comics and features.</p>';
+          statusCard.innerHTML = '<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem; max-width:100%; box-sizing:border-box; white-space:normal; overflow-wrap:anywhere;"><i class="fas fa-crown"></i> Administrator Access</span><h3 style="margin-top:0.75rem; color:var(--text);">Permanent Premium Status</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Administrator accounts have full permanent access to all Premium comics and features.</p>';
           actionContainer.innerHTML = '<a class="btn btn-primary" href="/premium-comics.html" style="background:var(--grad-gold); color:#000; font-weight:800;"><i class="fas fa-crown"></i> Browse Premium Catalog</a>';
           noteEl.textContent = 'Administrator Premium access is active.';
           return;
         }
 
         if (active) {
-          statusCard.innerHTML = `<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem;"><i class="fas fa-crown"></i> Premium Active</span><h3 style="margin-top:0.75rem; color:var(--text);">You are a Premium Member!</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Expires: ${user.premium_expires_at ? new Date(user.premium_expires_at).toLocaleDateString() : 'Active Access'}</p>`;
+          statusCard.innerHTML = `<span class="badge premium-gold-badge" style="font-size:0.9rem; padding:0.4rem 1rem; max-width:100%; box-sizing:border-box; white-space:normal; overflow-wrap:anywhere;"><i class="fas fa-crown"></i> Premium Active</span><h3 style="margin-top:0.75rem; color:var(--text);">You are a Premium Member!</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Expires: ${user.premium_expires_at ? new Date(user.premium_expires_at).toLocaleDateString() : 'Active Access'}</p>`;
           noteEl.textContent = 'Your Premium access is active.';
         } else {
           statusCard.innerHTML = `<span class="badge badge-purple" style="font-size:0.85rem; padding:0.4rem 1rem;">Status: Standard Free Account</span><h3 style="margin-top:0.75rem; color:var(--text);">Upgrade to Premium</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">Activate online or submit a manual activation request for administrator approval.</p>`;

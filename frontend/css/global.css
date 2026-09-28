@@ -323,3 +323,68 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
 }
 
+
+
+/* --- Global UI/UX guardrails --- */
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+a,
+button,
+.btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.text-wrap-safe,
+.card-title,
+.card-description {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  #toast-container {
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+  }
+
+  .toast {
+    min-width: 0;
+    width: 100%;
+  }
+}

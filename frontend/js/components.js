@@ -56,126 +56,124 @@ function renderNavbar(activePage = 'home') {
     ? user.avatar 
     : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
-  // Read cached unread notification count instantly for immediate UI display
-  const cachedUnread = localStorage.getItem('ev_notif_unread') || '0';
-
   const html = `
-    <nav class="app-navbar">
+    <nav class="app-navbar" aria-label="Primary navigation">
       <div class="container navbar-container">
         <div class="nav-left">
-          <a href="/index.html" class="navbar-logo">
-            <i class="fas fa-book-open"></i>
+          <a href="/index.html" class="navbar-logo" aria-label="Elder's Veil home">
+            <i class="fas fa-book-open" aria-hidden="true"></i>
             <span>ELDER'S <span class="text-gradient">VEIL</span></span>
           </a>
+
           <div class="nav-links">
             <a href="/index.html" class="nav-link ${activePage === 'home' ? 'active' : ''}">Home</a>
             <a href="/comics.html" class="nav-link ${activePage === 'comics' ? 'active' : ''}">Comics</a>
             <a href="/latest.html" class="nav-link ${activePage === 'latest' ? 'active' : ''}">Latest</a>
             <a href="/popular.html" class="nav-link ${activePage === 'popular' ? 'active' : ''}">Trending</a>
-            <a href="/premium-comics.html" class="nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium</a>
+            <a href="/premium-comics.html" class="nav-link ${activePage === 'premium' ? 'active' : ''}">
+              <i class="fas fa-crown" aria-hidden="true"></i> Premium
+            </a>
             <a href="/community.html" class="nav-link ${activePage === 'creators' ? 'active' : ''}">Creators</a>
           </div>
         </div>
 
         <div class="nav-right">
           ${premiumBadge}
+
           <div class="nav-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="global-search-input" placeholder="Search title, creator, genre..." />
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input type="search" id="global-search-input" autocomplete="off"
+              placeholder="Search title, creator, genre..." aria-label="Search comics" />
           </div>
 
           ${isLoggedIn ? `
-            <div class="nav-notifications" id="nav-notif-dropdown-container">
-              <button class="nav-icon-btn" id="nav-notif-btn" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-                <span class="notif-badge" id="nav-notif-count" style="${parseInt(cachedUnread, 10) > 0 ? 'display:inline-block;' : 'display:none;'}">${cachedUnread}</span>
+            <div class="notification-menu" id="notification-menu">
+              <button class="notification-btn" id="notification-btn" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notification-dropdown">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <span class="notification-count" id="notification-count" hidden>0</span>
               </button>
-              <div class="notif-dropdown-menu" id="nav-notif-dropdown">
-                <div class="notif-header">
-                  <span>Notifications</span>
-                  <a href="/notifications.html" style="font-size:0.8rem; color:var(--primary);">View All</a>
+              <div class="notification-dropdown" id="notification-dropdown" role="dialog" aria-label="Notifications">
+                <div class="notification-header">
+                  <div><strong>Notifications</strong><span id="notification-unread" class="notification-unread"></span></div>
+                  <button type="button" class="notification-action" id="mark-all-notifications">Mark all read</button>
                 </div>
-                <div id="nav-notif-list" style="display:flex; flex-direction:column; gap:0.4rem;">
-                  <div style="text-align:center; padding:1rem; color:var(--muted-text); font-size:0.85rem;">Loading notifications...</div>
+                <div class="notification-list" id="notification-list">
+                  <div class="notification-loading">Loading notifications…</div>
+                </div>
+                <div class="notification-footer">
+                  <a href="/notifications.html">View all notifications</a>
+                  <button type="button" class="notification-clear-all" id="clear-all-notifications">Clear all</button>
                 </div>
               </div>
             </div>
-
-            <a href="/library.html" class="nav-link ${activePage === 'library' ? 'active' : ''}"><i class="fas fa-bookmark"></i> Library</a>
+            <a href="/library.html" class="nav-link nav-library ${activePage === 'library' ? 'active' : ''}">
+              <i class="fas fa-bookmark" aria-hidden="true"></i> <span>Library</span>
+            </a>
 
             <div class="user-menu">
-              <button class="user-avatar-btn" id="user-menu-btn" aria-label="Account Menu">
-                <img src="${userAvatar}" class="avatar-img" alt="User" />
+              <button class="user-avatar-btn" id="user-menu-btn" type="button" aria-label="Account menu"
+                aria-expanded="false" aria-controls="user-dropdown-menu">
+                <img src="${userAvatar}" class="avatar-img" alt="" />
                 <span class="user-username-label">${user ? user.username : 'Account'}</span>
-                <i class="fas fa-chevron-down" style="font-size:0.75rem; color:var(--muted-text);"></i>
+                <i class="fas fa-chevron-down user-menu-chevron" aria-hidden="true"></i>
               </button>
+
               <div class="dropdown-menu" id="user-dropdown-menu">
                 <a href="/profile.html" class="dropdown-item"><i class="fas fa-user-cog"></i> Profile & Settings</a>
                 <a href="/library.html" class="dropdown-item"><i class="fas fa-bookmark"></i> My Library</a>
                 <a href="/connections.html" class="dropdown-item"><i class="fas fa-users"></i> Following & Followers</a>
-                <a href="/notifications.html" class="dropdown-item"><i class="fas fa-bell"></i> Notification Center</a>
-                <a href="${getUserManualUrl()}" class="dropdown-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> User Manual</a>
+                <a href="${getUserManualUrl()}" class="dropdown-item" target="_blank" rel="noopener noreferrer">
+                  <i class="fas fa-book-open"></i> User Manual
+                </a>
                 <a href="/platform.html" class="dropdown-item"><i class="fas fa-layer-group"></i> Platform Features</a>
-                ${isCreator ? `<a href="/creator/dashboard.html" class="dropdown-item" style="color:var(--creator-accent);"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : `<a href="/profile.html?tab=settings" class="dropdown-item"><i class="fas fa-feather"></i> Become Creator</a>`}
+                ${isCreator
+                  ? `<a href="/creator/dashboard.html" class="dropdown-item"><i class="fas fa-pen-nib"></i> Creator Studio</a>`
+                  : `<a href="/profile.html?tab=settings" class="dropdown-item"><i class="fas fa-feather"></i> Become Creator</a>`}
                 ${canAdminUpload ? `<a href="/admin/upload.html" class="dropdown-item"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
-                ${isAdmin ? `<a href="/admin/index.html" class="dropdown-item" style="color:var(--primary); font-weight:700;"><i class="fas fa-user-shield"></i> Admin Portal</a>` : ''}
-                <hr style="border-color:var(--border); margin:0.25rem 0;" />
-                <button class="dropdown-item danger" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                ${isAdmin ? `<a href="/admin/index.html" class="dropdown-item admin-item"><i class="fas fa-user-shield"></i> Admin Portal</a>` : ''}
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item danger" id="logout-btn" type="button">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
               </div>
             </div>
-          ` : `
-            <a href="/library.html" class="nav-link"><i class="fas fa-bookmark"></i> Library</a>
-            <div class="nav-auth-buttons" style="display:flex; gap:0.75rem;">
-              <a href="/login.html" class="btn btn-secondary btn-sm">Sign In</a>
-              <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
-            </div>
-          `}
+          ` : ''}
 
-          <!-- Mobile Hamburger Toggle -->
-          <button class="mobile-toggle" id="mobile-nav-toggle" aria-label="Open Mobile Menu">
-            <i class="fas fa-bars"></i>
+          <button class="mobile-toggle" id="mobile-nav-toggle" type="button"
+            aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav-drawer">
+            <i class="fas fa-bars" aria-hidden="true"></i>
           </button>
         </div>
       </div>
     </nav>
 
-    <!-- Mobile Drawer Overlay & Panel -->
-    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
-    <aside class="mobile-nav-drawer" id="mobile-nav-drawer">
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true"></div>
+
+    <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile navigation" aria-hidden="true">
       <div class="mobile-drawer-header">
         <a href="/index.html" class="navbar-logo">
-          <i class="fas fa-book-open"></i>
+          <i class="fas fa-book-open" aria-hidden="true"></i>
           <span>ELDER'S <span class="text-gradient">VEIL</span></span>
         </a>
-        <button class="mobile-close-btn" id="mobile-nav-close" aria-label="Close Mobile Menu">
-          <i class="fas fa-times"></i>
+        <button class="mobile-close-btn" id="mobile-nav-close" type="button" aria-label="Close navigation">
+          <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
 
       <div class="mobile-drawer-body">
         <div class="mobile-search">
-          <i class="fas fa-search"></i>
-          <input type="text" id="mobile-search-input" placeholder="Search title, creator, genre..." />
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input type="search" id="mobile-search-input" autocomplete="off"
+            placeholder="Search comics..." aria-label="Search comics" />
         </div>
 
-        ${isLoggedIn ? `
-          <div class="mobile-user-card">
-            <img src="${userAvatar}" class="avatar-img" alt="Avatar" />
-            <div class="mobile-user-details">
-              <strong>${user ? user.username : 'User'}</strong>
-              <small>${user ? user.email : ''}</small>
-              ${premiumBadge ? `<div style="margin-top:0.2rem;">${premiumBadge}</div>` : ''}
-            </div>
-          </div>
-        ` : ''}
-
-        <div class="mobile-drawer-nav">
+        <nav class="mobile-drawer-nav">
           <div class="mobile-nav-section-title">Navigation</div>
           <a href="/index.html" class="mobile-nav-link ${activePage === 'home' ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
           <a href="/comics.html" class="mobile-nav-link ${activePage === 'comics' ? 'active' : ''}"><i class="fas fa-book"></i> Comics</a>
           <a href="/latest.html" class="mobile-nav-link ${activePage === 'latest' ? 'active' : ''}"><i class="fas fa-clock"></i> Latest</a>
           <a href="/popular.html" class="mobile-nav-link ${activePage === 'popular' ? 'active' : ''}"><i class="fas fa-fire"></i> Trending</a>
-          <a href="/premium-comics.html" class="mobile-nav-link premium-nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium Comics</a>
+          <a href="/premium-comics.html" class="mobile-nav-link ${activePage === 'premium' ? 'active' : ''}"><i class="fas fa-crown"></i> Premium Comics</a>
           <a href="/community.html" class="mobile-nav-link ${activePage === 'creators' ? 'active' : ''}"><i class="fas fa-users"></i> Creators</a>
           <a href="${getUserManualUrl()}" class="mobile-nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> User Manual</a>
 
@@ -184,19 +182,18 @@ function renderNavbar(activePage = 'home') {
             <a href="/library.html" class="mobile-nav-link ${activePage === 'library' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Library</a>
             <a href="/profile.html" class="mobile-nav-link"><i class="fas fa-user-cog"></i> Profile Settings</a>
             <a href="/connections.html" class="mobile-nav-link"><i class="fas fa-users"></i> Following & Followers</a>
-            <a href="/notifications.html" class="mobile-nav-link"><i class="fas fa-bell"></i> Notifications</a>
             <a href="/platform.html" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Platform Features</a>
             ${isCreator ? `<a href="/creator/dashboard.html" class="mobile-nav-link"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
             ${canAdminUpload ? `<a href="/admin/upload.html" class="mobile-nav-link"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
             ${isAdmin ? `<a href="/admin/index.html" class="mobile-nav-link admin-highlight"><i class="fas fa-user-shield"></i> Admin Portal</a>` : ''}
-            <button class="mobile-nav-link danger" id="mobile-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="mobile-nav-link danger" id="mobile-logout-btn" type="button"><i class="fas fa-sign-out-alt"></i> Logout</button>
           ` : `
             <div class="mobile-auth-actions">
-              <a href="/login.html" class="btn btn-secondary" style="width:100%"><i class="fas fa-sign-in-alt"></i> Sign In</a>
-              <a href="/register.html" class="btn btn-primary" style="width:100%"><i class="fas fa-user-plus"></i> Register</a>
+              <a href="/login.html" class="btn btn-secondary"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+              <a href="/register.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a>
             </div>
           `}
-        </div>
+        </nav>
       </div>
     </aside>
   `;
@@ -215,70 +212,19 @@ function renderNavbar(activePage = 'home') {
       });
     }
 
+    // Bind Notifications
+    if (isLoggedIn) initNotificationMenu();
+
     // Bind User Dropdown Toggle (Desktop)
     const menuBtn = document.getElementById('user-menu-btn');
     const dropdownMenu = document.getElementById('user-dropdown-menu');
     if (menuBtn && dropdownMenu) {
       menuBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        dropdownMenu.classList.toggle('show');
+        const isOpen = dropdownMenu.classList.toggle('show');
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
       });
-      document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
-    }
-
-    // Bind Notifications Dropdown Toggle & Data Fetching asynchronously
-    if (isLoggedIn) {
-      const notifBtn = document.getElementById('nav-notif-btn');
-      const notifDropdown = document.getElementById('nav-notif-dropdown');
-      const notifCount = document.getElementById('nav-notif-count');
-      const notifList = document.getElementById('nav-notif-list');
-
-      const fetchNotifications = async () => {
-        if (document.visibilityState === 'hidden') return;
-        try {
-          const res = (typeof API.getCached === 'function') 
-            ? await API.getCached('/notifications', 30000) 
-            : await API.get('/notifications');
-          const notifications = res.notifications || [];
-          const unreadCount = notifications.filter(n => !n.read).length;
-          
-          localStorage.setItem('ev_notif_unread', String(unreadCount));
-          if (notifCount) {
-            if (unreadCount > 0) {
-              notifCount.textContent = unreadCount > 99 ? '99+' : unreadCount;
-              notifCount.style.display = 'inline-block';
-            } else {
-              notifCount.style.display = 'none';
-            }
-          }
-          if (notifList) {
-            if (notifications.length === 0) {
-              notifList.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--muted-text); font-size:0.85rem;">No notifications yet</div>';
-            } else {
-              notifList.innerHTML = notifications.slice(0, 5).map(n => `
-                <div class="notif-item ${!n.read ? 'unread' : ''}" onclick="window.location.href='/notifications.html'">
-                  <div class="notif-item-title">${String(n.title).replace(/</g,'&lt;')}</div>
-                  <div class="notif-item-message">${String(n.message).replace(/</g,'&lt;')}</div>
-                  <div class="notif-item-time">${new Date(n.createdAt || n.created_at).toLocaleDateString()}</div>
-                </div>
-              `).join('');
-            }
-          }
-        } catch (e) {
-          if (notifList) notifList.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--error); font-size:0.8rem;">Unable to load notifications</div>';
-        }
-      };
-
-      // Non-blocking asynchronous notification fetch
-      setTimeout(fetchNotifications, 50);
-
-      if (notifBtn && notifDropdown) {
-        notifBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          notifDropdown.classList.toggle('show');
-        });
-        document.addEventListener('click', () => notifDropdown.classList.remove('show'));
-      }
+      document.addEventListener('click', () => { dropdownMenu.classList.remove('show'); menuBtn.setAttribute('aria-expanded', 'false'); });
     }
 
     // Bind Desktop Logout
@@ -297,6 +243,9 @@ function renderNavbar(activePage = 'home') {
       if (mobileDrawer && mobileOverlay) {
         mobileDrawer.classList.add('open');
         mobileOverlay.classList.add('open');
+        mobileDrawer.setAttribute('aria-hidden', 'false');
+        mobileOverlay.setAttribute('aria-hidden', 'false');
+        if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
         document.body.style.overflow = 'hidden';
       }
     };
@@ -305,6 +254,9 @@ function renderNavbar(activePage = 'home') {
       if (mobileDrawer && mobileOverlay) {
         mobileDrawer.classList.remove('open');
         mobileOverlay.classList.remove('open');
+        mobileDrawer.setAttribute('aria-hidden', 'true');
+        mobileOverlay.setAttribute('aria-hidden', 'true');
+        if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
         document.body.style.overflow = '';
       }
     };
@@ -343,6 +295,104 @@ function renderNavbar(activePage = 'home') {
   }
 }
 
+async function fetchNotifications(limit = 20) {
+  const res = await API.get(`/notifications/?limit=${limit}`);
+  return Array.isArray(res.notifications) ? res.notifications : [];
+}
+
+function notificationTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const diff = Math.max(0, Date.now() - date.getTime());
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function notificationIcon(type) {
+  const map = {
+    welcome: 'fa-hand-sparkles', new_comic: 'fa-book-open', new_chapter: 'fa-book',
+    comic_approved: 'fa-circle-check', chapter_approved: 'fa-circle-check',
+    changes_requested: 'fa-pen', admin_promoted: 'fa-user-shield', admin_removed: 'fa-user-shield',
+    new_follower: 'fa-user-plus', comment: 'fa-comment', achievement: 'fa-trophy'
+  };
+  return map[type] || 'fa-bell';
+}
+
+function renderNotificationItems(items, compact = true) {
+  if (!items.length) return `<div class="notification-empty"><i class="far fa-bell-slash"></i><strong>You're all caught up</strong><span>No new notifications.</span></div>`;
+  return items.map(n => `
+    <article class="notification-item ${n.read ? '' : 'unread'}" data-notification-id="${n.id}">
+      <button type="button" class="notification-remove" data-notification-delete="${n.id}" aria-label="Remove notification" title="Remove notification"><i class="fas fa-times"></i></button>
+      <div class="notification-icon"><i class="fas ${notificationIcon(n.type)}"></i></div>
+      <div class="notification-content">
+        <div class="notification-title-row"><strong>${escapeHtml(n.title || 'Notification')}</strong>${n.read ? '' : '<span class="notification-dot" aria-label="Unread"></span>'}</div>
+        <p>${escapeHtml(n.message || '')}</p>
+        <time>${notificationTime(n.createdAt || n.created_at)}</time>
+      </div>
+    </article>`).join('');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+}
+
+async function initNotificationMenu() {
+  const btn = document.getElementById('notification-btn');
+  const dropdown = document.getElementById('notification-dropdown');
+  const list = document.getElementById('notification-list');
+  const count = document.getElementById('notification-count');
+  const unread = document.getElementById('notification-unread');
+  if (!btn || !dropdown || !list) return;
+
+  let items = [];
+  const paint = () => {
+    const unreadCount = items.filter(n => !n.read).length;
+    count.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    count.hidden = unreadCount === 0;
+    unread.textContent = unreadCount ? `${unreadCount} unread` : 'All caught up';
+    list.innerHTML = renderNotificationItems(items.slice(0, 8));
+  };
+  const load = async () => {
+    try { items = await fetchNotifications(50); paint(); }
+    catch { list.innerHTML = `<div class="notification-empty"><i class="fas fa-circle-exclamation"></i><strong>Couldn't load notifications</strong><span>Please try again.</span></div>`; }
+  };
+  await load();
+
+  btn.addEventListener('click', async e => {
+    e.stopPropagation();
+    const open = dropdown.classList.toggle('show');
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) await load();
+  });
+  dropdown.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => { dropdown.classList.remove('show'); btn.setAttribute('aria-expanded','false'); });
+
+  list.addEventListener('click', async e => {
+    const del = e.target.closest('[data-notification-delete]');
+    if (!del) return;
+    const id = del.dataset.notificationDelete;
+    del.disabled = true;
+    try { await API.delete(`/notifications/${encodeURIComponent(id)}`); items = items.filter(n => n.id !== id); paint(); showToast('Notification removed.', 'success', 2200); }
+    catch { del.disabled = false; showToast('Could not remove notification.', 'error'); }
+  });
+
+  document.getElementById('mark-all-notifications')?.addEventListener('click', async () => {
+    try { await API.put('/notifications/read-all', {}); items = items.map(n => ({...n, read:true})); paint(); showToast('All notifications marked as read.', 'success', 2200); }
+    catch { showToast('Could not update notifications.', 'error'); }
+  });
+  document.getElementById('clear-all-notifications')?.addEventListener('click', async () => {
+    if (!items.length) return;
+    try { await API.delete('/notifications/'); items = []; paint(); showToast('All notifications removed.', 'success', 2200); }
+    catch { showToast('Could not clear notifications.', 'error'); }
+  });
+}
+
 function renderFooter() {
   const html = `
     <footer class="app-footer">
@@ -376,7 +426,6 @@ function renderFooter() {
             <div class="footer-links">
               <a href="/library.html">My Library</a>
               <a href="/connections.html">Following Creators</a>
-              <a href="/notifications.html">Notifications</a>
               <a href="/profile.html">Account Settings</a>
             </div>
           </div>

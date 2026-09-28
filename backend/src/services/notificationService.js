@@ -3,16 +3,22 @@ const EmailService = require('./emailService');
 
 class NotificationService {
   static async create(userId, type, title, message, data = {}) {
-    const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-    const now = new Date();
+    const id = `notif-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const createdAt = new Date();
+    const row = { id, user_id: userId, type, title, message, data, read: false, created_at: createdAt };
+    const prefs = await this.preferences(userId);
+    if (prefs.in_app_enabled === false) return row;
     if (db.isPgConnected()) {
-      await db.query(`INSERT INTO notifications (id,user_id,type,title,message,data,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`, [id,userId,type,title,message,JSON.stringify(data),now]);
+      await db.query(
+        `INSERT INTO notifications (id,user_id,type,title,message,data,read,created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [id, userId, type, title, message, JSON.stringify(data || {}), false, createdAt]
+      );
     } else {
       db.fallbackStore.notifications ??= [];
-      db.fallbackStore.notifications.push({id,user_id:userId,type,title,message,data,read:false,created_at:now});
+      db.fallbackStore.notifications.push(row);
       db.saveFallbackStore();
     }
-    return {id,userId,type,title,message,data,read:false,createdAt:now};
+    return { ...row, createdAt };
   }
 
   static async list(userId, limit=50) {
@@ -69,10 +75,10 @@ class NotificationService {
   static async preferences(userId) {
     if(db.isPgConnected()){
       const r=await db.query(`SELECT * FROM notification_preferences WHERE user_id=$1`,[userId]);
-      return r.rows[0] || {user_id:userId,new_comic_email:true,new_chapter_email:true,email_enabled:true,in_app_enabled:true};
+      return r.rows[0] || {user_id:userId,new_comic_email:true,new_chapter_email:true,email_enabled:true,in_app_enabled:false};
     }
     const p=(db.fallbackStore.notification_preferences||[]).find(x=>x.user_id===userId);
-    return p || {user_id:userId,new_comic_email:true,new_chapter_email:true,email_enabled:true,in_app_enabled:true};
+    return p || {user_id:userId,new_comic_email:true,new_chapter_email:true,email_enabled:true,in_app_enabled:false};
   }
 
   static async updatePreferences(userId, data) {
