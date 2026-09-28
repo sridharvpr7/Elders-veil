@@ -56,9 +56,6 @@ function renderNavbar(activePage = 'home') {
     ? user.avatar 
     : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
-  // Read cached unread notification count instantly for immediate UI display
-  const cachedUnread = localStorage.getItem('ev_notif_unread') || '0';
-
   const html = `
     <nav class="app-navbar">
       <div class="container navbar-container">
@@ -83,24 +80,7 @@ function renderNavbar(activePage = 'home') {
             <i class="fas fa-search"></i>
             <input type="text" id="global-search-input" placeholder="Search title, creator, genre..." />
           </div>
-
           ${isLoggedIn ? `
-            <div class="nav-notifications" id="nav-notif-dropdown-container">
-              <button class="nav-icon-btn" id="nav-notif-btn" aria-label="Notifications">
-                <i class="fas fa-bell"></i>
-                <span class="notif-badge" id="nav-notif-count" style="${parseInt(cachedUnread, 10) > 0 ? 'display:inline-block;' : 'display:none;'}">${cachedUnread}</span>
-              </button>
-              <div class="notif-dropdown-menu" id="nav-notif-dropdown">
-                <div class="notif-header">
-                  <span>Notifications</span>
-                  <a href="/notifications.html" style="font-size:0.8rem; color:var(--primary);">View All</a>
-                </div>
-                <div id="nav-notif-list" style="display:flex; flex-direction:column; gap:0.4rem;">
-                  <div style="text-align:center; padding:1rem; color:var(--muted-text); font-size:0.85rem;">Loading notifications...</div>
-                </div>
-              </div>
-            </div>
-
             <a href="/library.html" class="nav-link ${activePage === 'library' ? 'active' : ''}"><i class="fas fa-bookmark"></i> Library</a>
 
             <div class="user-menu">
@@ -113,7 +93,6 @@ function renderNavbar(activePage = 'home') {
                 <a href="/profile.html" class="dropdown-item"><i class="fas fa-user-cog"></i> Profile & Settings</a>
                 <a href="/library.html" class="dropdown-item"><i class="fas fa-bookmark"></i> My Library</a>
                 <a href="/connections.html" class="dropdown-item"><i class="fas fa-users"></i> Following & Followers</a>
-                <a href="/notifications.html" class="dropdown-item"><i class="fas fa-bell"></i> Notification Center</a>
                 <a href="${getUserManualUrl()}" class="dropdown-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> User Manual</a>
                 <a href="/platform.html" class="dropdown-item"><i class="fas fa-layer-group"></i> Platform Features</a>
                 ${isCreator ? `<a href="/creator/dashboard.html" class="dropdown-item" style="color:var(--creator-accent);"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : `<a href="/profile.html?tab=settings" class="dropdown-item"><i class="fas fa-feather"></i> Become Creator</a>`}
@@ -123,51 +102,8 @@ function renderNavbar(activePage = 'home') {
                 <button class="dropdown-item danger" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
               </div>
             </div>
-          ` : `
-            <a href="/library.html" class="nav-link"><i class="fas fa-bookmark"></i> Library</a>
-            <div class="nav-auth-buttons" style="display:flex; gap:0.75rem;">
-              <a href="/login.html" class="btn btn-secondary btn-sm">Sign In</a>
-              <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
-            </div>
-          `}
-
-          <!-- Mobile Hamburger Toggle -->
-          <button class="mobile-toggle" id="mobile-nav-toggle" aria-label="Open Mobile Menu">
-            <i class="fas fa-bars"></i>
-          </button>
+          ` : ''}
         </div>
-      </div>
-    </nav>
-
-    <!-- Mobile Drawer Overlay & Panel -->
-    <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
-    <aside class="mobile-nav-drawer" id="mobile-nav-drawer">
-      <div class="mobile-drawer-header">
-        <a href="/index.html" class="navbar-logo">
-          <i class="fas fa-book-open"></i>
-          <span>ELDER'S <span class="text-gradient">VEIL</span></span>
-        </a>
-        <button class="mobile-close-btn" id="mobile-nav-close" aria-label="Close Mobile Menu">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="mobile-drawer-body">
-        <div class="mobile-search">
-          <i class="fas fa-search"></i>
-          <input type="text" id="mobile-search-input" placeholder="Search title, creator, genre..." />
-        </div>
-
-        ${isLoggedIn ? `
-          <div class="mobile-user-card">
-            <img src="${userAvatar}" class="avatar-img" alt="Avatar" />
-            <div class="mobile-user-details">
-              <strong>${user ? user.username : 'User'}</strong>
-              <small>${user ? user.email : ''}</small>
-              ${premiumBadge ? `<div style="margin-top:0.2rem;">${premiumBadge}</div>` : ''}
-            </div>
-          </div>
-        ` : ''}
 
         <div class="mobile-drawer-nav">
           <div class="mobile-nav-section-title">Navigation</div>
@@ -184,7 +120,6 @@ function renderNavbar(activePage = 'home') {
             <a href="/library.html" class="mobile-nav-link ${activePage === 'library' ? 'active' : ''}"><i class="fas fa-bookmark"></i> My Library</a>
             <a href="/profile.html" class="mobile-nav-link"><i class="fas fa-user-cog"></i> Profile Settings</a>
             <a href="/connections.html" class="mobile-nav-link"><i class="fas fa-users"></i> Following & Followers</a>
-            <a href="/notifications.html" class="mobile-nav-link"><i class="fas fa-bell"></i> Notifications</a>
             <a href="/platform.html" class="mobile-nav-link"><i class="fas fa-layer-group"></i> Platform Features</a>
             ${isCreator ? `<a href="/creator/dashboard.html" class="mobile-nav-link"><i class="fas fa-pen-nib"></i> Creator Studio</a>` : ''}
             ${canAdminUpload ? `<a href="/admin/upload.html" class="mobile-nav-link"><i class="fas fa-cloud-upload-alt"></i> Upload Comic</a>` : ''}
@@ -224,61 +159,6 @@ function renderNavbar(activePage = 'home') {
         dropdownMenu.classList.toggle('show');
       });
       document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
-    }
-
-    // Bind Notifications Dropdown Toggle & Data Fetching asynchronously
-    if (isLoggedIn) {
-      const notifBtn = document.getElementById('nav-notif-btn');
-      const notifDropdown = document.getElementById('nav-notif-dropdown');
-      const notifCount = document.getElementById('nav-notif-count');
-      const notifList = document.getElementById('nav-notif-list');
-
-      const fetchNotifications = async () => {
-        if (document.visibilityState === 'hidden') return;
-        try {
-          const res = (typeof API.getCached === 'function') 
-            ? await API.getCached('/notifications', 30000) 
-            : await API.get('/notifications');
-          const notifications = res.notifications || [];
-          const unreadCount = notifications.filter(n => !n.read).length;
-          
-          localStorage.setItem('ev_notif_unread', String(unreadCount));
-          if (notifCount) {
-            if (unreadCount > 0) {
-              notifCount.textContent = unreadCount > 99 ? '99+' : unreadCount;
-              notifCount.style.display = 'inline-block';
-            } else {
-              notifCount.style.display = 'none';
-            }
-          }
-          if (notifList) {
-            if (notifications.length === 0) {
-              notifList.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--muted-text); font-size:0.85rem;">No notifications yet</div>';
-            } else {
-              notifList.innerHTML = notifications.slice(0, 5).map(n => `
-                <div class="notif-item ${!n.read ? 'unread' : ''}" onclick="window.location.href='/notifications.html'">
-                  <div class="notif-item-title">${String(n.title).replace(/</g,'&lt;')}</div>
-                  <div class="notif-item-message">${String(n.message).replace(/</g,'&lt;')}</div>
-                  <div class="notif-item-time">${new Date(n.createdAt || n.created_at).toLocaleDateString()}</div>
-                </div>
-              `).join('');
-            }
-          }
-        } catch (e) {
-          if (notifList) notifList.innerHTML = '<div style="text-align:center; padding:1rem; color:var(--error); font-size:0.8rem;">Unable to load notifications</div>';
-        }
-      };
-
-      // Non-blocking asynchronous notification fetch
-      setTimeout(fetchNotifications, 50);
-
-      if (notifBtn && notifDropdown) {
-        notifBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          notifDropdown.classList.toggle('show');
-        });
-        document.addEventListener('click', () => notifDropdown.classList.remove('show'));
-      }
     }
 
     // Bind Desktop Logout
@@ -376,7 +256,6 @@ function renderFooter() {
             <div class="footer-links">
               <a href="/library.html">My Library</a>
               <a href="/connections.html">Following Creators</a>
-              <a href="/notifications.html">Notifications</a>
               <a href="/profile.html">Account Settings</a>
             </div>
           </div>

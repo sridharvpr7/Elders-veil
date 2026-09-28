@@ -23,9 +23,47 @@ class NotificationService {
     return (db.fallbackStore.notifications||[]).filter(n=>n.user_id===userId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,limit).map(n=>({...n,createdAt:n.created_at}));
   }
 
-  static async markRead(userId,id) {
-    if(db.isPgConnected()) await db.query(`UPDATE notifications SET read=true WHERE id=$1 AND user_id=$2`,[id,userId]);
-    else {const n=(db.fallbackStore.notifications||[]).find(x=>x.id===id&&x.user_id===userId);if(n)n.read=true;db.saveFallbackStore();}
+  static async markRead(userId, id) {
+    if (db.isPgConnected()) {
+      await db.query(`UPDATE notifications SET read=true WHERE id=$1 AND user_id=$2`, [id, userId]);
+    } else {
+      const n = (db.fallbackStore.notifications || []).find(x => x.id === id && x.user_id === userId);
+      if (n) n.read = true;
+      db.saveFallbackStore();
+    }
+  }
+
+  static async markAllRead(userId) {
+    if (db.isPgConnected()) {
+      await db.query(`UPDATE notifications SET read=true WHERE user_id=$1`, [userId]);
+    } else {
+      (db.fallbackStore.notifications || []).forEach(n => {
+        if (n.user_id === userId) n.read = true;
+      });
+      db.saveFallbackStore();
+    }
+  }
+
+  static async deleteOne(userId, id) {
+    if (db.isPgConnected()) {
+      const res = await db.query(`DELETE FROM notifications WHERE id=$1 AND user_id=$2 RETURNING id`, [id, userId]);
+      return res.rowCount > 0;
+    } else {
+      const initialCount = (db.fallbackStore.notifications || []).length;
+      db.fallbackStore.notifications = (db.fallbackStore.notifications || []).filter(n => !(n.id === id && n.user_id === userId));
+      const deleted = db.fallbackStore.notifications.length < initialCount;
+      if (deleted) db.saveFallbackStore();
+      return deleted;
+    }
+  }
+
+  static async deleteAll(userId) {
+    if (db.isPgConnected()) {
+      await db.query(`DELETE FROM notifications WHERE user_id=$1`, [userId]);
+    } else {
+      db.fallbackStore.notifications = (db.fallbackStore.notifications || []).filter(n => n.user_id !== userId);
+      db.saveFallbackStore();
+    }
   }
 
   static async preferences(userId) {
