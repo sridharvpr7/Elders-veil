@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Comic pages are readable only after registration/login.
+  if (!Auth.isLoggedIn()) {
+    const target = `${window.location.pathname}${window.location.search}`;
+    openRegistrationPrompt(target);
+    return;
+  }
+
   const detailContainer = document.getElementById('comic-details-content');
 
   try {

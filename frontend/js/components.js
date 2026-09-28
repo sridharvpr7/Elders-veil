@@ -86,6 +86,13 @@ function renderNavbar(activePage = 'home') {
               placeholder="Search title, creator, genre..." aria-label="Search comics" />
           </div>
 
+          ${!isLoggedIn ? `
+            <div class="nav-auth-buttons" aria-label="Account actions">
+              <a href="/login.html" class="btn btn-secondary btn-sm nav-auth-btn"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+              <a href="/register.html" class="btn btn-primary btn-sm nav-auth-btn"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+          ` : ''}
+
           ${isLoggedIn ? `
             <div class="notification-menu" id="notification-menu">
               <button class="notification-btn" id="notification-btn" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notification-dropdown">
@@ -460,6 +467,68 @@ function renderFooter() {
   }
 }
 
+/**
+ * Authentication gate used when a visitor tries to open a comic before signing in.
+ * Browsing the catalog stays public; opening/reading a comic requires an account.
+ */
+function openRegistrationPrompt(targetUrl = '') {
+  let modal = document.getElementById('registration-gate-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'registration-gate-modal';
+    modal.className = 'auth-gate-modal';
+    modal.innerHTML = `
+      <div class="auth-gate-backdrop" data-auth-gate-close></div>
+      <section class="auth-gate-card" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+        <button type="button" class="auth-gate-close" aria-label="Close" data-auth-gate-close><i class="fas fa-times"></i></button>
+        <div class="auth-gate-icon"><i class="fas fa-book-open"></i></div>
+        <span class="badge badge-purple">MEMBERS ONLY</span>
+        <h2 id="auth-gate-title">Create your Elder's Veil account</h2>
+        <p>Register for free to open comics and start reading. Your library, favorites and reading progress will stay synced to your account.</p>
+        <div class="auth-gate-actions">
+          <a id="auth-gate-register" href="/register.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create Free Account</a>
+          <a id="auth-gate-login" href="/login.html" class="btn btn-secondary"><i class="fas fa-sign-in-alt"></i> Already have an account?</a>
+        </div>
+        <small>New here? Registration takes less than a minute.</small>
+      </section>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (event) => {
+      if (event.target.closest('[data-auth-gate-close]')) closeRegistrationPrompt();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeRegistrationPrompt();
+    });
+  }
+
+  const target = targetUrl || window.location.href;
+  const register = document.getElementById('auth-gate-register');
+  const login = document.getElementById('auth-gate-login');
+  if (register) register.href = `/register.html?next=${encodeURIComponent(target)}`;
+  if (login) login.href = `/login.html?next=${encodeURIComponent(target)}`;
+
+  modal.classList.add('show');
+  document.body.classList.add('auth-gate-open');
+  setTimeout(() => modal.querySelector('.auth-gate-close')?.focus(), 0);
+}
+
+function closeRegistrationPrompt() {
+  const modal = document.getElementById('registration-gate-modal');
+  if (modal) modal.classList.remove('show');
+  document.body.classList.remove('auth-gate-open');
+}
+
+function requireRegistration(event, targetUrl) {
+  if (Auth.isLoggedIn()) return true;
+  if (event) event.preventDefault();
+  openRegistrationPrompt(targetUrl || event?.currentTarget?.href || '');
+  return false;
+}
+
+window.openRegistrationPrompt = openRegistrationPrompt;
+window.closeRegistrationPrompt = closeRegistrationPrompt;
+window.requireRegistration = requireRegistration;
+
 function renderComicCard(comic) {
   const coverValue = comic.coverImage || comic.cover_image || comic.coverUrl || comic.cover_url;
   const coverUrl = API.assetUrl(coverValue) || API.assetUrl('/assets/icon.png');
@@ -480,13 +549,13 @@ function renderComicCard(comic) {
         <span class="badge badge-purple card-badge">${escapeHtml(type)}</span>
         ${premBadge}
         <div class="card-rating"><i class="fas fa-star"></i> ${rating}</div>
-        <a href="${detailUrl}" class="card-cover-link" aria-label="Open ${escapeHtml(comic.title)}">
+        <a href="${detailUrl}" class="card-cover-link" aria-label="Open ${escapeHtml(comic.title)}" ${Auth.isLoggedIn() ? '' : 'onclick="return requireRegistration(event, this.href)"'}>
           <img src="${coverUrl}" alt="${escapeHtml(comic.title)}" onerror="this.onerror=null;this.src='/assets/icon.png'" loading="lazy" />
         </a>
       </div>
       <div class="card-content">
         <h3 class="card-title">
-          <a href="${detailUrl}">${escapeHtml(comic.title)}</a>
+          <a href="${detailUrl}" ${Auth.isLoggedIn() ? '' : 'onclick="return requireRegistration(event, this.href)"'}>${escapeHtml(comic.title)}</a>
         </h3>
         <div class="card-meta">
           <span class="card-chapters">${comic.chapterCount ?? comic.chapter_count ?? comic.chapters?.length ?? 0} Chapters</span>

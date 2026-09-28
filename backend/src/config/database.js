@@ -69,9 +69,13 @@ async function initDatabase() {
       // This is intentionally idempotent so real admin/creator comics are untouched.
       await pool.query(`
         DELETE FROM chapters WHERE comic_id IN (
-          SELECT id FROM comics WHERE id LIKE 'starter-%'
+          SELECT id FROM comics
+          WHERE id LIKE 'starter-%'
+             OR slug IN ('dark-moon','cyber-veil-2099','solo-eclipse','celestial-odyssey')
         );
-        DELETE FROM comics WHERE id LIKE 'starter-%';
+        DELETE FROM comics
+        WHERE id LIKE 'starter-%'
+           OR slug IN ('dark-moon','cyber-veil-2099','solo-eclipse','celestial-odyssey');
       `);
       console.log('[DB] Legacy starter/sample comics removed.');
 
@@ -84,8 +88,13 @@ async function initDatabase() {
     }
   } else {
     // Remove legacy starter/sample comics from the local fallback store too.
-    fallbackStore.comics = fallbackStore.comics.filter(c => !String(c.id || '').startsWith('starter-'));
-    fallbackStore.chapters = fallbackStore.chapters.filter(ch => !String(ch.comic_id || ch.comicId || '').startsWith('starter-'));
+    const legacySampleIds = new Set(
+      fallbackStore.comics
+        .filter(c => String(c.id || '').startsWith('starter-') || ['dark-moon','cyber-veil-2099','solo-eclipse','celestial-odyssey'].includes(String(c.slug || '')))
+        .map(c => String(c.id))
+    );
+    fallbackStore.comics = fallbackStore.comics.filter(c => !legacySampleIds.has(String(c.id)) && !String(c.id || '').startsWith('starter-'));
+    fallbackStore.chapters = fallbackStore.chapters.filter(ch => !legacySampleIds.has(String(ch.comic_id || ch.comicId || '')));
     saveFallbackStore();
     console.log('[DB] No DATABASE_URL provided. Using high-performance dynamic DB engine.');
   }

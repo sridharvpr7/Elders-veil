@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // Never expose chapter pages to anonymous visitors.
+  if (!Auth.isLoggedIn()) {
+    const target = `${window.location.pathname}${window.location.search}`;
+    openRegistrationPrompt(target);
+    return;
+  }
+
   const readerContainer = document.getElementById('reader-pages');
   const progressBar = document.getElementById('reader-progress');
   const pagePill = document.getElementById('page-pill');

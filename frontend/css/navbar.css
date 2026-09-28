@@ -468,7 +468,6 @@
   margin-top: 1rem;
 }
 
-<<<<<<< HEAD
 /* Notification Bell Dropdown in Header */
 .nav-notifications {
   position: relative;
@@ -664,8 +663,6 @@
   color: var(--success);
   background: rgba(16, 185, 129, 0.15);
 }
-=======
->>>>>>> 7470e93f45744e6c37a22b121bce5e4d0076d26b
 
 /* Responsive Navbar Breakpoints */
 @media (max-width: 1200px) {

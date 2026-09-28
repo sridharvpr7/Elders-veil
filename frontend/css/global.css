@@ -388,3 +388,25 @@ button,
     width: 100%;
   }
 }
+
+
+/* Public comic reading registration gate */
+.auth-gate-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:1.25rem;z-index:2500}
+.auth-gate-modal.show{display:flex}
+.auth-gate-backdrop{position:absolute;inset:0;background:rgba(2,6,23,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.auth-gate-card{position:relative;width:min(460px,100%);padding:2rem;border:1px solid rgba(139,92,246,.38);border-radius:22px;background:linear-gradient(145deg,rgba(17,24,39,.98),rgba(30,27,75,.98));box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;animation:authGateIn .2s ease-out}
+.auth-gate-close{position:absolute;top:.75rem;right:.75rem;width:38px;height:38px;border-radius:50%;border:1px solid var(--glass-border);background:rgba(255,255,255,.05);color:var(--text-secondary);cursor:pointer}
+.auth-gate-close:hover{color:var(--text-primary);border-color:var(--accent-purple)}
+.auth-gate-icon{width:66px;height:66px;margin:0 auto 1rem;border-radius:18px;display:grid;place-items:center;font-size:1.65rem;color:#fff;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));box-shadow:0 12px 30px rgba(124,58,237,.3)}
+.auth-gate-card .badge{margin-bottom:.85rem}
+.auth-gate-card h2{margin:0 0 .65rem;color:var(--text-primary);font-size:1.55rem}
+.auth-gate-card p{margin:0 auto 1.35rem;max-width:390px;color:var(--text-secondary);line-height:1.65}
+.auth-gate-actions{display:grid;gap:.7rem}
+.auth-gate-actions .btn{width:100%;justify-content:center}
+.auth-gate-card small{display:block;margin-top:1rem;color:var(--text-muted);font-size:.78rem}
+.auth-gate-open{overflow:hidden}
+@keyframes authGateIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+.nav-auth-buttons{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.nav-auth-btn{white-space:nowrap}
+@media (max-width:900px){.nav-auth-buttons .nav-auth-btn{padding-left:.55rem;padding-right:.55rem}.nav-auth-btn i{margin-right:0}}

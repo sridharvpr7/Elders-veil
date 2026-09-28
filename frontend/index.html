@@ -245,6 +245,9 @@
           
           const readBtn = document.getElementById('hero-read-btn');
           readBtn.href = `/comic.html?slug=${encodeURIComponent(top.slug || top.id)}`;
+          if (!Auth.isLoggedIn()) {
+            readBtn.onclick = (event) => requireRegistration(event, readBtn.href);
+          }
 
           const libBtn = document.getElementById('hero-library-btn');
           libBtn.onclick = async () => {
@@ -306,7 +309,7 @@
             latestGrid.innerHTML = '<div style="color:var(--muted-text); grid-column: 1/-1;">No chapters updated recently.</div>';
           } else {
             latestGrid.innerHTML = chapters.map(ch => `
-              <div class="latest-chapter-card" onclick="window.location.href='/reader.html?id=${ch.id}'" style="cursor:pointer;">
+              <div class="latest-chapter-card" onclick="${Auth.isLoggedIn() ? `window.location.href='/reader.html?id=${ch.id}'` : `requireRegistration(event, '/reader.html?id=${ch.id}')`}" style="cursor:pointer;">
                 <img src="${API.assetUrl(ch.comicCover) || '/assets/icon.png'}" class="latest-chapter-thumb" alt="${ch.comicTitle || 'Comic'}" onerror="this.onerror=null;this.src='/assets/icon.png'" />
                 <div class="latest-chapter-info">
                   <div class="latest-chapter-comic">${ch.comicTitle || 'Comic Title'}</div>
