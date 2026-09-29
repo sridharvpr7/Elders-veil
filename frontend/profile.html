@@ -46,8 +46,8 @@
       color:#fff;
       font-size:2rem;
       font-weight:900;
-      text-transform:uppercase;
     }
+    .avatar-placeholder-large i { font-size:2.25rem; }
     .profile-stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -256,10 +256,15 @@
             img.src = API.assetUrl(user.avatar);
             img.alt = 'Avatar';
             img.className = 'profile-avatar-large';
-            img.onerror = () => { img.replaceWith(Object.assign(document.createElement('div'), { className: 'profile-avatar-large avatar-placeholder-large', textContent: (user.username || 'U').charAt(0).toUpperCase() })); };
+            img.onerror = () => {
+              const fallback = document.createElement('div');
+              fallback.className = 'profile-avatar-large avatar-placeholder-large';
+              fallback.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
+              img.replaceWith(fallback);
+            };
             heroAvatar.replaceWith(img);
           } else {
-            heroAvatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
+            heroAvatar.innerHTML = '<i class="fas fa-user" aria-hidden="true"></i>';
           }
         }
         if (heroBadge) {

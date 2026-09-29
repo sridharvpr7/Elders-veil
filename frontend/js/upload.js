@@ -104,9 +104,83 @@ document.addEventListener('DOMContentLoaded', async () => {
   const MAX_PDF = 50 * 1024 * 1024; // PDF chapters can be larger than individual image pages
   const MAX_PAGES = 50;
   let queue = [];
+  let draftIndex = 0;
 
   const bytes = (n) => n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(2)} MB`;
   const cleanupQueueUrls = () => queue.forEach(x => x.url && URL.revokeObjectURL(x.url));
+
+  // Draft reader: lets creators/admins inspect the exact chapter order before any upload.
+  const draft = document.createElement('div');
+  draft.className = 'draft-preview-modal';
+  draft.innerHTML = `
+    <div class="draft-preview-backdrop" data-draft-close></div>
+    <section class="draft-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="draft-preview-title">
+      <header class="draft-preview-header">
+        <div><span class="draft-preview-kicker"><i class="fas fa-eye"></i> Draft Preview</span><h3 id="draft-preview-title">Chapter preview</h3></div>
+        <button type="button" class="draft-preview-close" data-draft-close aria-label="Close draft preview"><i class="fas fa-times"></i></button>
+      </header>
+      <div class="draft-preview-body">
+        <div class="draft-reader-stage" id="draft-reader-stage"></div>
+        <div class="draft-preview-controls">
+          <button type="button" class="btn btn-secondary btn-sm" id="draft-prev"><i class="fas fa-chevron-left"></i> Previous</button>
+          <span id="draft-counter">Page 1 / 1</span>
+          <button type="button" class="btn btn-secondary btn-sm" id="draft-next">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="draft-thumb-strip" id="draft-thumb-strip"></div>
+      </div>
+    </section>`;
+  document.body.appendChild(draft);
+  const draftStage = draft.querySelector('#draft-reader-stage');
+  const draftCounter = draft.querySelector('#draft-counter');
+  const draftThumbs = draft.querySelector('#draft-thumb-strip');
+  const draftPrev = draft.querySelector('#draft-prev');
+  const draftNext = draft.querySelector('#draft-next');
+  const closeDraft = () => { draft.classList.remove('show'); document.body.classList.remove('draft-preview-open'); };
+  draft.querySelectorAll('[data-draft-close]').forEach(el => el.addEventListener('click', closeDraft));
+  document.addEventListener('keydown', e => {
+    if (!draft.classList.contains('show')) return;
+    if (e.key === 'Escape') closeDraft();
+    if (e.key === 'ArrowLeft') draftPrev.click();
+    if (e.key === 'ArrowRight') draftNext.click();
+  });
+
+  function showDraftPage(index) {
+    if (!queue.length) return;
+    draftIndex = Math.max(0, Math.min(index, queue.length - 1));
+    const item = queue[draftIndex];
+    if (item.kind === 'pdf') {
+      draftStage.innerHTML = `<iframe src="${item.url}#toolbar=1&navpanes=0" title="PDF draft preview"></iframe>`;
+    } else {
+      draftStage.innerHTML = `<img src="${item.url}" alt="Draft page ${draftIndex + 1}">`;
+    }
+    draftCounter.textContent = item.kind === 'pdf' ? 'PDF chapter' : `Page ${draftIndex + 1} / ${queue.length}`;
+    draftPrev.disabled = draftIndex === 0;
+    draftNext.disabled = draftIndex === queue.length - 1;
+    draftThumbs.querySelectorAll('.draft-thumb').forEach((el, i) => el.classList.toggle('active', i === draftIndex));
+  }
+
+  function openDraft() {
+    if (!queue.length) return showToast('Select chapter pages first.', 'error');
+    draftThumbs.innerHTML = queue.map((x, i) => x.kind === 'pdf'
+      ? `<button type="button" class="draft-thumb" data-draft-index="${i}" aria-label="Preview PDF"><i class="fas fa-file-pdf"></i><small>PDF</small></button>`
+      : `<button type="button" class="draft-thumb" data-draft-index="${i}" aria-label="Preview page ${i + 1}"><img src="${x.url}" alt=""><small>${i + 1}</small></button>`).join('');
+    draftThumbs.querySelectorAll('[data-draft-index]').forEach(el => el.addEventListener('click', () => showDraftPage(Number(el.dataset.draftIndex))));
+    draft.classList.add('show');
+    document.body.classList.add('draft-preview-open');
+    showDraftPage(draftIndex);
+  }
+  draftPrev.addEventListener('click', () => showDraftPage(draftIndex - 1));
+  draftNext.addEventListener('click', () => showDraftPage(draftIndex + 1));
+
+  function ensureDraftButton() {
+    if (!summary || document.getElementById('draft-preview-btn')) return;
+    const row = document.createElement('div');
+    row.className = 'draft-preview-action-row';
+    row.innerHTML = `<button type="button" class="btn btn-secondary btn-sm" id="draft-preview-btn"><i class="fas fa-eye"></i> Preview Draft Before Upload</button>`;
+    summary.insertAdjacentElement('afterend', row);
+    row.querySelector('button').addEventListener('click', openDraft);
+  }
+  ensureDraftButton();
 
   function renderQueue() {
     if (!preview || !summary) return;
@@ -115,6 +189,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     summary.innerHTML = queue.length
       ? `<strong>${queue.length}</strong> ${hasPdf ? 'PDF chapter' : 'page(s)'} • ${bytes(total)} total • <span>${hasPdf ? 'max 50 MB PDF' : 'max 1 MB/page'}</span>`
       : '<span style="color:var(--text-muted)">No pages selected yet.</span>';
+    const draftBtn = document.getElementById('draft-preview-btn');
+    if (draftBtn) draftBtn.disabled = !queue.length;
 
     preview.innerHTML = queue.map((x, i) => {
       const media = x.kind === 'pdf'

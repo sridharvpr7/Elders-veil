@@ -53,10 +53,10 @@ function renderNavbar(activePage = 'home') {
   const canAdminUpload = !!(user && user.role === 'admin');
 
   const userAvatar = (user && user.avatar) ? API.assetUrl(user.avatar) : '';
-  const userInitial = String(user?.username || 'U').trim().charAt(0).toUpperCase() || 'U';
+  const avatarFallback = '<span class="avatar-placeholder" aria-hidden="true"><i class="fas fa-user"></i></span>';
   const avatarMarkup = userAvatar
-    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.style.display='none';this.nextElementSibling?.removeAttribute('hidden')" /><span class="avatar-placeholder" hidden>${userInitial}</span>`
-    : `<span class="avatar-placeholder">${userInitial}</span>`;
+    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.replaceWith(this.nextElementSibling)" />${avatarFallback}`
+    : avatarFallback;
 
   const html = `
     <nav class="app-navbar" aria-label="Primary navigation">

@@ -906,10 +906,9 @@
   flex: 0 0 32px;
   background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
   color: #fff;
-  font-size: .85rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: .9rem;
 }
+.avatar-placeholder i { line-height: 1; }
 
 /* Keep the Premium badge in its own flex slot; never let it collide with nav links. */
 .nav-right { min-width: 0; }
@@ -919,4 +918,27 @@
   .nav-link { font-size: 13px; }
   .nav-search { width: 170px; flex: 0 1 170px; }
   .premium-gold-badge { max-width: 108px; }
+}
+
+
+/* Final overflow guard: keep the desktop header intact at tablet/narrow widths. */
+@media (max-width: 1400px) and (min-width: 901px) {
+  .premium-gold-badge { display: none !important; }
+  .nav-left { min-width: 0; }
+  .nav-links { flex: 1 1 auto; min-width: 0; overflow: hidden; gap: 9px; }
+  .nav-link { font-size: 12.5px; }
+  .nav-search { width: 150px; flex: 0 1 150px; }
+}
+
+@media (max-width: 900px) {
+  .nav-links,
+  .nav-search,
+  .nav-library,
+  .premium-gold-badge { display: none !important; }
+  .app-navbar { height: 60px; }
+  .navbar-container { gap: .5rem; }
+  .nav-left { flex: 1 1 auto; min-width: 0; }
+  .nav-right { flex: 0 0 auto; gap: .35rem; }
+  .mobile-toggle { display: inline-flex !important; flex: 0 0 42px; }
+  .user-avatar-btn { max-width: 180px; }
 }
