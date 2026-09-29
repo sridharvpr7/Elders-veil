@@ -30,6 +30,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   const comicForm = document.getElementById('create-comic-form');
   const coverFileInput = document.getElementById('cover-file');
   const bannerFileInput = document.getElementById('banner-file');
+
+  // Show an immediate local preview/selection state so users can confirm that
+  // the browser actually picked the file before submitting the comic.
+  function bindFileSelection(input, label) {
+    if (!input) return;
+    const update = () => {
+      const file = input.files?.[0];
+      const existing = input.parentElement?.querySelector('.file-selection-status');
+      if (existing) existing.remove();
+      if (!file) return;
+      const status = document.createElement('div');
+      status.className = 'file-selection-status';
+      status.innerHTML = `<i class="fas fa-circle-check"></i><span>${label}: <strong>${String(file.name).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}</strong> <small>(${formatBytes(file.size)})</small></span>`;
+      input.insertAdjacentElement('afterend', status);
+    };
+    input.addEventListener('change', update);
+  }
+  const formatBytes = n => n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(2)} MB`;
+  bindFileSelection(coverFileInput, 'Cover selected');
+  bindFileSelection(bannerFileInput, 'Banner selected');
+
   if (comicForm) {
     comicForm.addEventListener('submit', async (e) => {
       e.preventDefault();

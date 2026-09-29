@@ -168,3 +168,20 @@ body.draft-preview-open{overflow:hidden}
 .draft-thumb small{position:absolute;left:3px;right:3px;bottom:3px;background:rgba(0,0,0,.72);color:#fff;border-radius:4px;font-size:.65rem;font-weight:800;padding:2px}
 .draft-thumb i{font-size:1.4rem;color:#f87171;margin-top:20px}
 @media(max-width:600px){.draft-preview-dialog{width:100vw;height:100vh;margin:0;border-radius:0}.draft-preview-body{padding:.65rem}.draft-preview-controls{gap:.5rem}.draft-preview-controls .btn{padding:.45rem .6rem}.draft-reader-stage iframe{min-height:360px}.draft-preview-action-row{justify-content:stretch}.draft-preview-action-row .btn{width:100%}}
+
+
+.file-selection-status {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .55rem;
+  padding: .55rem .7rem;
+  border: 1px solid rgba(34, 197, 94, .28);
+  border-radius: .65rem;
+  background: rgba(34, 197, 94, .07);
+  color: var(--text-secondary);
+  font-size: .82rem;
+}
+.file-selection-status > i { color: #22c55e; }
+.file-selection-status strong { color: var(--text-primary); overflow-wrap: anywhere; }
+.file-selection-status small { color: var(--text-muted); }

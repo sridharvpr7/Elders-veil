@@ -48,6 +48,14 @@
   align-items: center;
 }
 
+.navbar-logo .navbar-premium-crown {
+  color: var(--premium-gold);
+  font-size: 1.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 7px rgba(234, 179, 8, 0.45));
+  flex: 0 0 auto;
+}
+
 .nav-links {
   display: flex;
   align-items: center;

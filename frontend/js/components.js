@@ -45,8 +45,10 @@ function renderEmptyState(icon = 'fa-folder-open', title = 'No Items Found', des
 
 function renderNavbar(activePage = 'home') {
   const user = Auth.getUser();
-  const premiumActive = !!(user && user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()));
-  const premiumBadge = premiumActive ? '<span class="badge premium-gold-badge"><i class="fas fa-crown"></i> Premium</span>' : '';
+  const premiumActive = !!(user && (user.role === 'admin' || (user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()))));
+  const brandMark = premiumActive
+    ? '<i class="fas fa-crown navbar-premium-crown" aria-label="Premium account" title="Premium account"></i>'
+    : '<i class="fas fa-book-open" aria-hidden="true"></i>';
   const isLoggedIn = Auth.isLoggedIn();
   const isAdmin = Auth.isAdmin();
   const isCreator = !!(user && user.role === 'creator');
@@ -55,7 +57,7 @@ function renderNavbar(activePage = 'home') {
   const userAvatar = (user && user.avatar) ? API.assetUrl(user.avatar) : '';
   const avatarFallback = '<span class="avatar-placeholder" aria-hidden="true"><i class="fas fa-user"></i></span>';
   const avatarMarkup = userAvatar
-    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.replaceWith(this.nextElementSibling)" />${avatarFallback}`
+    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.outerHTML='${avatarFallback.replace(/'/g, "\\'")}'" />`
     : avatarFallback;
 
   const html = `
@@ -63,7 +65,7 @@ function renderNavbar(activePage = 'home') {
       <div class="container navbar-container">
         <div class="nav-left">
           <a href="/index.html" class="navbar-logo" aria-label="Elder's Veil home">
-            <i class="fas fa-book-open" aria-hidden="true"></i>
+            ${brandMark}
             <span>ELDER'S <span class="text-gradient">VEIL</span></span>
           </a>
 
@@ -80,8 +82,6 @@ function renderNavbar(activePage = 'home') {
         </div>
 
         <div class="nav-right">
-          ${premiumBadge}
-
           <div class="nav-search">
             <i class="fas fa-search" aria-hidden="true"></i>
             <input type="search" id="global-search-input" autocomplete="off"
@@ -161,7 +161,7 @@ function renderNavbar(activePage = 'home') {
     <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile navigation" aria-hidden="true">
       <div class="mobile-drawer-header">
         <a href="/index.html" class="navbar-logo">
-          <i class="fas fa-book-open" aria-hidden="true"></i>
+          ${brandMark}
           <span>ELDER'S <span class="text-gradient">VEIL</span></span>
         </a>
         <button class="mobile-close-btn" id="mobile-nav-close" type="button" aria-label="Close navigation">
