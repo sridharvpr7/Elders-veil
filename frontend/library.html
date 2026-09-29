@@ -267,7 +267,7 @@
               <div class="creator-cards-grid">
                 ${creators.map(c => `
                   <div class="creator-card-item" onclick="window.location.href='/creator.html?id=${c.id || c.creator_id}'" style="cursor:pointer;">
-                    <img src="${API.assetUrl(c.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="creator-card-avatar" alt="${c.username}" />
+                    <img src="${API.assetUrl(c.avatar) || ''}" class="creator-card-avatar" alt="${c.username}" />
                     <div class="creator-card-name">${c.username}</div>
                     <div class="creator-card-followers">${c.follower_count || c.followers || 0} Followers</div>
                     <span class="btn btn-secondary btn-sm" style="width:100%;">View Creator</span>

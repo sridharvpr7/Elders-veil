@@ -895,3 +895,28 @@
 .profile-hero h1 { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 #prof-hero-badge { flex: 0 1 auto; max-width: min(100%, 220px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 560px) { #prof-hero-badge { max-width: 100%; } }
+
+.avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Keep the Premium badge in its own flex slot; never let it collide with nav links. */
+.nav-right { min-width: 0; }
+.nav-right > .premium-gold-badge { flex: 0 0 auto; }
+@media (max-width: 1280px) and (min-width: 769px) {
+  .nav-links { gap: 10px; overflow: hidden; }
+  .nav-link { font-size: 13px; }
+  .nav-search { width: 170px; flex: 0 1 170px; }
+  .premium-gold-badge { max-width: 108px; }
+}

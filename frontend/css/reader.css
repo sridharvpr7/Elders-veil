@@ -115,3 +115,5 @@
 .reader-container.reader-single .reader-image-wrap{display:none}.reader-container.reader-single .reader-image-wrap.active{display:block}
 .reader-image.fit-contain{max-height:90vh;object-fit:contain}.reader-image.fit-original{width:auto;max-width:none}
 @media(max-width:700px){.reader-extra-control{display:none!important}.reader-tools-panel{margin:.5rem;padding:.8rem}.reader-image.fit-original{max-width:100%}}
+
+.reader-pdf-wrap{width:100%;min-height:80vh;background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:var(--radius-md);overflow:hidden}.reader-pdf-toolbar{display:flex;align-items:center;gap:.65rem;padding:.75rem 1rem;background:var(--bg-tertiary);border-bottom:1px solid var(--glass-border);color:var(--text-secondary);font-weight:700}.reader-pdf-toolbar span{flex:1}.reader-pdf-frame{display:block;width:100%;height:80vh;border:0;background:#fff}

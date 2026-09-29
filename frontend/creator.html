@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{
     const r=await API.get('/users/creator/'+encodeURIComponent(id));
     const c=r.creator;
-    const avatar=c.avatar||'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+    const avatar=c.avatar||'';
     document.getElementById('creator-profile').innerHTML=
       '<div class="profile-header">'+
         '<img class="profile-avatar-xl" src="'+avatar+'" alt="'+c.username+'">'+

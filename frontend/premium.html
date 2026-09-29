@@ -61,13 +61,10 @@
           <button type="button" class="btn btn-primary" id="pay-premium-btn" style="background:var(--grad-gold); color:#000; font-weight:800; padding:0.85rem 2rem;">
             <i class="fas fa-credit-card"></i> Activate Premium
           </button>
-          <button type="button" class="btn btn-secondary" id="request-manual-btn">
-            <i class="fas fa-paper-plane"></i> Request Admin Activation
-          </button>
         </div>
 
         <p id="premium-note" style="color:var(--muted-text); font-size:0.85rem; margin-top:0.5rem;">
-          Payments processed securely. If payment gateway is unconfigured, use Request Admin Activation for manual approval.
+          Payments are processed securely. Premium access is activated after successful payment.
         </p>
       </div>
 
@@ -146,8 +143,7 @@
           try {
             const order = await API.post('/platform/payments/subscription/order', { plan: 'premium_monthly' });
             if (!order.configured) {
-              showToast('Online payment is not configured. Redirecting to manual request...', 'info');
-              document.getElementById('request-manual-btn')?.click();
+              showToast('Online payment is not configured on this deployment.', 'error');
               payBtn.disabled = false;
               payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
               return;
@@ -190,21 +186,6 @@
             showToast(err.message || 'Payment failed.', 'error');
             payBtn.disabled = false;
             payBtn.innerHTML = '<i class="fas fa-credit-card"></i> Activate Premium';
-          }
-        });
-      }
-
-      // Bind Manual Activation Request Button
-      const manualBtn = document.getElementById('request-manual-btn');
-      if (manualBtn) {
-        manualBtn.addEventListener('click', async () => {
-          const note = prompt('Optional note for Administrator (e.g., Requested manual activation):') || 'Manual activation requested.';
-          try {
-            await API.post('/users/premium-request', { note });
-            showToast('Manual Premium activation request submitted to Administrators!', 'success');
-            statusCard.innerHTML = '<span class="badge badge-cyan" style="font-size:0.85rem; padding:0.4rem 1rem;">Status: Pending Admin Review</span><h3 style="margin-top:0.75rem; color:var(--text);">Request Submitted</h3><p style="color:var(--muted-text); font-size:0.88rem; margin-top:0.25rem;">An administrator will review and activate your Premium status shortly.</p>';
-          } catch (e) {
-            showToast(e.message || 'Failed to submit request.', 'error');
           }
         });
       }

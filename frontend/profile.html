@@ -37,6 +37,17 @@
       object-fit: cover;
       border: 3px solid var(--primary);
     }
+    .avatar-placeholder-large {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 90px;
+      background:linear-gradient(135deg,var(--accent-purple),var(--accent-pink));
+      color:#fff;
+      font-size:2rem;
+      font-weight:900;
+      text-transform:uppercase;
+    }
     .profile-stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -107,7 +118,7 @@
 
       <!-- Profile Header Hero -->
       <div class="profile-hero">
-        <img id="prof-hero-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="profile-avatar-large" alt="Avatar" />
+        <div id="prof-hero-avatar" class="profile-avatar-large avatar-placeholder-large" aria-label="Profile avatar">U</div>
         <div style="flex:1; min-width:240px;">
           <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
             <h1 id="prof-hero-name" style="font-size:1.8rem; font-weight:900; margin:0;">User</h1>
@@ -172,7 +183,7 @@
                   <input type="text" id="prof-username" class="form-input" required />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Profile Picture <span style="color:var(--muted-text)">(max 50 KB)</span></label>
+                  <label class="form-label">Profile Picture <span style="color:var(--muted-text)">(max 1 MB)</span></label>
                   <input type="file" id="prof-avatar-file" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" />
                   <img id="prof-avatar-preview" style="width:72px; height:72px; border-radius:50%; object-fit:cover; display:none; margin-top:0.5rem;" alt="Profile preview" />
                 </div>
@@ -237,7 +248,20 @@
       if (user) {
         if (heroName) heroName.textContent = user.username || 'User';
         if (heroEmail) heroEmail.textContent = user.email || '';
-        if (heroAvatar) heroAvatar.src = API.assetUrl(user.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+        if (heroAvatar) {
+          if (user.avatar) {
+            heroAvatar.className = 'profile-avatar-large';
+            heroAvatar.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = API.assetUrl(user.avatar);
+            img.alt = 'Avatar';
+            img.className = 'profile-avatar-large';
+            img.onerror = () => { img.replaceWith(Object.assign(document.createElement('div'), { className: 'profile-avatar-large avatar-placeholder-large', textContent: (user.username || 'U').charAt(0).toUpperCase() })); };
+            heroAvatar.replaceWith(img);
+          } else {
+            heroAvatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
+          }
+        }
         if (heroBadge) {
           const isPrem = !!(user.is_premium && (!user.premium_expires_at || new Date(user.premium_expires_at).getTime() > Date.now()));
           if (isPrem) {
@@ -328,7 +352,7 @@
         console.warn('Profile statistics load error:', e);
       }
 
-      // Profile Edit Form Submit (50 KB max avatar check)
+      // Profile Edit Form Submit (1 MB max avatar check)
       document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('prof-username').value;
@@ -337,7 +361,7 @@
         try {
           let avatar = user.avatar || '';
           if (avatarFile) {
-            if (avatarFile.size > 50 * 1024) throw new Error('Profile picture must be 50 KB or smaller.');
+            if (avatarFile.size > 1024 * 1024) throw new Error('Profile picture must be 1 MB or smaller.');
             const fd = new FormData();
             fd.append('avatar', avatarFile);
             const ar = await API.upload('/uploads/avatar', fd);
@@ -358,8 +382,8 @@
       document.getElementById('prof-avatar-file').addEventListener('change', (e) => {
         const f = e.target.files[0];
         if (!f) return;
-        if (f.size > 50 * 1024) {
-          showToast('Profile picture must be 50 KB or smaller.', 'error');
+        if (f.size > 1024 * 1024) {
+          showToast('Profile picture must be 1 MB or smaller.', 'error');
           e.target.value = '';
           return;
         }

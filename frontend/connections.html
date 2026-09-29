@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
    const el=document.getElementById('connections-list');
    if(!list.length){el.innerHTML='<div class="empty-connections"><i class="fas fa-user-friends" style="font-size:2rem;"></i><h3>No '+type+' yet</h3><p>'+ (type==='following'?'Follow a creator to see them here.':'No one is following this creator yet.') +'</p></div>';return;}
    el.innerHTML='<div class="connection-grid">'+list.map(u=>{
-      const avatar=u.avatar||'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+      const avatar=u.avatar||'';
       const href=u.role==='creator'||u.role==='admin'?'/creator.html?id='+encodeURIComponent(u.id):'#';
       return '<div class="connection-card"><img src="'+avatar+'" alt=""><div><a href="'+href+'">'+u.username+'</a><div style="color:var(--text-muted);font-size:.85rem;">'+(u.role==='creator'||u.role==='admin'?'Creator':'Reader')+'</div></div></div>';
    }).join('')+'</div>';

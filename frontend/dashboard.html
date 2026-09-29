@@ -24,7 +24,7 @@
       
       <!-- Profile Header Banner -->
       <div class="profile-header">
-        <img id="dash-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="profile-avatar-xl" alt="Avatar" />
+        <div id="dash-avatar" class="profile-avatar-xl avatar-placeholder-large" aria-label="Profile avatar">U</div>
         <div class="profile-info">
           <h2 id="dash-username">Username</h2>
           <p id="dash-email">email@example.com</p>
@@ -94,7 +94,9 @@
         document.getElementById('dash-username').textContent = user.username;
         document.getElementById('dash-email').textContent = user.email;
         document.getElementById('dash-role').textContent = user.role.toUpperCase();
-        if (user.avatar) document.getElementById('dash-avatar').src = user.avatar;
+        const dashAvatar = document.getElementById('dash-avatar');
+        if (dashAvatar && user.avatar) { const img = document.createElement('img'); img.src = API.assetUrl(user.avatar); img.className = 'profile-avatar-xl'; img.alt = 'Avatar'; dashAvatar.replaceWith(img); }
+        else if (dashAvatar) dashAvatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
       }
 
       // Load Premium Comics

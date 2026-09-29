@@ -116,11 +116,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `;
     } else {
-      readerContainer.innerHTML = pages.map((url, idx) => `
-        <div class="reader-image-wrap" id="page-${idx + 1}" data-page="${idx + 1}">
-          <img src="${API.assetUrl(url)}" class="reader-image" alt="Page ${idx + 1}" loading="${idx < 3 ? 'eager' : 'lazy'}" decoding="async" onerror="this.onerror=null;this.src='/assets/icon.png';" />
-        </div>
-      `).join('');
+      const isPdfChapter = pages.length === 1 && /\.pdf(?:$|[?#])/i.test(String(pages[0]));
+      if (isPdfChapter) {
+        const pdfUrl = API.assetUrl(pages[0]);
+        readerContainer.innerHTML = `
+          <div class="reader-pdf-wrap" id="page-1" data-page="1">
+            <div class="reader-pdf-toolbar"><i class="fas fa-file-pdf"></i><span>PDF Chapter</span><a class="btn btn-secondary btn-sm" href="${pdfUrl}" target="_blank" rel="noopener noreferrer"><i class="fas fa-up-right-from-square"></i> Open PDF</a></div>
+            <iframe class="reader-pdf-frame" src="${pdfUrl}#toolbar=1&navpanes=0&view=FitH" title="PDF comic chapter"></iframe>
+          </div>
+        `;
+      } else {
+        readerContainer.innerHTML = pages.map((url, idx) => `
+          <div class="reader-image-wrap" id="page-${idx + 1}" data-page="${idx + 1}">
+            <img src="${API.assetUrl(url)}" class="reader-image" alt="Page ${idx + 1}" loading="${idx < 3 ? 'eager' : 'lazy'}" decoding="async" onerror="this.onerror=null;this.src='/assets/icon.png';" />
+          </div>
+        `).join('');
+      }
     }
 
     applyReaderPrefs();

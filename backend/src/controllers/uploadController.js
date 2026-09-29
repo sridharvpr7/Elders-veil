@@ -25,6 +25,19 @@ class UploadController {
     res.status(200).json({ url, message: 'Profile picture updated successfully.' });
   }
 
+  static async uploadChapterPdf(req, res) {
+    const comicId = req.body.comicId;
+    if (!comicId) return res.status(400).json({ error: 'comicId is required.' });
+    const comic = await Comic.findById(comicId);
+    if (!comic) return res.status(404).json({ error: 'Comic not found.' });
+    if (req.user.role !== 'admin' && comic.creatorId !== req.user.id) {
+      return res.status(403).json({ error: 'You can only upload PDFs to your own comic.' });
+    }
+    if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded.' });
+    const url = UploadService.processSingleFile(req.file);
+    res.status(200).json({ url, type: 'pdf', count: 1, message: 'PDF chapter uploaded successfully.' });
+  }
+
   static async uploadChapterPages(req, res) {
     const comicId = req.body.comicId;
     if (!comicId) return res.status(400).json({ error: 'comicId is required.' });

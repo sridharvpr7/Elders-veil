@@ -2,8 +2,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderNavbar((Auth.getUser() || {}).role === 'admin' ? 'admin' : 'creator');
   renderFooter();
 
-  const currentUser=Auth.getUser();
-  if(!currentUser||!['admin','creator'].includes(currentUser.role)){showToast('Become a Comic Writer first.','error');location.href='/dashboard.html';return;}
+  const currentUser = Auth.getUser();
+  if (!currentUser || !['admin', 'creator'].includes(currentUser.role)) {
+    showToast('Become a Comic Writer first.', 'error');
+    location.href = '/dashboard.html';
+    return;
+  }
 
   if (!Auth.isLoggedIn()) {
     showToast('Please sign in first.', 'error');
@@ -15,65 +19,45 @@ document.addEventListener('DOMContentLoaded', async () => {
   const genreSelect = document.getElementById('comic-genre-select');
   const customGenreGroup = document.getElementById('custom-genre-group');
   const customGenreInput = document.getElementById('comic-custom-genre');
-
   if (genreSelect && customGenreGroup) {
     genreSelect.addEventListener('change', () => {
-      if (genreSelect.value === 'Others') {
-        customGenreGroup.style.display = 'block';
-        if (customGenreInput) customGenreInput.focus();
-      } else {
-        customGenreGroup.style.display = 'none';
-      }
+      customGenreGroup.style.display = genreSelect.value === 'Others' ? 'block' : 'none';
+      if (genreSelect.value === 'Others') customGenreInput?.focus();
     });
   }
 
-  // Comic Creation Form
+  // Comic creation
   const comicForm = document.getElementById('create-comic-form');
   const coverFileInput = document.getElementById('cover-file');
   const bannerFileInput = document.getElementById('banner-file');
-
   if (comicForm) {
     comicForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      const selectedGenre = genreSelect ? genreSelect.value : 'Action';
+      const selectedGenre = genreSelect?.value || 'Action';
       let finalGenre = selectedGenre;
       let customGenreVal = '';
-
       if (selectedGenre === 'Others') {
-        customGenreVal = customGenreInput ? customGenreInput.value.trim() : '';
-        if (!customGenreVal) {
-          return showToast('Please enter your custom genre.', 'error');
-        }
+        customGenreVal = customGenreInput?.value.trim() || '';
+        if (!customGenreVal) return showToast('Please enter your custom genre.', 'error');
         finalGenre = customGenreVal;
       }
-
-      const isPremium = document.getElementById('comic-is-premium')?.checked || false;
 
       const submitBtn = comicForm.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading & Submitting...';
-
       try {
         let coverUrl = '/uploads/covers/default.jpg';
         let bannerUrl = '/uploads/banners/default.jpg';
-
-        // Upload cover image if selected
-        if (coverFileInput && coverFileInput.files[0]) {
-          const formData = new FormData();
-          formData.append('cover', coverFileInput.files[0]);
-          const coverRes = await API.upload('/uploads/cover', formData);
-          coverUrl = coverRes.url;
+        if (coverFileInput?.files[0]) {
+          const fd = new FormData(); fd.append('cover', coverFileInput.files[0]);
+          coverUrl = (await API.upload('/uploads/cover', fd)).url;
+        }
+        if (bannerFileInput?.files[0]) {
+          const fd = new FormData(); fd.append('banner', bannerFileInput.files[0]);
+          bannerUrl = (await API.upload('/uploads/banner', fd)).url;
         }
 
-        // Upload banner image if selected
-        if (bannerFileInput && bannerFileInput.files[0]) {
-          const formData = new FormData();
-          formData.append('banner', bannerFileInput.files[0]);
-          const bannerRes = await API.upload('/uploads/banner', formData);
-          bannerUrl = bannerRes.url;
-        }
-
+        const isPremium = document.getElementById('comic-is-premium')?.checked || false;
         const payload = {
           title: document.getElementById('comic-title').value.trim(),
           description: document.getElementById('comic-desc').value.trim(),
@@ -86,15 +70,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           customGenre: customGenreVal,
           genres: [finalGenre],
           is_premium: isPremium,
-          isPremium: isPremium,
+          isPremium,
           coverImage: coverUrl,
           bannerImage: bannerUrl
         };
-
         const res = await API.post('/comics', payload);
         showToast(res.message || 'Comic submitted for admin review.', 'success');
         setTimeout(() => window.location.href = currentUser.role === 'admin' ? '/admin/comics.html' : '/creator/dashboard.html', 700);
-
       } catch (err) {
         showToast(`Creation failed: ${err.message}`, 'error');
       } finally {
@@ -104,14 +86,152 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Chapter upload: preview, 150 KB/page validation, drag-to-reorder.
-  const selectComicDropdown=document.getElementById('select-comic-id');
-  if(selectComicDropdown){try{const r=await API.get(currentUser.role==='admin'?'/comics?limit=100':'/comics?mine=true&limit=100');if(r.comics)selectComicDropdown.innerHTML=r.comics.map(c=>`<option value="${c.id}">${c.title}</option>`).join('')}catch(e){}}
-  const chapterForm=document.getElementById('upload-chapter-form'),pagesInput=document.getElementById('pages-file'),dropzone=document.getElementById('pages-dropzone'),preview=document.getElementById('page-preview-list'),summary=document.getElementById('page-upload-summary');
-  const MAX_PAGE=150*1024;let queue=[];
-  const bytes=n=>n<1024?`${n} B`:`${(n/1024).toFixed(1)} KB`;
-  function render(){if(!preview||!summary)return;summary.innerHTML=queue.length?`<strong>${queue.length}</strong> page(s) • ${bytes(queue.reduce((a,x)=>a+x.file.size,0))} total • max 150 KB/page`:'<span style="color:var(--text-muted)">No pages selected yet.</span>';preview.innerHTML=queue.map((x,i)=>`<div class="page-preview-item" draggable="true" data-index="${i}"><span class="drag-handle"><i class="fas fa-grip-vertical"></i></span><b class="page-number">${i+1}</b><img src="${x.url}" alt="Page ${i+1}"><div class="page-preview-meta"><strong>${x.file.name}</strong><small>${bytes(x.file.size)}</small></div><button type="button" class="btn btn-secondary btn-sm page-remove" data-index="${i}"><i class="fas fa-times"></i></button></div>`).join('');preview.querySelectorAll('.page-remove').forEach(b=>b.onclick=()=>{const i=+b.dataset.index;URL.revokeObjectURL(queue[i].url);queue.splice(i,1);render()});let from=null;preview.querySelectorAll('.page-preview-item').forEach(el=>{el.ondragstart=()=>{from=+el.dataset.index;el.classList.add('dragging')};el.ondragend=()=>el.classList.remove('dragging');el.ondragover=e=>e.preventDefault();el.ondrop=e=>{e.preventDefault();const to=+el.dataset.index;if(from===null||from===to)return;const m=queue.splice(from,1)[0];queue.splice(to,0,m);from=null;render()}})}
-  function addFiles(files){const arr=Array.from(files||[]);if(queue.length+arr.length>50)return showToast('Maximum 50 pages per chapter.','error');for(const f of arr){if(!/^image\/(jpeg|png|webp|gif)$/.test(f.type))return showToast(`${f.name}: unsupported image format.`,'error');if(f.size>MAX_PAGE)return showToast(`${f.name} is ${bytes(f.size)}. Every page must be 150 KB or smaller.`,'error')}arr.forEach(f=>queue.push({file:f,url:URL.createObjectURL(f)}));render()}
-  if(dropzone){dropzone.onclick=()=>pagesInput?.click();dropzone.ondragover=e=>{e.preventDefault();dropzone.classList.add('drag-active')};dropzone.ondragleave=()=>dropzone.classList.remove('drag-active');dropzone.ondrop=e=>{e.preventDefault();dropzone.classList.remove('drag-active');addFiles(e.dataTransfer.files)}}if(pagesInput)pagesInput.onchange=()=>{addFiles(pagesInput.files);pagesInput.value=''};
-  if(chapterForm)chapterForm.onsubmit=async e=>{e.preventDefault();const btn=chapterForm.querySelector('button[type="submit"]');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Uploading Pages...';try{const comicId=selectComicDropdown?.value;if(!comicId)throw Error('Please select a comic.');if(!queue.length)throw Error('Add at least one chapter page.');const fd=new FormData();fd.append('comicId',comicId);fd.append('chapterId',`ch-${Date.now()}`);queue.forEach(x=>fd.append('pages',x.file));const up=await API.upload('/uploads/chapter-pages',fd);if((up.urls||[]).length!==queue.length)throw Error('Some pages failed to upload. Please try again.');const n=parseFloat(document.getElementById('chapter-number').value);if(!Number.isFinite(n)||n<=0)throw Error('Enter a valid chapter number.');const r=await API.post('/chapters',{comicId,chapterNumber:n,title:document.getElementById('chapter-title').value.trim()||`Chapter ${n}`,pages:up.urls});showToast(r.message||'Chapter submitted for admin review.','success');setTimeout(()=>location.href='/creator/dashboard.html',700)}catch(err){showToast(`Publishing failed: ${err.message}`,'error')}finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Chapter for Review'}};
+  // Chapter / PDF upload
+  const selectComicDropdown = document.getElementById('select-comic-id');
+  if (selectComicDropdown) {
+    try {
+      const r = await API.get(currentUser.role === 'admin' ? '/comics?limit=100' : '/comics?mine=true&limit=100');
+      if (r.comics) selectComicDropdown.innerHTML = r.comics.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+    } catch (_) {}
+  }
+
+  const chapterForm = document.getElementById('upload-chapter-form');
+  const pagesInput = document.getElementById('pages-file');
+  const dropzone = document.getElementById('pages-dropzone');
+  const preview = document.getElementById('page-preview-list');
+  const summary = document.getElementById('page-upload-summary');
+  const MAX_PAGE = 1024 * 1024; // 1 MB per image page
+  const MAX_PDF = 50 * 1024 * 1024; // PDF chapters can be larger than individual image pages
+  const MAX_PAGES = 50;
+  let queue = [];
+
+  const bytes = (n) => n < 1024 * 1024 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1024 / 1024).toFixed(2)} MB`;
+  const cleanupQueueUrls = () => queue.forEach(x => x.url && URL.revokeObjectURL(x.url));
+
+  function renderQueue() {
+    if (!preview || !summary) return;
+    const total = queue.reduce((sum, x) => sum + x.file.size, 0);
+    const hasPdf = queue.some(x => x.kind === 'pdf');
+    summary.innerHTML = queue.length
+      ? `<strong>${queue.length}</strong> ${hasPdf ? 'PDF chapter' : 'page(s)'} • ${bytes(total)} total • <span>${hasPdf ? 'max 50 MB PDF' : 'max 1 MB/page'}</span>`
+      : '<span style="color:var(--text-muted)">No pages selected yet.</span>';
+
+    preview.innerHTML = queue.map((x, i) => {
+      const media = x.kind === 'pdf'
+        ? '<div class="pdf-preview-icon"><i class="fas fa-file-pdf"></i></div>'
+        : `<img src="${x.url}" alt="Page ${i + 1}" loading="lazy">`;
+      return `<div class="page-preview-item ${x.kind === 'pdf' ? 'pdf-preview-item' : ''}" draggable="${x.kind !== 'pdf'}" data-index="${i}">
+        <span class="drag-handle"><i class="fas ${x.kind === 'pdf' ? 'fa-file-pdf' : 'fa-grip-vertical'}"></i></span>
+        <b class="page-number">${i + 1}</b>
+        ${media}
+        <div class="page-preview-meta"><strong>${x.file.name}</strong><small>${bytes(x.file.size)}${x.kind === 'pdf' ? ' • PDF document' : ''}</small></div>
+        <button type="button" class="btn btn-secondary btn-sm page-remove" data-index="${i}" aria-label="Remove ${x.file.name}"><i class="fas fa-times"></i></button>
+      </div>`;
+    }).join('');
+
+    preview.querySelectorAll('.page-remove').forEach(btn => btn.addEventListener('click', () => {
+      const i = Number(btn.dataset.index);
+      if (queue[i]?.url) URL.revokeObjectURL(queue[i].url);
+      queue.splice(i, 1);
+      renderQueue();
+    }));
+
+    let from = null;
+    preview.querySelectorAll('.page-preview-item:not(.pdf-preview-item)').forEach(el => {
+      el.addEventListener('dragstart', () => { from = Number(el.dataset.index); el.classList.add('dragging'); });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      el.addEventListener('dragover', e => e.preventDefault());
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        const to = Number(el.dataset.index);
+        if (from === null || from === to) return;
+        const moved = queue.splice(from, 1)[0];
+        queue.splice(to, 0, moved);
+        from = null;
+        renderQueue();
+      });
+    });
+  }
+
+  function addFiles(files) {
+    const arr = Array.from(files || []);
+    if (!arr.length) return;
+    const pdfs = arr.filter(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+    const images = arr.filter(f => f.type.startsWith('image/'));
+
+    if (pdfs.length) {
+      if (pdfs.length !== 1 || images.length || queue.length) {
+        return showToast('Upload one PDF chapter by itself. Remove other pages first.', 'error');
+      }
+      const pdf = pdfs[0];
+      if (pdf.size > MAX_PDF) return showToast(`${pdf.name} is ${bytes(pdf.size)}. PDF chapters must be 50 MB or smaller.`, 'error');
+      queue = [{ file: pdf, kind: 'pdf', url: URL.createObjectURL(pdf) }];
+      renderQueue();
+      return;
+    }
+
+    if (!images.length) return showToast('Only JPG, PNG, WEBP, GIF images or one PDF are supported.', 'error');
+    if (queue.some(x => x.kind === 'pdf')) return showToast('Remove the PDF before selecting image pages.', 'error');
+    if (queue.length + images.length > MAX_PAGES) return showToast(`Maximum ${MAX_PAGES} pages per chapter.`, 'error');
+
+    for (const f of images) {
+      if (!/^image\/(jpeg|png|webp|gif)$/.test(f.type)) return showToast(`${f.name}: unsupported image format.`, 'error');
+      if (f.size > MAX_PAGE) return showToast(`${f.name} is ${bytes(f.size)}. Every image page must be 1 MB or smaller.`, 'error');
+    }
+    images.forEach(f => queue.push({ file: f, kind: 'image', url: URL.createObjectURL(f) }));
+    renderQueue();
+  }
+
+  if (dropzone && pagesInput) {
+    dropzone.onclick = () => pagesInput.click();
+    dropzone.ondragover = e => { e.preventDefault(); dropzone.classList.add('drag-active'); };
+    dropzone.ondragleave = () => dropzone.classList.remove('drag-active');
+    dropzone.ondrop = e => { e.preventDefault(); dropzone.classList.remove('drag-active'); addFiles(e.dataTransfer.files); };
+    pagesInput.onchange = () => { addFiles(pagesInput.files); pagesInput.value = ''; };
+  }
+
+  if (chapterForm) chapterForm.onsubmit = async e => {
+    e.preventDefault();
+    const btn = chapterForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    try {
+      const comicId = selectComicDropdown?.value;
+      if (!comicId) throw new Error('Please select a comic.');
+      if (!queue.length) throw new Error('Add at least one chapter page or a PDF.');
+      const n = parseFloat(document.getElementById('chapter-number').value);
+      if (!Number.isFinite(n) || n <= 0) throw new Error('Enter a valid chapter number.');
+      const title = document.getElementById('chapter-title').value.trim() || `Chapter ${n}`;
+      let pages;
+
+      if (queue[0].kind === 'pdf') {
+        const fd = new FormData();
+        fd.append('comicId', comicId);
+        fd.append('chapterId', `ch-${Date.now()}`);
+        fd.append('pdf', queue[0].file);
+        const up = await API.upload('/uploads/chapter-pdf', fd);
+        pages = [up.url];
+      } else {
+        const fd = new FormData();
+        fd.append('comicId', comicId);
+        fd.append('chapterId', `ch-${Date.now()}`);
+        queue.forEach(x => fd.append('pages', x.file));
+        const up = await API.upload('/uploads/chapter-pages', fd);
+        if ((up.urls || []).length !== queue.length) throw new Error('Some pages failed to upload. Please try again.');
+        pages = up.urls;
+      }
+
+      const r = await API.post('/chapters', { comicId, chapterNumber: n, title, pages });
+      showToast(r.message || 'Chapter submitted for admin review.', 'success');
+      cleanupQueueUrls();
+      queue = [];
+      renderQueue();
+      setTimeout(() => location.href = currentUser.role === 'admin' ? '/admin/chapters.html' : '/creator/dashboard.html', 700);
+    } catch (err) {
+      showToast(`Publishing failed: ${err.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Chapter for Review';
+    }
+  };
 });

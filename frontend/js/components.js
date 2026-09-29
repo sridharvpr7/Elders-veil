@@ -52,9 +52,11 @@ function renderNavbar(activePage = 'home') {
   const isCreator = !!(user && user.role === 'creator');
   const canAdminUpload = !!(user && user.role === 'admin');
 
-  const userAvatar = (user && user.avatar) 
-    ? user.avatar 
-    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+  const userAvatar = (user && user.avatar) ? API.assetUrl(user.avatar) : '';
+  const userInitial = String(user?.username || 'U').trim().charAt(0).toUpperCase() || 'U';
+  const avatarMarkup = userAvatar
+    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.style.display='none';this.nextElementSibling?.removeAttribute('hidden')" /><span class="avatar-placeholder" hidden>${userInitial}</span>`
+    : `<span class="avatar-placeholder">${userInitial}</span>`;
 
   const html = `
     <nav class="app-navbar" aria-label="Primary navigation">
@@ -120,7 +122,7 @@ function renderNavbar(activePage = 'home') {
             <div class="user-menu">
               <button class="user-avatar-btn" id="user-menu-btn" type="button" aria-label="Account menu"
                 aria-expanded="false" aria-controls="user-dropdown-menu">
-                <img src="${userAvatar}" class="avatar-img" alt="" />
+                ${avatarMarkup}
                 <span class="user-username-label">${user ? user.username : 'Account'}</span>
                 <i class="fas fa-chevron-down user-menu-chevron" aria-hidden="true"></i>
               </button>

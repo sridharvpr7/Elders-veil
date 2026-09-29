@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const bannerUrl = API.assetUrl(comic.bannerImage || comic.coverImage) || API.assetUrl('/assets/icon.png');
     const coverUrl = API.assetUrl(comic.coverImage) || API.assetUrl('/assets/icon.png');
-    const creator = comic.creator || { id: comic.creatorId, username: comic.author || 'Elder\'s Veil Creator', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', followers: 0 };
+    const creator = comic.creator || { id: comic.creatorId, username: comic.author || 'Elder\'s Veil Creator', avatar: '', followers: 0 };
 
     // Check user reading history for Continue Reading button
     let historyItem = null;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="comic-description-box" style="margin-top:1.5rem;">
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
           <div style="display:flex; align-items:center; gap:1rem;">
-            <img src="${API.assetUrl(creator.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" style="width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid var(--creator-accent);" alt="Creator Avatar" />
+            <img src="${API.assetUrl(creator.avatar) || ''}" style="width:54px; height:54px; border-radius:50%; object-fit:cover; border:2px solid var(--creator-accent);" alt="Creator Avatar" />
             <div>
               <div style="font-weight:700; font-size:1.1rem; color:var(--text);">${comic.author || creator.username || 'Creator'} <span class="badge badge-purple" style="font-size:0.65rem; margin-left:0.3rem;">CREATOR</span></div>
               <div style="font-size:0.85rem; color:var(--muted-text);"><i class="fas fa-users"></i> ${creator.followers || 0} Followers</div>
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div style="padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
               <div style="display:flex; align-items:center; gap:0.6rem;">
-                <img src="${API.assetUrl(c.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;" alt="Avatar" />
+                <img src="${API.assetUrl(c.avatar) || ''}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;" alt="Avatar" />
                 <span style="font-weight:700; font-size:0.9rem;">${c.username || 'Reader'}</span>
                 ${c.is_pinned ? '<span class="badge badge-purple" style="font-size:0.65rem;">PINNED</span>' : ''}
               </div>

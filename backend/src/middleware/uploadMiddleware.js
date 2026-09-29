@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
     if (file.fieldname === 'cover' || req.originalUrl.includes('/cover')) dest = dirs.covers;
     else if (file.fieldname === 'banner' || req.originalUrl.includes('/banner')) dest = dirs.banners;
     else if (file.fieldname === 'avatar' || req.originalUrl.includes('/avatar')) dest = dirs.avatars;
-    else if (file.fieldname === 'pages' || req.originalUrl.includes('/chapter-pages')) {
+    else if (file.fieldname === 'pages' || file.fieldname === 'pdf' || req.originalUrl.includes('/chapter-pages') || req.originalUrl.includes('/chapter-pdf')) {
       dest = path.join(
         dirs.comics,
         safeSegment(req.body.comicId),
@@ -46,15 +46,25 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const makeUpload = (size) =>
+const pdfFileFilter = (req, file, cb) => {
+  const mime = ['application/pdf'];
+  const ext = ['.pdf'];
+  const e = path.extname(file.originalname).toLowerCase();
+  if (mime.includes(file.mimetype) && ext.includes(e)) return cb(null, true);
+  cb(new Error('Invalid PDF file. Only PDF documents are allowed.'));
+};
+
+const makeUpload = (size, filter = fileFilter) =>
   multer({
     storage,
-    fileFilter,
+    fileFilter: filter,
     limits: { fileSize: size }
   });
 
 const upload = makeUpload(10 * 1024 * 1024);
-upload.chapterPageUpload = makeUpload(150 * 1024);
-upload.avatarUpload = makeUpload(50 * 1024);
+upload.chapterPageUpload = makeUpload(1 * 1024 * 1024);
+upload.avatarUpload = makeUpload(1 * 1024 * 1024);
+upload.pdfChapterUpload = makeUpload(50 * 1024 * 1024, pdfFileFilter);
+
 
 module.exports = upload;
