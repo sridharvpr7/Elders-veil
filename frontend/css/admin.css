@@ -185,3 +185,7 @@ body.draft-preview-open{overflow:hidden}
 .file-selection-status > i { color: #22c55e; }
 .file-selection-status strong { color: var(--text-primary); overflow-wrap: anywhere; }
 .file-selection-status small { color: var(--text-muted); }
+
+
+.admin-user-avatar-fallback { width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent-purple),var(--accent-pink));color:#fff;font-size:.9rem; }
+.admin-user-avatar-fallback[hidden] { display:none; }

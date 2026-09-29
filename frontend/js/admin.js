@@ -90,7 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <tr class="${['admin','super_admin'].includes(u.role)?'admin-pinned-row':''}">
             <td>
               <div style="display:flex; align-items:center; gap:0.75rem;">
-                <img src="${u.avatar || ''}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" alt="Avatar" />
+                ${u.avatar ? `<img src="${API.assetUrl(u.avatar)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex:0 0 36px;" alt="Avatar" onerror="this.style.display='none';this.nextElementSibling.hidden=false;" />` : ''}
+                <span class="admin-user-avatar-fallback" aria-hidden="true" ${u.avatar ? 'hidden' : ''}><i class="fas fa-user"></i></span>
                 <strong>${u.username}</strong>
               </div>
             </td>

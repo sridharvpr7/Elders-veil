@@ -279,12 +279,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderQueue();
   }
 
+  // Always bind the hidden file input. This fixes the admin upload page where
+  // the dropzone existed without the expected id, so file selection was ignored.
+  if (pagesInput) {
+    pagesInput.onchange = () => { addFiles(pagesInput.files); pagesInput.value = ''; };
+  }
   if (dropzone && pagesInput) {
-    dropzone.onclick = () => pagesInput.click();
+    const openPicker = () => pagesInput.click();
+    dropzone.onclick = openPicker;
+    dropzone.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPicker(); } };
     dropzone.ondragover = e => { e.preventDefault(); dropzone.classList.add('drag-active'); };
     dropzone.ondragleave = () => dropzone.classList.remove('drag-active');
     dropzone.ondrop = e => { e.preventDefault(); dropzone.classList.remove('drag-active'); addFiles(e.dataTransfer.files); };
-    pagesInput.onchange = () => { addFiles(pagesInput.files); pagesInput.value = ''; };
   }
 
   if (chapterForm) chapterForm.onsubmit = async e => {

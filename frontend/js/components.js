@@ -54,10 +54,12 @@ function renderNavbar(activePage = 'home') {
   const isCreator = !!(user && user.role === 'creator');
   const canAdminUpload = !!(user && user.role === 'admin');
 
+  // Safe avatar markup: do not put nested quoted HTML inside an inline onerror attribute.
+  // The old handler broke the navbar when an uploaded avatar failed to load.
   const userAvatar = (user && user.avatar) ? API.assetUrl(user.avatar) : '';
   const avatarFallback = '<span class="avatar-placeholder" aria-hidden="true"><i class="fas fa-user"></i></span>';
   const avatarMarkup = userAvatar
-    ? `<img src="${userAvatar}" class="avatar-img" alt="${user?.username || 'Profile'} avatar" onerror="this.outerHTML='${avatarFallback.replace(/'/g, "\\'")}'" />`
+    ? `<span class="avatar-display"><img src="${userAvatar}" class="avatar-img" data-user-avatar alt="Profile avatar"><span class="avatar-fallback" aria-hidden="true">${avatarFallback}</span></span>`
     : avatarFallback;
 
   const html = `
@@ -210,6 +212,18 @@ function renderNavbar(activePage = 'home') {
   const headerEl = document.getElementById('app-header');
   if (headerEl) {
     headerEl.innerHTML = html;
+
+    // Graceful fallback for missing/expired uploaded avatars.
+    headerEl.querySelectorAll('[data-user-avatar]').forEach((img) => {
+      const fallback = img.parentElement?.querySelector('.avatar-fallback');
+      const showFallback = () => {
+        img.hidden = true;
+        if (fallback) fallback.hidden = false;
+      };
+      if (fallback) fallback.hidden = true;
+      img.addEventListener('error', showFallback, { once: true });
+      if (img.complete && img.naturalWidth === 0) showFallback();
+    });
     
     // Bind desktop search input Enter key
     const searchInput = document.getElementById('global-search-input');

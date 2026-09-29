@@ -199,6 +199,13 @@
   flex-shrink: 0;
 }
 
+.avatar-display {
+  width: 32px; height: 32px; flex: 0 0 32px; position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.avatar-display .avatar-fallback { position: absolute; inset: 0; display: inline-flex; }
+.avatar-display .avatar-fallback[hidden], .avatar-display .avatar-img[hidden] { display: none; }
+
 .user-username-label {
   max-width: 120px;
   overflow: hidden;
