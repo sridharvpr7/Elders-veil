@@ -111,8 +111,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (pages.length === 0) {
       readerContainer.innerHTML = `
-        <div style="text-align:center; padding:5rem 1rem; color:var(--muted-text);">
-          <p>No page images uploaded for this chapter yet.</p>
+        <div class="reader-page-error" role="status">
+          <i class="fas fa-images" aria-hidden="true"></i>
+          <strong>No page images are linked to this chapter.</strong>
+          <span>If pages were uploaded before a server redeploy, the upload storage may have been temporary. Restore persistent upload storage and upload the missing pages again.</span>
         </div>
       `;
     } else {
@@ -128,10 +130,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         readerContainer.innerHTML = pages.map((url, idx) => `
           <div class="reader-image-wrap" id="page-${idx + 1}" data-page="${idx + 1}">
-            <img src="${API.assetUrl(url)}" class="reader-image" alt="Page ${idx + 1}" loading="${idx < 3 ? 'eager' : 'lazy'}" decoding="async" onerror="this.onerror=null;this.src='/assets/icon.png';" />
+          <img src="${API.assetUrl(url)}" class="reader-image" alt="Page ${idx + 1}" loading="${idx < 3 ? 'eager' : 'lazy'}" decoding="async" />
           </div>
         `).join('');
       }
+
+      // Do not silently replace a missing comic page with the site icon. Keep
+      // the failed page visible and give readers a direct retry/open action.
+      readerContainer.querySelectorAll('.reader-image').forEach(img => {
+        img.addEventListener('error', () => {
+          if (img.dataset.failed === 'true') return;
+          img.dataset.failed = 'true';
+          img.hidden = true;
+          const message = document.createElement('div');
+          message.className = 'reader-page-error';
+          message.setAttribute('role', 'alert');
+          message.innerHTML = '<i class="fas fa-triangle-exclamation" aria-hidden="true"></i><strong>This page image could not be loaded.</strong><span>The upload may be missing from the server. If this began after a redeploy, restore persistent upload storage and re-upload any lost pages.</span>';
+          const actions = document.createElement('div');
+          actions.className = 'reader-page-error-actions';
+          const retry = document.createElement('button');
+          retry.type = 'button';
+          retry.className = 'btn btn-secondary btn-sm';
+          retry.textContent = 'Try again';
+          retry.addEventListener('click', () => {
+            message.remove();
+            img.dataset.failed = 'false';
+            img.hidden = false;
+            img.src = img.src;
+          });
+          const open = document.createElement('a');
+          open.className = 'btn btn-secondary btn-sm';
+          open.href = img.src;
+          open.target = '_blank';
+          open.rel = 'noopener noreferrer';
+          open.textContent = 'Open image';
+          actions.append(retry, open);
+          message.append(actions);
+          img.parentElement.append(message);
+        });
+      });
     }
 
     applyReaderPrefs();
